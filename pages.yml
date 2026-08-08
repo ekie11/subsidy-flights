@@ -1,0 +1,104 @@
+name: Публикация витрины на GitHub Pages
+
+# Сборщик и витрина живут в одном воркфлоу: Actions умеет ходить в интернет,
+# поэтому отдельный VPS для MVP не нужен. Как только понадобится опрос чаще
+# раза в 15 минут или гарантированное расписание — переносить на VPS.
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    # Каждые 15 минут. Внимание: расписание в Actions не гарантированное,
+    # при нагрузке на раннеры запуск задерживается на 5-20 минут и может
+    # быть пропущен. Для MVP терпимо, для боевого мониторинга — нет.
+    - cron: "*/15 * * * *"
+  workflow_dispatch:        # кнопка «запустить вручную» во вкладке Actions
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Параллельные запуски отменяем: две сборки, пишущие одну страницу, не нужны.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      # История наличия мест нужна для алертов «места появились / кончились»:
+      # без неё каждый запуск считает, что видит рейсы впервые. Раннер
+      # одноразовый, поэтому БД переносим кэшем между запусками.
+      - name: Восстановить базу наблюдений
+        uses: actions/cache/restore@v4
+        with:
+          path: data
+          key: subsidy-db-${{ github.run_id }}
+          restore-keys: |
+            subsidy-db-
+
+      - name: Собрать данные и витрину
+        env:
+          BILETDV_PARTNER_ID: ${{ secrets.BILETDV_PARTNER_ID }}
+          BILETDV_API_URL: ${{ secrets.BILETDV_API_URL }}
+          BILETDV_LOGIN: ${{ secrets.BILETDV_LOGIN }}
+          BILETDV_PASSWORD: ${{ secrets.BILETDV_PASSWORD }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          set -e
+          # Живой режим включаем только когда есть боевой PartnerID.
+          # Иначе собираем демо на фикстуре — страница выйдет с баннером
+          # «демо» и мета-тегом noindex, никого не введя в заблуждение.
+          if [ -n "$BILETDV_PARTNER_ID" ] && [ "$BILETDV_PARTNER_ID" != "KirillTest" ]; then
+            echo "режим: LIVE"
+            python collector.py --live --site --report
+          else
+            echo "режим: DEMO (боевой PartnerID не задан в secrets)"
+            python collector.py --site --report
+          fi
+
+      - name: Проверить, что собралось
+        run: |
+          test -s data/index.html || { echo "витрина пустая"; exit 1; }
+          python colorcheck.py data/index.html
+
+      - name: Подготовить артефакт
+        run: |
+          mkdir -p _site
+          cp data/index.html _site/index.html
+          # .nojekyll: без него Pages прогоняет содержимое через Jekyll
+          # и молча выбрасывает файлы, начинающиеся с подчёркивания.
+          touch _site/.nojekyll
+
+      - name: Сохранить базу наблюдений
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: data
+          key: subsidy-db-${{ github.run_id }}
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

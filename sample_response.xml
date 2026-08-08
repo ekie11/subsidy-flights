@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Фикстура для dry-run: структура воспроизводит форму ответа партнёрского API
+  (Flight -> Segment -> Fare c AvailQty / FareCode / MRID / BookURL).
+  ЗАМЕНИТЬ на реальный сохранённый ответ, как только будет боевой доступ:
+    curl "<API_URL>?..." > fixtures/sample_response.xml
+-->
+<AirSearchResponse RequestId="test-0001" PartnerID="KirillTest">
+  <Flights>
+
+    <Flight ID="F1" Origin="KHV" Destination="MOW" DepartureDate="2026-10-01">
+      <Segment FlightNumber="SU 1710" Airline="SU"
+               DepartureTime="2026-10-01T07:35:00"
+               ArrivalTime="2026-10-01T09:05:00"/>
+      <Fares>
+        <Fare FareCode="PZZSOC" MRID="DV-2026-0431" AvailQty="9"
+              Price="10800" Currency="RUB"
+              BookURL="https://biletdv.ru/book?offer=F1&amp;partner=KirillTest"/>
+        <Fare FareCode="YFLEX" AvailQty="42" Price="38900" Currency="RUB"
+              BookURL="https://biletdv.ru/book?offer=F1y&amp;partner=KirillTest"/>
+      </Fares>
+    </Flight>
+
+    <Flight ID="F2" Origin="KHV" Destination="MOW" DepartureDate="2026-10-01">
+      <Segment FlightNumber="S7 5209" Airline="S7"
+               DepartureTime="2026-10-01T14:20:00"
+               ArrivalTime="2026-10-01T15:55:00"/>
+      <Fares>
+        <Fare FareCode="PZZSOC" MRID="DV-2026-0432" AvailQty="2"
+              Price="10800" Currency="RUB"
+              BookURL="https://biletdv.ru/book?offer=F2&amp;partner=KirillTest"/>
+      </Fares>
+    </Flight>
+
+    <Flight ID="F3" Origin="KHV" Destination="MOW" DepartureDate="2026-10-01">
+      <Segment FlightNumber="HZ 5601" Airline="HZ"
+               DepartureTime="2026-10-01T21:10:00"
+               ArrivalTime="2026-10-01T22:40:00"/>
+      <Fares>
+        <Fare FareCode="PZZSOC" MRID="DV-2026-0433" AvailQty="0"
+              Price="10800" Currency="RUB"
+              BookURL="https://biletdv.ru/book?offer=F3&amp;partner=KirillTest"/>
+      </Fares>
+    </Flight>
+
+  </Flights>
+</AirSearchResponse>

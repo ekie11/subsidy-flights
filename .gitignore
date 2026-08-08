@@ -1,0 +1,18 @@
+# Данные сборщика: БД, логи, сырые ответы API, собранные страницы
+data/
+
+# Секреты — только в GitHub Secrets или локальном .env, никогда в репозиторий
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Node (нужен только для uitest.js)
+node_modules/
+package-lock.json
+
+# Прочее
+.DS_Store
