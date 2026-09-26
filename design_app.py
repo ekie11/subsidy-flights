@@ -24,8 +24,8 @@ from pathlib import Path
 
 import cities
 import config
+from datajson import rows_to_data as _rows_to_data, to_json as _json
 from db import Database
-from webapp import _json, _rows_to_data
 
 TEMPLATE_PATH = Path(__file__).resolve().parent / "design" / "index.html"
 DEFAULT_OUT = config.DATA_DIR / "design" / "index.html"
