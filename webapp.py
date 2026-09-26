@@ -220,7 +220,7 @@ def build(out_path: Path | str | None = None, db: Database | None = None) -> Pat
 
   <div class="sec" id="cal">
     <div class="sec-h"><h2>Календарь мест</h2>
-      <div class="sub">сколько свободно по дням на выбранном направлении</div></div>
+      <div class="sub">сколько мест и почём по дням на выбранном направлении</div></div>
     <div class="cal">
       <div class="cal-top">
         <h3 id="calTitle">—</h3>

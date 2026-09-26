@@ -186,7 +186,11 @@ function renderPopular(){
 /* ---------- календарь ---------- */
 function renderCalendar(){
   const need=seatsNeeded(), by={};
-  DATA.filter(matches).forEach(f=>{by[f.dt]=(by[f.dt]||0)+(f.q>=need?f.q:0)});
+  DATA.filter(matches).forEach(f=>{
+    if(!by[f.dt]) by[f.dt]={q:0,p:Infinity};
+    by[f.dt].q+=(f.q>=need?f.q:0);
+    if(f.q>=need && f.p>0) by[f.dt].p=Math.min(by[f.dt].p,f.p);
+  });
   const [y,m]=state.calMonth.split('-').map(Number);
   $('#calTitle').textContent=MONTHS_N[m-1]+' '+y;
 
@@ -196,13 +200,16 @@ function renderCalendar(){
   for(let i=0;i<start;i++) cells+='<div class="day void"></div>';
   for(let d=1;d<=days;d++){
     const iso=`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    const q=by[iso];
+    const cell=by[iso];
     const known=Object.prototype.hasOwnProperty.call(by,iso);
+    const q=cell?cell.q:0;
     const cls=!known?'unknown':(q===0?'none':(q<=LOW?'low':'has'));
     const sel=iso===state.date?' sel':'';
+    const priceHtml = (q && cell.p<Infinity)
+      ? `<span class="p">${nf.format(cell.p)} ₽</span>` : '';
     cells+=`<button class="day ${cls}${sel}" ${known?`onclick="goDate('${iso}')"`:'disabled'}>
       <span class="n">${d}</span>
-      <span class="q">${known?(q?q:'—'):'·'}</span></button>`;
+      <span class="q">${known?(q?q:'—'):'·'}</span>${priceHtml}</button>`;
   }
   $('#calGrid').innerHTML=cells;
   $('#calPrev').onclick=()=>shiftMonth(-1);

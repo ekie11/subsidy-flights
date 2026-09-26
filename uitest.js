@@ -111,16 +111,26 @@ function runChecks() {
   const need = st.adults + st.children;
   const byDate = {};
   DATA.filter(f => f.o === st.from && f.d === st.to)
-      .forEach(f => { byDate[f.dt] = (byDate[f.dt] || 0) + (f.q >= need ? f.q : 0); });
-  const sample = Object.keys(byDate).find(d => byDate[d] > 0);
+      .forEach(f => {
+        if (!byDate[f.dt]) byDate[f.dt] = { q: 0, p: Infinity };
+        byDate[f.dt].q += (f.q >= need ? f.q : 0);
+        if (f.q >= need && f.p > 0) byDate[f.dt].p = Math.min(byDate[f.dt].p, f.p);
+      });
+  const sample = Object.keys(byDate).find(d => byDate[d].q > 0);
   const dayNum = Number(sample.slice(8));
   const cell = days.find(d => Number(d.querySelector('.n').textContent) === dayNum
                               && !d.classList.contains('unknown'));
   check('в ячейке дня стоит верное число мест',
-        cell && cell.querySelector('.q').textContent === String(byDate[sample]),
-        cell ? `${cell.querySelector('.q').textContent} вместо ${byDate[sample]}` : 'ячейка не найдена');
+        cell && cell.querySelector('.q').textContent === String(byDate[sample].q),
+        cell ? `${cell.querySelector('.q').textContent} вместо ${byDate[sample].q}` : 'ячейка не найдена');
   check('дни вне мониторинга не кликаются',
         $$('.day.unknown').every(d => d.disabled));
+  const nf = new window.Intl.NumberFormat('ru-RU');
+  const expectedPrice = byDate[sample].p < Infinity ? `${nf.format(byDate[sample].p)} ₽` : null;
+  const priceEl = cell && cell.querySelector('.p');
+  check('в ячейке дня показана минимальная цена',
+        expectedPrice ? (priceEl && priceEl.textContent === expectedPrice) : !priceEl,
+        priceEl ? priceEl.textContent : 'цена не найдена');
   check('выбранный день подсвечен', $$('.day.sel').length === 1,
         String($$('.day.sel').length));
 
