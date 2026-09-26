@@ -578,6 +578,7 @@ def _rows_to_data(rows) -> list[dict]:
             "tm": r["depart_time"] or "",
             "ar": r["arrive_time"] or "",
             "fn": r["flight_number"] or "",
+            "al": r["airline"] or "",
             "fc": r["fare_code"] or "",
             "q": int(r["avail_qty"] or 0),
             "p": float(r["price"] or 0),

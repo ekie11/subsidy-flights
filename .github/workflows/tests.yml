@@ -25,7 +25,20 @@ jobs:
 
       - name: Интерфейс витрины
         run: |
+          # uitest.js проверяет реальную выдачу (рейсы, календарь, форму
+          # поиска), поэтому сперва наполняем БД демо-данными из фикстуры —
+          # без этого DATA на странице пустой и большинство проверок ложно
+          # не находят, что тестировать.
+          python collector.py --site
           python webapp.py --out /tmp/index.html
           python colorcheck.py /tmp/index.html
           npm install --no-save jsdom
           node uitest.js /tmp/index.html
+
+      - name: Макет /design/ на реальных данных
+        run: |
+          # colorcheck.py заточен под палитру webapp.py и не знает токены
+          # дизайна из design/ (там своя, отдельно проверенная схема) —
+          # здесь только убеждаемся, что сборка на реальных данных не падает.
+          python design_app.py --out /tmp/design-index.html
+          test -s /tmp/design-index.html

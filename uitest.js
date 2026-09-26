@@ -29,6 +29,22 @@ const errors = [];
 window.addEventListener('error', e => errors.push(e.message));
 
 window.addEventListener('load', () => {
+  // Исключение внутри обработчика 'load' в jsdom не всплывает наверх и не
+  // валит процесс — оно просто «репортится» в консоль, а весь код после
+  // места падения молча не выполняется (в том числе итоговый process.exit).
+  // Без этого try/catch тест на реальном крэше обрезает вывод и выходит
+  // с кодом 0, будто всё прошло.
+  try {
+    runChecks();
+  } catch (e) {
+    console.error('\nCRASH: необработанное исключение прервало тест — ' + (e && e.stack || e));
+    console.log('\n' + '='.repeat(52));
+    console.log(`пройдено: ${passed}   провалено: ${failed + 1} (тест не дошёл до конца)`);
+    process.exit(1);
+  }
+});
+
+function runChecks() {
   const doc = window.document;
   const $ = s => doc.querySelector(s);
   const $$ = s => [...doc.querySelectorAll(s)];
@@ -219,4 +235,4 @@ window.addEventListener('load', () => {
   console.log('\n' + '='.repeat(52));
   console.log(`пройдено: ${passed}   провалено: ${failed}`);
   process.exit(failed ? 1 : 0);
-});
+}
