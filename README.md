@@ -23,9 +23,11 @@
 | `collector.py` | Оркестратор: маршруты × даты → парсинг → БД → алерты |
 | `report.py` | Служебное HTML-табло для себя: что собрано, какие были события |
 | `webapp.py` | **Публичная витрина поиска** — статический сайт из данных БД |
+| `assets/webapp.css`, `assets/webapp.js` | Стили и клиентский код витрины (правятся отдельно от Python, `webapp.py` вшивает их в страницу при сборке) |
+| `subscribe_api.py` | Приём формы «сообщить, когда появятся места» — `/api/subscribe`, отдельный процесс (см. «Подписка на уведомления» ниже) |
 | `cities.py` | Справочник аэропортов ДФО и категорий субсидий |
-| `selftest.py` | Автотест пайплайна без сети (46 проверок) |
-| `uitest.js` | UI-тест витрины в jsdom (25 проверок) |
+| `selftest.py` | Автотест пайплайна без сети (60 проверок) |
+| `uitest.js` | UI-тест витрины в jsdom (37 проверок) |
 | `fixtures/sample_response.xml` | Тестовый ответ API |
 
 ---
@@ -122,6 +124,7 @@ server {
   index index.html;
   location / { try_files $uri $uri/ =404; add_header Cache-Control "max-age=300"; }
   location /report.html { auth_basic "admin"; auth_basic_user_file /etc/nginx/.htpasswd; }
+  location /api/subscribe { proxy_pass http://127.0.0.1:8787; }
 }
 ```
 
@@ -129,6 +132,61 @@ server {
 внутреннюю кухню (частоту сбора, историю алертов, PartnerID).
 
 В cron добавьте `--site`, чтобы витрина пересобиралась вместе с отчётом.
+`location /api/subscribe` нужен, только если включена подписка — см. ниже.
+
+---
+
+## Подписка на уведомления
+
+Форма «сообщить, когда появятся места» на витрине по умолчанию честно
+говорит, что не подключена — так и должно быть везде, где `subscribe_api.py`
+не запущен (в первую очередь GitHub Pages: это статика, бэкенду там неоткуда
+взяться). На VPS, где есть постоянно работающий процесс, включить можно:
+
+```bash
+# .env
+SUBSIDY_SUBSCRIBE_ENABLED=1
+SUBSIDY_SUBSCRIBE_HOST=127.0.0.1
+SUBSIDY_SUBSCRIBE_PORT=8787
+```
+
+`subscribe_api.py` — долгоживущий процесс (не разовый скрипт вроде
+`collector.py`), держите его под systemd:
+
+```ini
+# /etc/systemd/system/subsidy-subscribe.service
+[Unit]
+Description=Приём подписок subsidy-flights
+After=network.target
+
+[Service]
+WorkingDirectory=/opt/subsidy
+EnvironmentFile=/opt/subsidy/.env
+ExecStart=/opt/subsidy/.venv/bin/python subscribe_api.py
+Restart=on-failure
+User=subsidy
+
+[Install]
+WantedBy=multi-user.target
+```
+
+```bash
+sudo systemctl enable --now subsidy-subscribe
+```
+
+Добавьте `location /api/subscribe` в nginx (пример выше) и пересоберите
+витрину (`collector.py --site` или `webapp.py`) — флаг `SUBSIDY_SUBSCRIBE_ENABLED`
+читается при сборке страницы, а не в рантайме браузера.
+
+Подписки лежат в таблице `subscriptions` той же SQLite, что и наблюдения —
+отдельной БД под них нет. Рассылку по появившимся местам скрипт не делает,
+это следующий шаг: `db.subscriptions_for_route(origin, destination)` отдаёт
+ожидающих подписчиков, `db.mark_subscription_notified(id)` — гасит подписку
+после отправки.
+
+Приём e-mail — это обработка персональных данных (152-ФЗ): уведомление
+Роскомнадзора, политика обработки, хранение в РФ. Включайте
+`SUBSIDY_SUBSCRIBE_ENABLED` осознанно, а не как техническую настройку.
 
 ---
 
@@ -167,7 +225,7 @@ Telegram включается парой `TELEGRAM_BOT_TOKEN` + `TELEGRAM_CHAT_I
 
 ## Результат прогона
 
-`selftest.py` — 39 проверок, все зелёные. End-to-end на фикстуре
+`selftest.py` — 60 проверок, все зелёные. End-to-end на фикстуре
 (2 маршрута × 30 дат): 60 запросов, 180 тарифов, 0 ошибок; при подмене
 наличия во втором прогоне корректно сработали `restock` (0 → 6),
 `soldout` (2 → 0) и `drop` (9 → 2), кулдаун подавил повторы.
@@ -185,11 +243,13 @@ Telegram включается парой `TELEGRAM_BOT_TOKEN` + `TELEGRAM_CHAT_I
   папки). На VPS это не проблема; если всё же нужен сетевой том — вынесите
   БД на локальный диск через `SUBSIDY_DB_PATH` или уберите
   `PRAGMA journal_mode=WAL` в `db.py`.
-* **Подписка на витрине пока не работает.** Форма «сообщить, когда появятся
-  места» открывается и валидируется, но ничего не отправляет: для приёма
-  адресов нужен минимальный бэкенд (эндпоинт `/api/subscribe` + таблица
-  подписок) — статикой это не закрыть. Это следующая по важности доработка:
-  подписка и есть отличие сервиса от обычного поисковика.
+* **Подписка принимает адреса, но не рассылает.** Бэкенд есть
+  (`subscribe_api.py` + таблица `subscriptions`, включается
+  `SUBSIDY_SUBSCRIBE_ENABLED` — см. «Подписка на уведомления»), но выключен
+  по умолчанию и нигде не подключён на GitHub Pages — там это статика,
+  проксировать `/api/subscribe` некуда. Уведомление подписчиков при
+  появлении мест (`restock`) собранные адреса пока не рассылает — это
+  следующий шаг: подключить `db.subscriptions_for_route()` в `alerts.py`.
 * **Категория льготы не фильтрует выдачу.** В ответе партнёра мы видим единый
   код `PZZSOC`; отдельных кодов под молодёжную, многодетную и прочие субсидии
   не встречали. Пока категория меняет только памятку о документах. Коды нужно

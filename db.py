@@ -64,6 +64,16 @@ CREATE TABLE IF NOT EXISTS runs (
     dry_run      INTEGER DEFAULT 0,
     note         TEXT
 );
+
+CREATE TABLE IF NOT EXISTS subscriptions (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    created_at   TEXT NOT NULL,
+    contact      TEXT NOT NULL,
+    origin       TEXT,
+    destination  TEXT,
+    notified_at  TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_subs_route ON subscriptions(origin, destination);
 """
 
 
@@ -204,3 +214,27 @@ class Database:
         with self.connect() as conn:
             return list(conn.execute(
                 "SELECT * FROM runs ORDER BY id DESC LIMIT ?", (limit,)))
+
+    # ------------------------------------------------------------ подписки
+
+    def add_subscription(self, contact: str, origin: str = "",
+                         destination: str = "") -> int:
+        with self.connect() as conn:
+            cur = conn.execute("""
+                INSERT INTO subscriptions (created_at, contact, origin, destination)
+                VALUES (?,?,?,?)
+            """, (utcnow(), contact, origin or None, destination or None))
+            return int(cur.lastrowid)
+
+    def subscriptions_for_route(self, origin: str, destination: str,
+                                only_pending: bool = True) -> list[sqlite3.Row]:
+        sql = "SELECT * FROM subscriptions WHERE origin=? AND destination=?"
+        if only_pending:
+            sql += " AND notified_at IS NULL"
+        with self.connect() as conn:
+            return list(conn.execute(sql, (origin, destination)))
+
+    def mark_subscription_notified(self, sub_id: int) -> None:
+        with self.connect() as conn:
+            conn.execute("UPDATE subscriptions SET notified_at=? WHERE id=?",
+                        (utcnow(), sub_id))
