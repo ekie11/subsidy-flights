@@ -218,7 +218,7 @@ document.addEventListener('DOMContentLoaded', function () {
   function cardHtml(f) {
     var need = seatsNeeded();
     var st = f.q === 0 ? 'none' : (f.q < need ? 'short' : (f.q <= LOW ? 'low' : 'ok'));
-    var canBuy = (st === 'ok' || st === 'low') && !META.demo && !!f.url;
+    var canBuy = (st === 'ok' || st === 'low') && !!f.url;
     var seatsHtml = st === 'none'
       ? '<b data-seats>Мест нет</b>'
       : '<b data-seats>' + f.q + '</b><span class="u" data-unit>' + plural(f.q, SEAT_FORMS) + ' по ' + fmtPrice(f.p) + '</span>';
