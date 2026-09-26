@@ -34,3 +34,11 @@ jobs:
           python colorcheck.py /tmp/index.html
           npm install --no-save jsdom
           node uitest.js /tmp/index.html
+
+      - name: Макет /design/ на реальных данных
+        run: |
+          # colorcheck.py заточен под палитру webapp.py и не знает токены
+          # дизайна из design/ (там своя, отдельно проверенная схема) —
+          # здесь только убеждаемся, что сборка на реальных данных не падает.
+          python design_app.py --out /tmp/design-index.html
+          test -s /tmp/design-index.html
