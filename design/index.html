@@ -16,92 +16,23 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<link rel="stylesheet" href="assets/tokens.css">
 <script defer src="https://cdn.jsdelivr.net/npm/motion@11.18.2/dist/motion.js"></script>
 <style>
-/* ============================================================
-   ТОКЕНЫ
-   Светлая тема: ночь в шапке, день на странице (одна смена темы,
-   как рассвет после ночного рейса). Тёмная тема продолжает ночь
-   на всю страницу. Все пары текст/фон проверены на WCAG AA.
-
-   Радиусы: чипы и категории пилюлями; кнопки, поля, дни календаря 10px;
-   карточки 14px; большие поверхности 20px.
-   Слои: меню 20, уведомление 30, ссылка «к содержимому» 40.
-   ============================================================ */
-:root{
-  --night:#0d1733; --night-2:#16234c; --night-3:#22315f;
-  --cta:#f5a524; --cta-hover:#e8980f; --cta-ink:#3a2600;
-
-  --bg:#f6f7fb; --surface:#ffffff; --surface-2:#eef1f7;
-  --ink:#141a29; --ink-2:#3f4a60; --dim:#5b6577; --faint:#666f83;
-  --line:#e2e6ef; --line-2:#cdd4e6;
-  --brand:#1e3163; --brand-ink:#ffffff; --brand-soft:#eaeefa; --brand-line:#c9d3f0;
-  --green:#12784a; --green-bg:#e7f3ec;
-  --amber:#96600a; --amber-bg:#fdf3e2;
-  --red:#be3229;
-  --focus-surface:#1e3163;
-  --shadow-card:0 1px 2px rgba(20,32,70,.05),0 10px 28px rgba(20,32,70,.07);
-
-  --r-sm:10px; --r:14px; --r-lg:20px;
-  --gutter:clamp(16px,4vw,28px);
-  --ease:cubic-bezier(.16,1,.3,1);
-  --focus:var(--focus-surface);
-}
-@media (prefers-color-scheme:dark){
-  :root:not([data-theme="light"]){
-    --bg:#0c1430; --surface:#131d3d; --surface-2:#1a2549;
-    --ink:#eef1f8; --ink-2:#c9d0e3; --dim:#a8b1c9; --faint:#8f99b5;
-    --line:#26325b; --line-2:#34416e;
-    --brand:#b9c6f0; --brand-ink:#0c1430; --brand-soft:#18224a; --brand-line:#2c3a6e;
-    --green:#5fd49a; --green-bg:#11352a;
-    --amber:#f2b453; --amber-bg:#3a2a10;
-    --red:#ff8a80;
-    --focus-surface:#f5a524;
-    --shadow-card:0 1px 2px rgba(0,0,0,.2),0 10px 28px rgba(0,0,0,.25);
-  }
-}
-:root[data-theme="dark"]{
-  --bg:#0c1430; --surface:#131d3d; --surface-2:#1a2549;
-  --ink:#eef1f8; --ink-2:#c9d0e3; --dim:#a8b1c9; --faint:#8f99b5;
-  --line:#26325b; --line-2:#34416e;
-  --brand:#b9c6f0; --brand-ink:#0c1430; --brand-soft:#18224a; --brand-line:#2c3a6e;
-  --green:#5fd49a; --green-bg:#11352a;
-  --amber:#f2b453; --amber-bg:#3a2a10;
-  --red:#ff8a80;
-  --focus-surface:#f5a524;
-  --shadow-card:0 1px 2px rgba(0,0,0,.2),0 10px 28px rgba(0,0,0,.25);
-}
-
-/* ---------------- база ---------------- */
-*,*::before,*::after{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
-@media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
-body{
-  margin:0;background:var(--bg);color:var(--ink);
-  font:400 17px/1.5 Onest,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
-}
-[hidden]{display:none!important}
+/* Стили, специфичные для витрины. Общие токены, тёмная тема и база —
+   в assets/tokens.css (используется вместе с design/checkout.html).
+   Слои: меню 20, уведомление 30, ссылка «к содержимому» 40. */
 .wrap{max-width:1180px;margin-inline:auto;
   padding-inline:max(var(--gutter),env(safe-area-inset-left)) max(var(--gutter),env(safe-area-inset-right))}
 h1,h2,h3{margin:0;font-weight:800;letter-spacing:-.025em;line-height:1.08;text-wrap:balance}
 h1{font-size:clamp(32px,3.9vw,54px);letter-spacing:-.034em;line-height:1.04}
 h2{font-size:clamp(26px,3vw,38px)}
 h3{font-size:19px;letter-spacing:-.015em;line-height:1.25}
-p{text-wrap:pretty}
-a{color:inherit}
-button,input,select{font:inherit;color:inherit}
-.num{font-variant-numeric:tabular-nums}
-.sr{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
-:focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:6px}
-[tabindex="-1"]:focus{outline:none}
+body{text-rendering:optimizeLegibility}
 
 .skip{position:absolute;left:16px;top:-64px;z-index:40;background:var(--cta);color:var(--cta-ink);
   padding:10px 16px;border-radius:var(--r-sm);font-weight:700;text-decoration:none;transition:top .2s var(--ease)}
 .skip:focus{top:12px}
-
-.demo p{margin:0}
-.demo{margin:0;background:var(--amber-bg);color:var(--amber);font-size:14px;line-height:1.4;padding:9px var(--gutter);text-align:center}
 
 /* ---------------- ночная шапка ---------------- */
 .night{

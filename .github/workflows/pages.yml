@@ -82,11 +82,14 @@ jobs:
           # design_app.py из тех же данных, что и основная витрина (та же БД,
           # тот же демо-баннер/noindex при отсутствии боевого PartnerID);
           # checkout.html статичный — данные рейса ему передают через адрес.
+          # Обе страницы подключают общие токены из design/assets/ — без них
+          # придут без стилей.
           if [ -d design ]; then
             mkdir -p _site/design
             python design_app.py --out _site/design/index.html
             test -s _site/design/index.html || { echo "design-витрина пустая"; exit 1; }
             cp design/checkout.html _site/design/checkout.html
+            if [ -d design/assets ]; then cp -r design/assets _site/design/assets; fi
           fi
           # .nojekyll: без него Pages прогоняет содержимое через Jekyll
           # и молча выбрасывает файлы, начинающиеся с подчёркивания.

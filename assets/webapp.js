@@ -1,0 +1,294 @@
+const $ = (s,r=document)=>r.querySelector(s);
+const $$ = (s,r=document)=>[...r.querySelectorAll(s)];
+const state = {from:'',to:'',date:'',adults:1,children:0,infants:0,cat:'dfo',sort:'time',calMonth:''};
+
+const nf = new Intl.NumberFormat('ru-RU');
+const MONTHS=['января','февраля','марта','апреля','мая','июня','июля','августа',
+              'сентября','октября','ноября','декабря'];
+const MONTHS_N=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август',
+                'Сентябрь','Октябрь','Ноябрь','Декабрь'];
+const DOW=['пн','вт','ср','чт','пт','сб','вс'];
+
+const seatsNeeded = ()=> state.adults + state.children;   // младенцы летят на руках
+const cityName = c => (AIRPORTS[c]||{}).city || c;
+
+function fmtDate(iso){
+  const d=new Date(iso+'T00:00:00');
+  return d.getDate()+' '+MONTHS[d.getMonth()];
+}
+function plural(n,a,b,c){
+  const m=n%100, k=n%10;
+  if(m>=11&&m<=14) return c;
+  if(k===1) return a;
+  if(k>=2&&k<=4) return b;
+  return c;
+}
+
+/* ---------- инициализация ---------- */
+function fillSelect(sel, selected){
+  const dfo=[],rest=[];
+  Object.entries(AIRPORTS).forEach(([code,a])=>(a.dfo?dfo:rest).push([code,a]));
+  const grp=(title,list)=>{
+    if(!list.length) return '';
+    return `<optgroup label="${title}">`+list
+      .sort((a,b)=>a[1].city.localeCompare(b[1].city,'ru'))
+      .map(([c,a])=>`<option value="${c}"${c===selected?' selected':''}>${a.city}</option>`)
+      .join('')+'</optgroup>';
+  };
+  sel.innerHTML = grp('Дальний Восток',dfo)+grp('Другие города',rest);
+}
+
+function init(){
+  const first = ROUTES[0] || {origin:'KHV',destination:'MOW'};
+  state.from=first.origin; state.to=first.destination;
+  fillSelect($('#from'),state.from);
+  fillSelect($('#to'),state.to);
+
+  const dates=[...new Set(DATA.map(f=>f.dt))].sort();
+  state.date = dates.find(d=>DATA.some(f=>f.dt===d&&f.q>0)) || dates[0] || META.today;
+  $('#date').value=state.date;
+  if(dates.length){ $('#date').min=dates[0]; $('#date').max=dates[dates.length-1]; }
+  state.calMonth=state.date.slice(0,7);
+
+  $('#from').onchange=e=>{state.from=e.target.value;search()};
+  $('#to').onchange=e=>{state.to=e.target.value;search()};
+  $('#date').onchange=e=>{state.date=e.target.value;state.calMonth=state.date.slice(0,7);search()};
+  $('#swap').onclick=()=>{[state.from,state.to]=[state.to,state.from];
+    $('#from').value=state.from;$('#to').value=state.to;search()};
+  $('#find').onclick=search;
+  $('#sort').onchange=e=>{state.sort=e.target.value;search()};
+
+  $('#paxBtn').onclick=e=>{e.stopPropagation();$('#paxPop').classList.toggle('open')};
+  document.addEventListener('click',()=>$('#paxPop').classList.remove('open'));
+  $('#paxPop').onclick=e=>e.stopPropagation();
+  $$('.step').forEach(b=>b.onclick=()=>{
+    state[b.dataset.k]+=(+b.dataset.d);
+    renderPax(); search();          // корректность состава чинит clampPax()
+  });
+
+  $$('.cat').forEach(b=>b.onclick=()=>{
+    $$('.cat').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on'); state.cat=b.dataset.id; renderNote();
+  });
+
+  $('#watchClose').onclick=()=>$('#watch').classList.remove('open');
+  $('#watchSave').onclick=submitWatch;
+
+  renderPax(); renderNote(); renderPopular(); search();
+}
+
+/* ---------- поиск ---------- */
+function matches(f){ return f.o===state.from && f.d===state.to; }
+
+function search(){
+  clampPax();
+  const need=seatsNeeded();
+  const onDate=DATA.filter(f=>matches(f)&&f.dt===state.date);
+  const fit=onDate.filter(f=>f.q>=need);
+  renderBoard(fit,onDate,need);
+  renderCalendar();
+  $('#fromCode').textContent=state.from;
+  $('#toCode').textContent=state.to;
+  $('#routeTitle').textContent=cityName(state.from)+' → '+cityName(state.to);
+  $('#routeSub').textContent=fmtDate(state.date)+', '+need+' '+plural(need,'место','места','мест');
+}
+
+function sortFlights(list){
+  const s=state.sort;
+  return [...list].sort((a,b)=>
+    s==='seats' ? b.q-a.q :
+    s==='price' ? (a.p||1e9)-(b.p||1e9) :
+    (a.tm||'').localeCompare(b.tm||''));
+}
+
+function renderBoard(fit,onDate,need){
+  const box=$('#board');
+  if(!DATA.some(matches)){
+    box.innerHTML=`<div class="empty"><div class="big">Это направление мы пока не отслеживаем</div>
+      <div class="sm">Сейчас в мониторинге: ${ROUTES.map(r=>cityName(r.origin)+' → '+cityName(r.destination)).join(', ')}.
+      Напишите, какое направление добавить — поставим на отслеживание.</div></div>`;
+    return;
+  }
+  if(!fit.length){
+    const alt=nearestDates(need);
+    const why = onDate.length
+      ? `На ${fmtDate(state.date)} места есть, но меньше ${need} — на всех не хватит.`
+      : `На ${fmtDate(state.date)} субсидированных мест нет.`;
+    box.innerHTML=`<div class="empty">
+      <div class="big">Мест на эту дату нет</div>
+      <div class="sm">${why}${alt.length?' Зато они есть на соседних датах:':''}</div>
+      ${alt.length?`<div class="jump">${alt.map(a=>
+        `<button onclick="goDate('${a.dt}')"><b>${fmtDate(a.dt)}</b>
+         <span>${a.q} ${plural(a.q,'место','места','мест')}</span></button>`).join('')}</div>`
+       :'<div class="sm">В отслеживаемом окне свободных мест сейчас нет.</div>'}
+      <button class="watch" onclick="openWatch()">Сообщить, когда появятся места</button>
+      </div>`;
+    return;
+  }
+  box.innerHTML=`<table class="flights"><thead><tr>
+      <th>Вылет</th><th>Рейс</th><th>Мест</th><th>Цена</th><th></th>
+    </tr></thead><tbody>${sortFlights(fit).map(rowHtml).join('')}</tbody></table>`;
+}
+
+function rowHtml(f){
+  const cls=f.q===0?'no':(f.q<=LOW?'low':'ok');
+  const btn = META.demo
+    ? `<span class="buy off">демо</span>`
+    : (f.url ? `<a class="buy" href="${f.url}" target="_blank" rel="noopener nofollow">Выбрать</a>`
+             : `<button class="watch" onclick="openWatch()">Следить</button>`);
+  return `<tr>
+    <td><div class="time">${f.tm||'—'}${f.ar?`<small>прилёт ${f.ar}</small>`:''}</div></td>
+    <td class="fl"><b>${f.fn||'—'}</b><span>тариф ${f.fc||'—'}</span></td>
+    <td><div class="seats ${cls}">${f.q}<small>${f.q?'мест свободно':'нет мест'}</small></div></td>
+    <td><div class="price">${f.p?nf.format(f.p)+' ₽':'—'}<small>субсидированный</small></div></td>
+    <td>${btn}</td></tr>`;
+}
+
+function nearestDates(need){
+  const by={};
+  DATA.filter(f=>matches(f)&&f.q>=need).forEach(f=>by[f.dt]=(by[f.dt]||0)+f.q);
+  return Object.entries(by).map(([dt,q])=>({dt,q}))
+    .sort((a,b)=>Math.abs(new Date(a.dt)-new Date(state.date))
+                -Math.abs(new Date(b.dt)-new Date(state.date))).slice(0,4);
+}
+
+function goDate(dt){ state.date=dt; state.calMonth=dt.slice(0,7); $('#date').value=dt; search(); }
+
+function goRoute(o,d){
+  state.from=o; state.to=d;
+  $('#from').value=o; $('#to').value=d;
+  const withSeats=DATA.filter(f=>f.o===o&&f.d===d&&f.q>=seatsNeeded()).map(f=>f.dt).sort();
+  if(withSeats.length){ goDate(withSeats[0]); } else { search(); }
+  $('#results').scrollIntoView?.({behavior:'smooth',block:'start'});
+}
+
+/* ---------- направления ---------- */
+function renderPopular(){
+  const agg={};
+  DATA.forEach(f=>{
+    const k=f.o+'|'+f.d;
+    if(!agg[k]) agg[k]={o:f.o,d:f.d,seats:0,min:Infinity,days:new Set()};
+    agg[k].seats+=f.q;
+    if(f.q>0){ agg[k].days.add(f.dt); if(f.p>0) agg[k].min=Math.min(agg[k].min,f.p); }
+  });
+  const list=Object.values(agg).sort((a,b)=>b.seats-a.seats).slice(0,9);
+  $('#pops').innerHTML=list.map(r=>{
+    const cls=r.seats===0?'no':(r.days.size<=2?'low':'ok');
+    const txt=r.seats===0?'мест сейчас нет'
+      :`${r.days.size} ${plural(r.days.size,'дата','даты','дат')} с местами`;
+    return `<button class="pop" onclick="goRoute('${r.o}','${r.d}')">
+      <div class="txt"><b>${cityName(r.o)} — ${cityName(r.d)}</b>
+      <span class="p"> ${r.min<Infinity?'от '+nf.format(r.min)+' ₽':'цена уточняется'}</span>
+      <div class="q ${cls}">${txt}</div></div><span class="ch">›</span></button>`;
+  }).join('');
+}
+
+/* ---------- календарь ---------- */
+function renderCalendar(){
+  const need=seatsNeeded(), by={};
+  DATA.filter(matches).forEach(f=>{by[f.dt]=(by[f.dt]||0)+(f.q>=need?f.q:0)});
+  const [y,m]=state.calMonth.split('-').map(Number);
+  $('#calTitle').textContent=MONTHS_N[m-1]+' '+y;
+
+  const first=new Date(y,m-1,1), start=(first.getDay()+6)%7;
+  const days=new Date(y,m,0).getDate();
+  let cells=DOW.map(d=>`<div class="dow">${d}</div>`).join('');
+  for(let i=0;i<start;i++) cells+='<div class="day void"></div>';
+  for(let d=1;d<=days;d++){
+    const iso=`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const q=by[iso];
+    const known=Object.prototype.hasOwnProperty.call(by,iso);
+    const cls=!known?'unknown':(q===0?'none':(q<=LOW?'low':'has'));
+    const sel=iso===state.date?' sel':'';
+    cells+=`<button class="day ${cls}${sel}" ${known?`onclick="goDate('${iso}')"`:'disabled'}>
+      <span class="n">${d}</span>
+      <span class="q">${known?(q?q:'—'):'·'}</span></button>`;
+  }
+  $('#calGrid').innerHTML=cells;
+  $('#calPrev').onclick=()=>shiftMonth(-1);
+  $('#calNext').onclick=()=>shiftMonth(1);
+}
+function shiftMonth(k){
+  let [y,m]=state.calMonth.split('-').map(Number);
+  m+=k; if(m<1){m=12;y--} if(m>12){m=1;y++}
+  state.calMonth=`${y}-${String(m).padStart(2,'0')}`; renderCalendar();
+}
+
+/* ---------- пассажиры и памятка ---------- */
+/* Состав пассажиров держим корректным в самом состоянии, а не в обработчике
+   кнопок: иначе любой другой источник (ссылка с параметрами, восстановление
+   сессии) сможет протащить 9 младенцев на одного взрослого. */
+function clampPax(){
+  state.adults  = Math.max(1, Math.min(9, state.adults|0));
+  state.children= Math.max(0, Math.min(8, state.children|0));
+  state.infants = Math.max(0, Math.min(state.adults, state.infants|0));
+}
+
+function renderPax(){
+  clampPax();
+  ['adults','children','infants'].forEach(k=>{ $('#v-'+k).textContent=state[k] });
+  const total=state.adults+state.children+state.infants;
+  $('#paxLabel').textContent=total+' '+plural(total,'пассажир','пассажира','пассажиров');
+  $$('.step').forEach(b=>{
+    const k=b.dataset.k,d=+b.dataset.d;
+    b.disabled = d<0 ? (k==='adults'?state[k]<=1:state[k]<=0)
+                     : (k==='adults'?state[k]>=9:state[k]>=(k==='infants'?state.adults:8));
+  });
+}
+function renderNote(){
+  const c=CATEGORIES.find(x=>x.id===state.cat);
+  if(!c) return;
+  $('#note').innerHTML=`<b>${c.title}.</b> Что попросят показать при посадке:
+    <ul>${c.requirements.map(r=>`<li>${r}</li>`).join('')}</ul>
+    <div style="margin-top:9px">Наличие мест одинаково для всех льготных категорий:
+    субсидированная квота на рейсе общая.</div>`;
+}
+function openWatch(){ $('#watch').classList.add('open'); $('#watchMsg').textContent=''; }
+
+/* Бэкенд подписки (subscribe_api.py) — отдельный процесс, который есть
+   не на каждом деплое: на GitHub Pages (статика) его нет и не будет,
+   на VPS он включается явно через SUBSIDY_SUBSCRIBE_ENABLED (см. README
+   → «Деплой на VPS»). META.subscribeApi отражает именно это, а не
+   демо/боевой режим сбора — кнопка не должна врать, что подписка работает,
+   там, где отправлять её физически некуда. */
+async function submitWatch(){
+  const input=$('#watchInput'), msg=$('#watchMsg'), btn=$('#watchSave');
+  const contact=input.value.trim();
+  if(!contact){ msg.textContent='Укажите e-mail или @telegram.'; return; }
+
+  if(META.demo){
+    msg.textContent='Прототип: подписка не отправляется. На проде здесь вызов /api/subscribe.';
+    return;
+  }
+  if(!META.subscribeApi){
+    msg.textContent='Подписка пока не подключена на этом сайте.';
+    return;
+  }
+
+  btn.disabled=true; msg.textContent='Отправляем…';
+  try{
+    const res=await fetch('/api/subscribe',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({contact, origin:state.from, destination:state.to}),
+    });
+    const body=await res.json().catch(()=>({}));
+    if(res.ok && body.ok){
+      msg.textContent='Готово — напишем, как только места появятся.';
+      input.value='';
+    } else {
+      msg.textContent=body.error || 'Не получилось отправить, попробуйте позже.';
+    }
+  } catch{
+    msg.textContent='Не получилось отправить, попробуйте позже.';
+  } finally {
+    btn.disabled=false;
+  }
+}
+
+document.addEventListener('DOMContentLoaded',init);
+
+/* Экспорт в window для автотеста uitest.js: объявления const/let в классическом
+   скрипте живут в скрипт-скоупе и снаружи не видны. На работу страницы не влияет. */
+Object.assign(window,{DATA,ROUTES,META,AIRPORTS,CATEGORIES,LOW,state,
+  search,renderPax,renderCalendar,renderPopular,goDate,goRoute,nearestDates,
+  openWatch,submitWatch,clampPax});

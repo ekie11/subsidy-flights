@@ -11,7 +11,8 @@
   4. запись/чтение SQLite;
   5. алерты: restock (0 → есть места), soldout, low, drop;
   6. кулдаун подавляет повторный алерт;
-  7. HTML-отчёт генерируется и содержит данные.
+  7. HTML-отчёт генерируется и содержит данные;
+  8. subscribe_api.py — валидация, приём подписки, анти-спам.
 
 Работает в отдельной временной папке — боевую БД не трогает.
 """
@@ -239,6 +240,58 @@ try:
     check("битый XML отловлен", False, "исключение не выброшено")
 except parser.ParseError:
     check("битый XML отловлен", True)
+
+section("8. API подписки (subscribe_api.py)")
+import json as _json            # noqa: E402
+import threading as _threading  # noqa: E402
+import urllib.error as _urlerr  # noqa: E402
+import urllib.request as _urlreq  # noqa: E402
+import subscribe_api            # noqa: E402
+
+check("валидный e-mail проходит", subscribe_api.valid_contact("a@b.ru"))
+check("валидный @telegram проходит", subscribe_api.valid_contact("@kirill_test"))
+check("мусорный контакт отклонён", not subscribe_api.valid_contact("не контакт"))
+
+try:
+    subscribe_api.parse_subscription(b'{"contact":""}')
+    check("пустой contact отклонён", False, "исключение не выброшено")
+except ValueError:
+    check("пустой contact отклонён", True)
+
+sub_db = Database(TMP / "subs.sqlite3")
+sub_server = subscribe_api.Server(("127.0.0.1", 0), subscribe_api.Handler, db=sub_db)
+sub_port = sub_server.server_address[1]
+_threading.Thread(target=sub_server.serve_forever, daemon=True).start()
+
+
+def _post(payload, path="/api/subscribe"):
+    req = _urlreq.Request(f"http://127.0.0.1:{sub_port}{path}",
+                          data=_json.dumps(payload).encode(),
+                          headers={"Content-Type": "application/json"}, method="POST")
+    try:
+        with _urlreq.urlopen(req, timeout=2) as r:
+            return r.status, _json.loads(r.read())
+    except _urlerr.HTTPError as e:
+        return e.code, _json.loads(e.read())
+
+
+status, body = _post({"contact": "test@example.com", "origin": "khv", "destination": "mow"})
+check("сервер принимает подписку", status == 200 and body.get("ok") is True, str((status, body)))
+
+status, _ = _post({"contact": "мусор"})
+check("сервер отклоняет невалидный контакт", status == 400, str(status))
+
+status, _ = _post({"contact": "x@y.ru"}, path="/api/nowhere")
+check("неизвестный путь — 404", status == 404, str(status))
+
+stored = sub_db.subscriptions_for_route("KHV", "MOW")
+check("подписка сохранена в БД с нужным маршрутом",
+      len(stored) == 1 and stored[0]["contact"] == "test@example.com", str(stored))
+
+statuses = [_post({"contact": f"flood{i}@b.ru"})[0] for i in range(10)]
+check("анти-спам режет частые запросы", 429 in statuses, str(statuses))
+
+sub_server.shutdown()
 
 # --------------------------------------------------------------------------
 print(f"\n{'=' * 52}")
