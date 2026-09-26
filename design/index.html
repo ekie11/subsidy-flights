@@ -1199,8 +1199,26 @@ document.addEventListener('DOMContentLoaded', function () {
       play(toast, { opacity: 0, y: 8 }, { duration: 0.2, ease: 'easeIn' }).then(function () { toast.hidden = true; toast.style.opacity = ''; toast.style.transform = ''; });
     }, 3200);
   }
+  /* «Купить» открывает форму данных пассажиров с выбранным рейсом. */
   $$('[data-buy]').forEach(function (b) {
-    b.addEventListener('click', function () { showToast('В демо-макете покупка отключена. Здесь откроется касса-партнёр.'); });
+    b.addEventListener('click', function () {
+      var c = b.closest('.flight');
+      var pts = c.querySelectorAll('.pt b');
+      var arr = pts[1].cloneNode(true), plus = arr.querySelector('sup');
+      if (plus) plus.remove();
+      var path = c.querySelectorAll('.path span');
+      var carrier = c.querySelector('.carrier');
+      var tail = carrier.lastChild.textContent.split(' · ');
+      var q = new URLSearchParams({
+        from: CITIES[state.from][0], to: CITIES[state.to][0],
+        fromAp: CITIES[state.from][1], toAp: CITIES[state.to][1],
+        day: state.day, dep: pts[0].textContent.trim(), arr: arr.textContent.trim(), next: plus ? '1' : '0',
+        dur: path[0].textContent, stops: path[1].textContent,
+        carrier: carrier.querySelector('b').textContent, num: tail[0].trim(), plane: (tail[1] || '').trim(),
+        seats: c.dataset.seats, pax: state.pax, cat: state.cat
+      });
+      window.location.href = 'checkout.html?' + q.toString();
+    });
   });
   $('a[href="#privacy"]').addEventListener('click', function (e) { e.preventDefault(); showToast('Страница политики появится к запуску.'); });
 

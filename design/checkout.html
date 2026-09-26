@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Данные пассажиров: Есть места</title>
+<meta name="description" content="Оформление билета по субсидированному тарифу: данные пассажиров и контакты.">
+<meta name="theme-color" content="#0d1733">
+<meta name="color-scheme" content="light dark">
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230d1733'/%3E%3Ccircle cx='16' cy='16' r='6' fill='%23f5a524'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<script defer src="https://cdn.jsdelivr.net/npm/motion@11.18.2/dist/motion.js"></script>
+<style>
+/* Токены те же, что у витрины (design/index.html): ночная шапка, дневная страница,
+   тёмная тема продолжает ночь. Радиусы: поля и кнопки 10, карточки 14, большие блоки 20. */
+:root{
+  --night:#0d1733; --night-2:#16234c;
+  --cta:#f5a524; --cta-hover:#e8980f; --cta-ink:#3a2600;
+  --bg:#f6f7fb; --surface:#ffffff; --surface-2:#eef1f7;
+  --ink:#141a29; --ink-2:#3f4a60; --dim:#5b6577; --faint:#666f83;
+  --line:#e2e6ef; --line-2:#cdd4e6;
+  --brand:#1e3163; --brand-ink:#ffffff; --brand-soft:#eaeefa; --brand-line:#c9d3f0;
+  --green:#12784a; --green-bg:#e7f3ec;
+  --amber:#96600a; --amber-bg:#fdf3e2;
+  --red:#be3229; --red-bg:#fbeceb;
+  --focus-surface:#1e3163;
+  --r-sm:10px; --r:14px; --r-lg:20px;
+  --gutter:clamp(16px,4vw,28px);
+  --ease:cubic-bezier(.16,1,.3,1);
+  --focus:var(--focus-surface);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0c1430; --surface:#131d3d; --surface-2:#1a2549;
+    --ink:#eef1f8; --ink-2:#c9d0e3; --dim:#a8b1c9; --faint:#8f99b5;
+    --line:#26325b; --line-2:#34416e;
+    --brand:#b9c6f0; --brand-ink:#0c1430; --brand-soft:#18224a; --brand-line:#2c3a6e;
+    --green:#5fd49a; --green-bg:#11352a; --amber:#f2b453; --amber-bg:#3a2a10;
+    --red:#ff8a80; --red-bg:#3a1a1c;
+    --focus-surface:#f5a524;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0c1430; --surface:#131d3d; --surface-2:#1a2549;
+  --ink:#eef1f8; --ink-2:#c9d0e3; --dim:#a8b1c9; --faint:#8f99b5;
+  --line:#26325b; --line-2:#34416e;
+  --brand:#b9c6f0; --brand-ink:#0c1430; --brand-soft:#18224a; --brand-line:#2c3a6e;
+  --green:#5fd49a; --green-bg:#11352a; --amber:#f2b453; --amber-bg:#3a2a10;
+  --red:#ff8a80; --red-bg:#3a1a1c;
+  --focus-surface:#f5a524;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+@media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:400 17px/1.5 Onest,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  -webkit-font-smoothing:antialiased}
+[hidden]{display:none!important}
+.wrap{max-width:1120px;margin-inline:auto;
+  padding-inline:max(var(--gutter),env(safe-area-inset-left)) max(var(--gutter),env(safe-area-inset-right))}
+h1,h2,h3{margin:0;font-weight:800;letter-spacing:-.025em;line-height:1.1;text-wrap:balance}
+h1{font-size:clamp(26px,3vw,34px)}
+h2{font-size:20px;letter-spacing:-.018em}
+h3{font-size:17px;letter-spacing:-.01em}
+p{text-wrap:pretty}
+button,input,select{font:inherit;color:inherit}
+a{color:inherit}
+.num{font-variant-numeric:tabular-nums}
+.sr{position:absolute!important;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:6px}
+[tabindex="-1"]:focus{outline:none}
+
+.demo{margin:0;background:var(--amber-bg);color:var(--amber);font-size:14px;line-height:1.4;padding:9px var(--gutter);text-align:center}
+
+/* Шапка: компактная ночь, шаги оформления */
+.night{--focus:#f5a524;background:linear-gradient(180deg,#0b132c 0%,var(--night) 100%);color:#fff;position:relative}
+.night::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;
+  background:linear-gradient(90deg,rgba(245,165,36,0),rgba(245,165,36,.55) 55%,rgba(245,165,36,0))}
+.top{display:flex;align-items:center;gap:20px;min-height:64px;padding-block:10px;flex-wrap:wrap}
+.logo{display:inline-flex;align-items:center;gap:10px;font-weight:800;font-size:18px;letter-spacing:-.03em;color:#fff;text-decoration:none;white-space:nowrap}
+.logo i{width:10px;height:10px;border-radius:50%;background:var(--cta)}
+.steps{display:flex;align-items:center;gap:6px;margin:0 0 0 auto;padding:0;list-style:none;font-size:14.5px;color:#aab5d6}
+.steps li{display:flex;align-items:center;gap:8px;white-space:nowrap}
+.steps li + li::before{content:"";width:22px;height:1px;background:rgba(255,255,255,.25);margin-right:2px}
+.steps .n{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:13px;font-weight:700;
+  border:1.5px solid rgba(255,255,255,.35);color:#cfd7ee}
+.steps .done .n{background:#59d18d;border-color:#59d18d;color:#0b132c}
+.steps [aria-current="step"]{color:#fff;font-weight:600}
+.steps [aria-current="step"] .n{background:var(--cta);border-color:var(--cta);color:var(--cta-ink)}
+
+/* Раскладка: форма слева, сводка справа и липкая */
+.page{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:32px;align-items:start;padding-block:32px 64px}
+.intro{margin-bottom:22px}
+.intro p{margin:8px 0 0;color:var(--dim);max-width:60ch}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:clamp(18px,3vw,28px)}
+.card + .card{margin-top:16px}
+.card-h{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+.card-h p{margin:4px 0 0;font-size:14.5px;color:var(--dim)}
+
+/* Поля */
+.grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:16px 16px}
+.c2{grid-column:span 2}.c3{grid-column:span 3}.c4{grid-column:span 4}.c6{grid-column:span 6}
+.fld label,.fld .lbl{display:block;font-size:14.5px;font-weight:600;color:var(--ink);margin-bottom:6px}
+.fld .opt{font-weight:400;color:var(--dim)}
+.inp,.sel{width:100%;min-height:50px;padding:0 14px;border-radius:var(--r-sm);border:1.5px solid var(--line-2);
+  background:var(--surface);color:var(--ink);font-size:16px;transition:border-color .16s,box-shadow .16s}
+.sel{appearance:none;-webkit-appearance:none;padding-right:40px;cursor:pointer;
+  background-image:linear-gradient(45deg,transparent 50%,var(--dim) 50%),linear-gradient(135deg,var(--dim) 50%,transparent 50%);
+  background-position:calc(100% - 20px) 22px,calc(100% - 15px) 22px;background-size:5px 5px,5px 5px;background-repeat:no-repeat}
+.inp::placeholder{color:var(--faint)}
+.inp:hover,.sel:hover{border-color:var(--dim)}
+.inp:focus-visible,.sel:focus-visible{outline:3px solid var(--focus);outline-offset:1px;border-color:var(--brand)}
+.inp[aria-invalid="true"],.sel[aria-invalid="true"],.seg[aria-invalid="true"]{border-color:var(--red)}
+.inp[readonly]{background:var(--surface-2);color:var(--ink-2);cursor:default}
+.hint{margin:6px 0 0;font-size:13.5px;line-height:1.4;color:var(--dim)}
+.err{margin:6px 0 0;font-size:14px;line-height:1.4;color:var(--red)}
+.check{display:flex;gap:10px;align-items:flex-start;margin-top:8px;font-size:15px;color:var(--ink-2);cursor:pointer}
+.check input{width:20px;height:20px;margin:1px 0 0;accent-color:var(--brand);flex:0 0 auto;cursor:pointer}
+/* Подпись «Нет отчества» внутри поля: не блочная подпись поля, а обычный флажок. */
+.fld .check{display:flex;margin:8px 0 0;font-size:15px;font-weight:400;color:var(--ink-2)}
+
+/* Пол: две крупные кнопки вместо выпадающего списка */
+.seg{display:grid;grid-template-columns:1fr 1fr;border:1.5px solid var(--line-2);border-radius:var(--r-sm);padding:3px;gap:3px;min-height:50px;background:var(--surface)}
+.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg label{margin:0;display:grid;place-items:center;border-radius:7px;font-weight:500;font-size:15.5px;color:var(--ink-2);cursor:pointer;
+  transition:background-color .16s,color .16s}
+.seg label:hover{background:var(--surface-2)}
+.seg input:checked + label{background:var(--brand);color:var(--brand-ink);font-weight:600}
+.seg input:focus-visible + label{outline:3px solid var(--focus);outline-offset:1px}
+
+/* Пассажир */
+.pax + .pax{margin-top:16px}
+.pax-h{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.pax-h .badge{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--brand-soft);color:var(--brand);font-weight:700;font-size:14px;flex:0 0 auto}
+.pax-h h2{flex:1}
+.linkbtn{background:none;border:0;padding:6px 0;color:var(--brand);font-weight:600;font-size:15px;cursor:pointer;
+  text-decoration:underline;text-underline-offset:3px;min-height:36px}
+.linkbtn.danger{color:var(--red)}
+.docnote{display:flex;gap:10px;align-items:flex-start;margin:4px 0 0;padding:12px 14px;border-radius:var(--r-sm);
+  background:var(--brand-soft);border:1px solid var(--brand-line);font-size:14.5px;line-height:1.45;color:var(--ink-2)}
+.docnote i{font-size:20px;color:var(--brand);flex:0 0 auto}
+.docnote b{color:var(--ink);font-weight:600}
+.warn{background:var(--amber-bg);border-color:transparent;color:var(--ink-2)}
+.warn i{color:var(--amber)}
+
+.add{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:54px;margin-top:16px;
+  border:1.5px dashed var(--line-2);border-radius:var(--r);background:transparent;color:var(--brand);font-weight:600;cursor:pointer;
+  transition:border-color .16s,background-color .16s}
+.add:hover{border-color:var(--brand);background:var(--brand-soft)}
+.add:disabled{color:var(--dim);cursor:not-allowed;background:transparent;border-color:var(--line)}
+.add i{font-size:20px}
+
+details.more{margin-top:14px}
+details.more summary{cursor:pointer;color:var(--brand);font-weight:600;font-size:15px;list-style:none;display:inline-flex;align-items:center;gap:6px;min-height:36px}
+details.more summary::-webkit-details-marker{display:none}
+details.more summary i{transition:transform .2s var(--ease)}
+details.more[open] summary i{transform:rotate(90deg)}
+details.more .grid{margin-top:10px}
+
+/* Сводка ошибок */
+.errbox{border:1.5px solid var(--red);background:var(--red-bg);border-radius:var(--r);padding:16px 18px;margin-bottom:16px}
+.errbox h2{font-size:17px;color:var(--ink)}
+.errbox ul{margin:8px 0 0;padding-left:20px;display:grid;gap:4px;font-size:15px}
+.errbox a{color:var(--red);font-weight:500}
+
+/* Кнопки */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:52px;padding:0 24px;border-radius:var(--r-sm);
+  border:1.5px solid transparent;font-weight:700;font-size:16.5px;cursor:pointer;white-space:nowrap;text-decoration:none;
+  transition:background-color .16s,border-color .16s,transform .12s}
+.btn:active{transform:scale(.98)}
+.btn.p{background:var(--cta);color:var(--cta-ink)}
+.btn.p:hover{background:var(--cta-hover)}
+.btn.s{background:var(--surface);border-color:var(--brand);color:var(--brand)}
+.btn.s:hover{background:var(--brand-soft)}
+.actions{display:flex;gap:12px;align-items:center;margin-top:20px;flex-wrap:wrap}
+.actions .btn.p{flex:1 1 280px}
+.secure{display:flex;gap:8px;align-items:flex-start;margin:14px 0 0;font-size:14px;color:var(--dim)}
+.secure i{font-size:18px;color:var(--green);flex:0 0 auto;margin-top:1px}
+
+/* Сводка рейса */
+.summary{position:sticky;top:16px}
+.sum-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden}
+.sum-top{padding:18px 20px;border-bottom:1px solid var(--line)}
+.sum-route{font-size:19px;font-weight:700;letter-spacing:-.015em}
+.sum-date{font-size:14.5px;color:var(--dim);margin-top:2px}
+.leg{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;margin-top:14px}
+.leg b{display:block;font-size:22px;font-weight:700;letter-spacing:-.02em;line-height:1.1}
+.leg b sup{font-size:12px;color:var(--dim);font-weight:600;margin-left:2px}
+.leg span{font-size:13.5px;color:var(--dim)}
+.leg .mid{text-align:center;font-size:12.5px;color:var(--dim);line-height:1.3}
+.leg .mid i{display:block;height:1px;background:var(--line-2);margin:5px 0;position:relative}
+.leg .mid i::after{content:"";position:absolute;right:0;top:-2px;width:5px;height:5px;border-radius:50%;background:var(--dim)}
+.sum-carrier{font-size:14px;color:var(--dim);margin-top:10px}
+.sum-carrier b{color:var(--ink-2);font-weight:600}
+.fare{padding:16px 20px;border-bottom:1px solid var(--line)}
+.fare-name{display:flex;align-items:center;gap:8px;font-weight:600}
+.fare-name .tag{font-size:12.5px;font-weight:600;color:var(--green);background:var(--green-bg);border-radius:6px;padding:2px 8px}
+.fare ul{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:4px;font-size:14.5px;color:var(--ink-2)}
+.fare li{display:flex;gap:8px;align-items:center}
+.fare li i{color:var(--green);font-size:16px}
+.fare li.no i{color:var(--dim)}
+.seats-left{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:14.5px;font-weight:600;color:var(--green)}
+.seats-left .dot{width:8px;height:8px;border-radius:50%;background:currentColor}
+.total{padding:16px 20px}
+.row{display:flex;justify-content:space-between;gap:12px;font-size:15px;color:var(--ink-2)}
+.row + .row{margin-top:6px}
+.row.big{margin-top:12px;padding-top:12px;border-top:1px solid var(--line);font-size:18px;font-weight:700;color:var(--ink)}
+.total p{margin:10px 0 0;font-size:13.5px;color:var(--dim)}
+
+/* Мобильная сводка и нижняя панель */
+.msum{display:none}
+.bar{display:none}
+
+/* Экран проверки */
+.review dl{margin:0;display:grid;grid-template-columns:minmax(0,190px) minmax(0,1fr);gap:8px 16px;font-size:15.5px}
+.review dt{color:var(--dim)}
+.review dd{margin:0;font-weight:500;overflow-wrap:anywhere}
+.review .pax + .pax{border-top:1px solid var(--line);padding-top:16px}
+
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));translate:-50% 0;z-index:30;width:max-content;
+  max-width:min(460px,calc(100vw - 32px));background:var(--night-2);color:#fff;border:1px solid rgba(255,255,255,.14);
+  border-radius:var(--r);padding:12px 16px;font-size:15px;line-height:1.4;box-shadow:0 12px 32px rgba(4,10,30,.3)}
+
+@media (max-width:980px){
+  .page{grid-template-columns:minmax(0,1fr);padding-top:20px;padding-bottom:120px}
+  .summary{display:none}
+  .msum{display:block;margin-bottom:16px}
+  .msum summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--surface);
+    border:1px solid var(--line);border-radius:var(--r);min-height:56px}
+  .msum summary::-webkit-details-marker{display:none}
+  .msum summary .t{flex:1;min-width:0}
+  .msum summary b{display:block;font-size:15.5px}
+  .msum summary span{display:block;font-size:13.5px;color:var(--dim)}
+  .msum summary i{font-size:18px;color:var(--dim);transition:transform .2s var(--ease)}
+  .msum[open] summary i{transform:rotate(180deg)}
+  .msum[open] summary{border-radius:var(--r) var(--r) 0 0;border-bottom-color:transparent}
+  .msum .sum-card{border-radius:0 0 var(--r) var(--r);border-top:0}
+  .bar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:20;align-items:center;gap:14px;
+    padding:12px max(var(--gutter),env(safe-area-inset-left)) calc(12px + env(safe-area-inset-bottom));
+    background:var(--surface);border-top:1px solid var(--line);box-shadow:0 -8px 24px rgba(20,32,70,.08)}
+  .bar .sum{flex:0 0 auto}
+  .bar .sum b{display:block;font-size:19px;letter-spacing:-.02em}
+  .bar .sum span{font-size:13px;color:var(--dim)}
+  .bar .btn{flex:1;min-height:52px;padding:0 16px}
+  .actions .btn.p{display:none}
+}
+@media (max-width:760px){
+  .steps .t{display:none}
+  .steps [aria-current="step"] .t{display:inline}
+  .steps li + li::before{width:14px}
+}
+@media (max-width:620px){
+  .grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+  .c2,.c3,.c4,.c6{grid-column:span 2}
+  .grid .half{grid-column:span 1}
+  .review dl{grid-template-columns:minmax(0,1fr)}
+  .review dt{margin-top:6px}
+  .top{gap:10px}
+  .steps{margin-left:0;width:100%}
+}
+@media (max-width:380px){
+  .grid .half{grid-column:span 2}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+<aside class="demo" aria-label="О макете"><p style="margin:0">Демо-макет: данные никуда не отправляются. Оформление и оплата пройдут в кассе партнёра.</p></aside>
+
+<header class="night">
+  <div class="wrap top">
+    <a class="logo" href="index.html"><i aria-hidden="true"></i>Есть места</a>
+    <ol class="steps" aria-label="Шаги оформления">
+      <li class="done"><span class="n" aria-hidden="true"><i class="ph ph-check"></i></span><span class="t">Рейс</span><span class="sr">, выполнено</span></li>
+      <li id="st-2" aria-current="step"><span class="n" aria-hidden="true">2</span><span class="t">Пассажиры</span></li>
+      <li id="st-3"><span class="n" aria-hidden="true">3</span><span class="t">Проверка и оплата</span></li>
+    </ol>
+  </div>
+</header>
+
+<main class="wrap page" id="main">
+  <div>
+    <div class="intro">
+      <h1 id="page-title" tabindex="-1">Данные пассажиров</h1>
+      <p>Заполните как в паспорте: по этим данным авиакомпания проверит право на субсидию при регистрации.</p>
+    </div>
+
+    <details class="msum" id="msum">
+      <summary><span class="t"><b data-s="mhead">Хабаровск → Москва, 14 октября</b><span data-s="msub">SU 1711, вылет 23:55. Тариф по субсидии</span></span><i class="ph ph-caret-down" aria-hidden="true"></i></summary>
+      <div data-summary-slot></div>
+    </details>
+
+    <div class="errbox" id="errbox" role="alert" tabindex="-1" hidden>
+      <h2>Проверьте поля</h2>
+      <ul id="errlist"></ul>
+    </div>
+
+    <form id="order" novalidate>
+      <div id="paxlist"></div>
+      <button class="add" type="button" id="addpax"><i class="ph ph-user-plus" aria-hidden="true"></i><span>Добавить пассажира</span></button>
+
+      <section class="card" aria-labelledby="ct-h" style="margin-top:16px">
+        <div class="card-h"><div><h2 id="ct-h">Контакты для билета</h2><p>Сюда придут электронный билет и сообщения об изменениях рейса.</p></div></div>
+        <div class="grid">
+          <div class="fld c3">
+            <label for="email">Электронная почта</label>
+            <input class="inp" id="email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="name@mail.ru" aria-describedby="email-err" spellcheck="false">
+            <p class="err" id="email-err" hidden></p>
+          </div>
+          <div class="fld c3">
+            <label for="phone">Мобильный телефон</label>
+            <input class="inp num" id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="+7 (900) 123-45-67" aria-describedby="phone-err">
+            <p class="err" id="phone-err" hidden></p>
+          </div>
+        </div>
+      </section>
+
+      <section class="card" aria-label="Согласие">
+        <label class="check" for="consent"><input type="checkbox" id="consent" name="consent" aria-describedby="consent-err">
+          <span>Согласен на обработку персональных данных и их передачу кассе-партнёру и авиакомпании для оформления билета. <a href="#privacy" data-privacy>Политика обработки данных</a></span></label>
+        <p class="err" id="consent-err" hidden></p>
+        <div class="actions">
+          <button class="btn p" type="submit" data-go>Проверить данные</button>
+        </div>
+        <p class="secure"><i class="ph ph-lock-simple" aria-hidden="true"></i><span>Данные нужны только для оформления билета. Оплата картой или через СБП пройдёт на следующем шаге в кассе партнёра.</span></p>
+      </section>
+    </form>
+
+    <section class="card review" id="review" aria-labelledby="rv-h" hidden>
+      <div class="card-h"><div><h2 id="rv-h" tabindex="-1">Проверьте данные</h2><p>Ошибка в имени или номере документа может стоить посадки на рейс.</p></div></div>
+      <div id="rvbody"></div>
+      <div class="actions">
+        <button class="btn s" type="button" id="back">Исправить</button>
+        <button class="btn p" type="button" id="pay" data-go>Перейти к оплате</button>
+      </div>
+      <p class="secure"><i class="ph ph-arrow-square-out" aria-hidden="true"></i><span>Откроется касса БилетДВ, нашего партнёра. Цена та же, тариф по субсидии уже выбран.</span></p>
+    </section>
+  </div>
+
+  <aside class="summary" aria-label="Ваш рейс" id="summary">
+    <div class="sum-card" id="sumcard">
+      <div class="sum-top">
+        <div class="sum-route" data-s="route">Хабаровск → Москва</div>
+        <div class="sum-date" data-s="date">Среда, 14 октября 2026</div>
+        <div class="leg">
+          <div><b class="num" data-s="dep">23:55</b><span data-s="fromAp">KHV</span></div>
+          <div class="mid"><span data-s="dur">8 ч 20 мин</span><i aria-hidden="true"></i><span data-s="stops">прямой</span></div>
+          <div style="text-align:right"><b class="num"><span data-s="arr">01:15</span><sup data-s="next">+1</sup></b><span data-s="toAp">SVO</span></div>
+        </div>
+        <div class="sum-carrier"><b data-s="carrier">Аэрофлот</b>, <span data-s="num">SU 1711</span><span data-s="plane">, Boeing 777</span></div>
+      </div>
+      <div class="fare">
+        <div class="fare-name">Эконом «плоский» <span class="tag">субсидия</span></div>
+        <ul>
+          <li><i class="ph ph-check" aria-hidden="true"></i>Ручная кладь</li>
+          <li><i class="ph ph-check" aria-hidden="true"></i>Багаж, 1 место до 23 кг</li>
+          <li class="no"><i class="ph ph-currency-rub" aria-hidden="true"></i>Возврат и обмен со сбором</li>
+        </ul>
+        <div class="seats-left"><span class="dot" aria-hidden="true"></span><span data-s="seatsTxt">Осталось 7 мест по субсидии</span></div>
+      </div>
+      <div class="total">
+        <div class="row"><span data-count>1 пассажир</span><span class="num" data-sub>10 800 ₽</span></div>
+        <div class="row big"><span>Итого</span><span class="num" data-total>10 800 ₽</span></div>
+        <p>Сборы и налоги включены. Цена фиксирована государством и не отличается от кассы авиакомпании.</p>
+      </div>
+    </div>
+  </aside>
+</main>
+
+<div class="bar" role="region" aria-label="Итого и продолжение">
+  <div class="sum"><b class="num" data-total>10 800 ₽</b><span data-count>1 пассажир</span></div>
+  <button class="btn p" type="button" id="barbtn">Проверить данные</button>
+</div>
+
+<template id="tpl-pax">
+  <section class="card pax" data-pax aria-labelledby="">
+    <div class="pax-h">
+      <span class="badge" data-badge aria-hidden="true">1</span>
+      <h2 data-title>Пассажир 1</h2>
+      <button class="linkbtn danger" type="button" data-remove hidden>Удалить</button>
+    </div>
+    <div class="grid">
+      <div class="fld c6">
+        <label data-for="cat">Категория льготы</label>
+        <select class="sel" data-f="cat" aria-describedby="">
+          <option value="dfo">Житель Дальнего Востока</option>
+          <option value="young">Молодёжь до 23 лет</option>
+          <option value="pension">Женщина от 55 или мужчина от 60 лет</option>
+          <option value="family">Член многодетной семьи</option>
+          <option value="disabled">Человек с инвалидностью или сопровождающий</option>
+        </select>
+        <p class="err" data-err="cat" hidden></p>
+        <p class="docnote" data-doc><i class="ph ph-identification-card" aria-hidden="true"></i><span></span></p>
+      </div>
+      <div class="fld c2">
+        <label data-for="last">Фамилия</label>
+        <input class="inp" data-f="last" type="text" autocomplete="family-name" autocapitalize="words" spellcheck="false">
+        <p class="err" data-err="last" hidden></p>
+      </div>
+      <div class="fld c2">
+        <label data-for="first">Имя</label>
+        <input class="inp" data-f="first" type="text" autocomplete="given-name" autocapitalize="words" spellcheck="false">
+        <p class="err" data-err="first" hidden></p>
+      </div>
+      <div class="fld c2">
+        <label data-for="middle">Отчество</label>
+        <input class="inp" data-f="middle" type="text" autocomplete="additional-name" autocapitalize="words" spellcheck="false">
+        <p class="err" data-err="middle" hidden></p>
+        <label class="check"><input type="checkbox" data-f="nomiddle"><span>Нет отчества</span></label>
+      </div>
+      <div class="fld c2 half">
+        <span class="lbl" data-lbl="sex">Пол</span>
+        <div class="seg" role="radiogroup" data-seg>
+          <input type="radio" value="m" data-f="sex"><label data-for-radio="m">Мужской</label>
+          <input type="radio" value="f" data-f="sex"><label data-for-radio="f">Женский</label>
+        </div>
+        <p class="err" data-err="sex" hidden></p>
+      </div>
+      <div class="fld c2 half">
+        <label data-for="bday">Дата рождения</label>
+        <input class="inp num" data-f="bday" type="text" inputmode="numeric" autocomplete="bday" placeholder="ДД.ММ.ГГГГ" maxlength="10">
+        <p class="err" data-err="bday" hidden></p>
+      </div>
+      <div class="fld c2">
+        <label data-for="citizen">Гражданство</label>
+        <input class="inp" data-f="citizen" type="text" value="Россия" readonly>
+        <p class="hint" data-hint="citizen">Тариф по субсидии только для граждан России</p>
+      </div>
+      <div class="fld c3">
+        <label data-for="doctype">Документ</label>
+        <select class="sel" data-f="doctype">
+          <option value="passport">Паспорт гражданина России</option>
+          <option value="birth">Свидетельство о рождении</option>
+        </select>
+        <p class="err" data-err="doctype" hidden></p>
+      </div>
+      <div class="fld c3">
+        <label data-for="docnum">Серия и номер</label>
+        <input class="inp num" data-f="docnum" type="text" inputmode="numeric" autocomplete="off" placeholder="4501 234567" spellcheck="false">
+        <p class="hint" data-hint="docnum">10 цифр подряд, без пробелов тоже можно</p>
+        <p class="err" data-err="docnum" hidden></p>
+      </div>
+    </div>
+    <details class="more">
+      <summary><i class="ph ph-caret-right" aria-hidden="true"></i>Карта «Аэрофлот Бонус»</summary>
+      <div class="grid">
+        <div class="fld c3">
+          <label data-for="ffp">Номер карты <span class="opt">необязательно</span></label>
+          <input class="inp num" data-f="ffp" type="text" inputmode="numeric" autocomplete="off" spellcheck="false">
+          <p class="hint" data-hint="ffp">Начисляются ли мили по тарифу субсидии, решает авиакомпания.</p>
+        </div>
+      </div>
+    </details>
+  </section>
+</template>
+
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  'use strict';
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var reduceMQ = window.matchMedia('(prefers-reduced-motion: reduce)');
+  function M() { return (!reduceMQ.matches && window.Motion) ? window.Motion : null; }
+  var EASE = [0.16, 1, 0.3, 1];
+  function play(el, kf, opt) { var m = M(); if (!m || !el) return; m.animate(el, kf, opt || { duration: 0.35, ease: EASE }); }
+
+  /* ---------- данные рейса (демо) ---------- */
+  /* Рейс приходит с витрины в адресе страницы; без параметров показывается пример. */
+  var Q = new URLSearchParams(location.search);
+  function qp(k, d) { var v = Q.get(k); return v === null || v === '' ? d : v; }
+  var dayN = parseInt(qp('day', ''), 10);
+  var FLIGHT_DATE = dayN >= 1 && dayN <= 30 ? new Date(2026, 8, dayN) : new Date(2026, 9, 14);
+  var PRICE = 10800;
+  var SEATS = Math.max(1, parseInt(qp('seats', '7'), 10) || 7);
+  var MAX_PAX = 6;
+  var START_PAX = Math.min(Math.max(1, parseInt(qp('pax', '1'), 10) || 1), SEATS, MAX_PAX);
+  var START_CAT = qp('cat', 'dfo');
+  var DOCS = {
+    dfo: '<b>Возьмите паспорт с отметкой о регистрации в ДФО.</b> Её проверят на регистрации. Детям нужны свидетельство о рождении и документ о регистрации.',
+    young: '<b>Нужен только паспорт.</b> На дату вылета пассажиру должно быть меньше 23 лет.',
+    pension: '<b>Нужен только паспорт.</b> На дату вылета женщине должно быть от 55 лет, мужчине от 60.',
+    family: '<b>Возьмите паспорт и удостоверение многодетной семьи.</b>',
+    disabled: '<b>Возьмите паспорт и справку МСЭ.</b> Сопровождающему достаточно паспорта.'
+  };
+  var CAT_NAME = { dfo: 'Житель Дальнего Востока', young: 'Молодёжь до 23 лет', pension: 'Пенсионер по возрасту', family: 'Многодетная семья', disabled: 'Инвалидность или сопровождение' };
+
+  function fillFlight() {
+    var set = function (k, v) { $$('[data-s="' + k + '"]').forEach(function (e) { e.textContent = v; }); };
+    var from = qp('from', 'Хабаровск'), to = qp('to', 'Москва');
+    var dLong = FLIGHT_DATE.toLocaleDateString('ru-RU', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).replace(/\s*г\.$/, '');
+    var dShort = FLIGHT_DATE.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
+    set('route', from + ' → ' + to);
+    set('date', dLong.charAt(0).toUpperCase() + dLong.slice(1));
+    set('dep', qp('dep', '23:55')); set('arr', qp('arr', '01:15'));
+    set('fromAp', qp('fromAp', 'KHV')); set('toAp', qp('toAp', 'SVO'));
+    set('dur', qp('dur', '8 ч 20 мин')); set('stops', qp('stops', 'прямой'));
+    set('carrier', qp('carrier', 'Аэрофлот')); set('num', qp('num', 'SU 1711'));
+    var plane = qp('plane', 'Boeing 777'); set('plane', plane ? ', ' + plane : '');
+    $$('[data-s="next"]').forEach(function (e) { e.hidden = qp('next', '1') !== '1'; });
+    set('seatsTxt', 'Осталось ' + SEATS + ' ' + plural(SEATS, ['место', 'места', 'мест']) + ' по субсидии');
+    set('mhead', from + ' → ' + to + ', ' + dShort);
+    set('msub', qp('num', 'SU 1711') + ', вылет ' + qp('dep', '23:55') + '. Тариф по субсидии');
+  }
+
+  function rub(n) { return n.toLocaleString('ru-RU').replace(/ /g, ' ') + ' ₽'; }
+  function plural(n, f) { var a = n % 100, b = a % 10; if (a > 10 && a < 20) return f[2]; if (b > 1 && b < 5) return f[1]; if (b === 1) return f[0]; return f[2]; }
+
+  /* Сводка рейса: одна разметка, на телефоне переносится в раскрывающийся блок. */
+  var sumcard = $('#sumcard'), slotDesk = $('#summary'), slotMob = $('[data-summary-slot]');
+  var mq = window.matchMedia('(max-width: 980px)');
+  function placeSummary() { (mq.matches ? slotMob : slotDesk).appendChild(sumcard); }
+  mq.addEventListener('change', placeSummary); placeSummary();
+
+  /* ---------- пассажиры ---------- */
+  var list = $('#paxlist'), tpl = $('#tpl-pax'), uid = 0;
+
+  function addPax(animate) {
+    var n = ++uid;
+    var node = tpl.content.firstElementChild.cloneNode(true);
+    node.dataset.id = n;
+    var base = 'p' + n + '-';
+    // уникальные id и связи подписей с полями
+    $$('[data-f]', node).forEach(function (el) {
+      var f = el.dataset.f;
+      if (f === 'sex') { el.name = base + 'sex'; el.id = base + 'sex-' + el.value; return; }
+      if (f === 'nomiddle') { el.id = base + 'nomiddle'; return; }
+      el.id = base + f; el.name = base + f;
+      var err = $('[data-err="' + f + '"]', node), hint = $('[data-hint="' + f + '"]', node);
+      var desc = [];
+      if (hint) { hint.id = base + f + '-hint'; desc.push(hint.id); }
+      if (err) { err.id = base + f + '-err'; desc.push(err.id); }
+      if (f === 'cat') { var d = $('[data-doc]', node); d.id = base + 'doc'; desc.push(d.id); }
+      if (desc.length) el.setAttribute('aria-describedby', desc.join(' '));
+    });
+    $$('[data-for]', node).forEach(function (l) { l.setAttribute('for', base + l.dataset.for); });
+    $$('[data-for-radio]', node).forEach(function (l) { l.setAttribute('for', base + 'sex-' + l.dataset.forRadio); });
+    var lbl = $('[data-lbl="sex"]', node); lbl.id = base + 'sex-lbl';
+    var seg = $('[data-seg]', node); seg.setAttribute('aria-labelledby', lbl.id); seg.id = base + 'sex';
+    seg.setAttribute('aria-describedby', base + 'sex-err');
+    $('[data-err="sex"]', node).id = base + 'sex-err';
+    var title = $('[data-title]', node); title.id = base + 'title'; node.setAttribute('aria-labelledby', title.id);
+    list.appendChild(node);
+    wirePax(node);
+    renumber();
+    if (animate) {
+      play(node, { opacity: [0, 1], y: [12, 0] }, { duration: 0.4, ease: EASE });
+      $('[data-f="last"]', node).focus({ preventScroll: true });
+      node.scrollIntoView({ behavior: reduceMQ.matches ? 'auto' : 'smooth', block: 'start' });
+    }
+    return node;
+  }
+
+  function wirePax(node) {
+    var cat = $('[data-f="cat"]', node), doc = $('[data-doc] span', node);
+    function syncDoc() { doc.innerHTML = DOCS[cat.value]; }
+    cat.addEventListener('change', function () { syncDoc(); play(doc.parentNode, { opacity: [0.4, 1] }, { duration: 0.3 }); revalidate(node, 'bday'); });
+    syncDoc();
+
+    var mid = $('[data-f="middle"]', node), nomid = $('[data-f="nomiddle"]', node);
+    nomid.addEventListener('change', function () {
+      mid.disabled = nomid.checked; if (nomid.checked) { mid.value = ''; setErr(node, 'middle', ''); }
+    });
+
+    // Дата рождения: точки ставятся сами, можно вставить «12.05.1990» или «12051990».
+    var bd = $('[data-f="bday"]', node);
+    bd.addEventListener('input', function () {
+      var d = bd.value.replace(/\D/g, '').slice(0, 8);
+      bd.value = d.length > 4 ? d.slice(0, 2) + '.' + d.slice(2, 4) + '.' + d.slice(4) : d.length > 2 ? d.slice(0, 2) + '.' + d.slice(2) : d;
+      suggestDoc(node);
+    });
+
+    // Серия и номер: для паспорта пробел после серии.
+    var dt = $('[data-f="doctype"]', node), dn = $('[data-f="docnum"]', node), dh = $('[data-hint="docnum"]', node);
+    function syncDocType() {
+      if (dt.value === 'passport') { dn.placeholder = '4501 234567'; dn.inputMode = 'numeric'; dh.textContent = '10 цифр, пробел поставится сам'; }
+      else { dn.placeholder = 'IV-АБ 123456'; dn.inputMode = 'text'; dh.textContent = 'Римские цифры, две русские буквы и шесть цифр'; }
+    }
+    dt.addEventListener('change', function () { syncDocType(); revalidate(node, 'docnum'); });
+    syncDocType();
+    dn.addEventListener('input', function () {
+      if (dt.value !== 'passport') return;
+      var d = dn.value.replace(/\D/g, '').slice(0, 10);
+      dn.value = d.length > 4 ? d.slice(0, 4) + ' ' + d.slice(4) : d;
+    });
+
+    ['last', 'first', 'middle'].forEach(function (f) {
+      var el = $('[data-f="' + f + '"]', node);
+      el.addEventListener('blur', function () { el.value = el.value.trim().replace(/\s+/g, ' '); });
+    });
+
+    // Ошибка уходит, как только значение стало верным. Новые ошибки только при отправке,
+    // иначе строка подпрыгивает в момент нажатия на соседнюю кнопку и нажатие уходит мимо.
+    $$('[data-f]', node).forEach(function (el) {
+      var ev = (el.type === 'radio' || el.type === 'checkbox' || el.tagName === 'SELECT') ? 'change' : 'input';
+      el.addEventListener(ev, function () {
+        var f = el.dataset.f === 'nomiddle' ? 'middle' : el.dataset.f;
+        revalidate(node, f);
+      });
+    });
+
+    $('[data-remove]', node).addEventListener('click', function () {
+      var m = M();
+      var done = function () { node.remove(); renumber(); $('#addpax').focus(); };
+      if (m) { var c = m.animate(node, { opacity: 0, y: -8 }, { duration: 0.2 }); c.then(done, done); } else done();
+    });
+  }
+
+  function suggestDoc(node) {
+    var age = ageOf($('[data-f="bday"]', node).value);
+    var dt = $('[data-f="doctype"]', node);
+    if (age !== null && age < 14 && dt.value === 'passport') { dt.value = 'birth'; dt.dispatchEvent(new Event('change')); }
+    if (age !== null && age >= 14 && dt.value === 'birth') { dt.value = 'passport'; dt.dispatchEvent(new Event('change')); }
+  }
+
+  function renumber() {
+    var cards = $$('[data-pax]', list);
+    cards.forEach(function (c, i) {
+      $('[data-badge]', c).textContent = i + 1;
+      $('[data-title]', c).textContent = 'Пассажир ' + (i + 1);
+      $('[data-remove]', c).hidden = cards.length === 1;
+    });
+    var n = cards.length;
+    var countTxt = n + ' ' + plural(n, ['пассажир', 'пассажира', 'пассажиров']);
+    $$('[data-count]').forEach(function (e) { e.textContent = countTxt; });
+    $('[data-sub]').textContent = n + ' × ' + rub(PRICE);
+    $$('[data-total]').forEach(function (e) { e.textContent = rub(PRICE * n); });
+    var add = $('#addpax'), limit = Math.min(SEATS, MAX_PAX);
+    add.disabled = n >= limit;
+    $('span', add).textContent = n >= limit ? (n >= SEATS ? 'Больше мест по субсидии нет' : 'Не больше ' + MAX_PAX + ' пассажиров в заказе') : 'Добавить пассажира';
+  }
+  $('#addpax').addEventListener('click', function () { addPax(true); });
+
+  /* ---------- проверки ---------- */
+  var NAME_RE = /^[А-ЯЁа-яё]+(?:[ '\-][А-ЯЁа-яё]+)*$/;
+  function parseDate(s) {
+    var m = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(s || ''); if (!m) return null;
+    var d = new Date(+m[3], +m[2] - 1, +m[1]);
+    return (d.getFullYear() === +m[3] && d.getMonth() === +m[2] - 1 && d.getDate() === +m[1]) ? d : null;
+  }
+  function ageOn(bd, at) {
+    var a = at.getFullYear() - bd.getFullYear();
+    if (at.getMonth() < bd.getMonth() || (at.getMonth() === bd.getMonth() && at.getDate() < bd.getDate())) a--;
+    return a;
+  }
+  function ageOf(s) { var d = parseDate(s); return d ? ageOn(d, FLIGHT_DATE) : null; }
+
+  function checkPax(node) {
+    var v = function (f) { var el = $('[data-f="' + f + '"]', node); return el ? el.value.trim() : ''; };
+    var e = {};
+    [['last', 'фамилию'], ['first', 'имя']].forEach(function (p) {
+      var x = v(p[0]);
+      if (!x) e[p[0]] = 'Укажите ' + p[1] + ', как в документе.';
+      else if (!NAME_RE.test(x)) e[p[0]] = 'Только русские буквы, дефис или пробел, как в паспорте.';
+    });
+    if (!$('[data-f="nomiddle"]', node).checked) {
+      var mid = v('middle');
+      if (!mid) e.middle = 'Укажите отчество или отметьте «Нет отчества».';
+      else if (!NAME_RE.test(mid)) e.middle = 'Только русские буквы, дефис или пробел.';
+    }
+    var sex = ($('[data-f="sex"]:checked', node) || {}).value;
+    if (!sex) e.sex = 'Выберите пол.';
+    var bdS = v('bday'), bd = parseDate(bdS), today = new Date();
+    if (!bdS) e.bday = 'Укажите дату рождения.';
+    else if (!bd) e.bday = 'Дата в формате ДД.ММ.ГГГГ, например 12.05.1990.';
+    else if (bd > today) e.bday = 'Дата рождения не может быть в будущем.';
+    else if (ageOn(bd, FLIGHT_DATE) > 110) e.bday = 'Проверьте год рождения.';
+    else {
+      // Право на льготу по возрасту проверяем здесь, а не на регистрации в аэропорту.
+      var age = ageOn(bd, FLIGHT_DATE), cat = v('cat');
+      if (cat === 'young' && age >= 23) e.bday = 'На дату вылета пассажиру будет ' + age + ' ' + plural(age, ['год', 'года', 'лет']) + ': тариф «до 23 лет» не подходит. Выберите другую категорию.';
+      if (cat === 'pension' && sex) {
+        var need = sex === 'f' ? 55 : 60;
+        if (age < need) e.bday = 'Тариф для ' + (sex === 'f' ? 'женщин от 55' : 'мужчин от 60') + ' лет, а на дату вылета пассажиру будет ' + age + '. Выберите другую категорию.';
+      }
+      if (age < 2) e.bday = 'Для ребёнка до 2 лет без места оформление другое. Позвоните в кассу партнёра.';
+    }
+    var dt = v('doctype'), dn = v('docnum');
+    if (!dn) e.docnum = 'Укажите серию и номер документа.';
+    else if (dt === 'passport' && !/^\d{4} ?\d{6}$/.test(dn)) e.docnum = 'У паспорта 10 цифр: 4 цифры серии и 6 цифр номера.';
+    else if (dt === 'birth' && !/^[IVXLC]{1,6}-?[А-ЯЁ]{2} ?\d{6}$/i.test(dn)) e.docnum = 'Формат свидетельства: IV-АБ 123456.';
+    if (bd && !e.bday && dt === 'passport' && ageOn(bd, FLIGHT_DATE) < 14) e.doctype = 'До 14 лет летают по свидетельству о рождении.';
+    if (bd && !e.bday && dt === 'birth' && ageOn(bd, FLIGHT_DATE) >= 14) e.doctype = 'С 14 лет нужен паспорт.';
+    return e;
+  }
+  function setErr(scope, f, msg) {
+    var err = $('[data-err="' + f + '"]', scope) || document.getElementById(f + '-err');
+    var field = f === 'sex' ? $('[data-seg]', scope) : ($('[data-f="' + f + '"]', scope) || document.getElementById(f));
+    if (!err) return;
+    var was = !err.hidden;
+    err.textContent = msg || ''; err.hidden = !msg;
+    if (field) field.setAttribute('aria-invalid', msg ? 'true' : 'false');
+    if (msg && !was) play(err, { opacity: [0, 1], y: [-3, 0] }, { duration: 0.25, ease: EASE });
+  }
+  var touched = false;
+  function clearIfValid(scope, f, msg) {
+    var err = $('[data-err="' + f + '"]', scope) || document.getElementById(f + '-err');
+    if (err && !err.hidden && !msg) setErr(scope, f, '');
+    else if (err && !err.hidden && msg && err.textContent !== msg) err.textContent = msg; // текст уточняется, место то же
+  }
+  function revalidate(node, f) {
+    if (!touched) return;
+    var e = checkPax(node);
+    var related = { bday: ['bday', 'doctype'], sex: ['sex', 'bday'], cat: ['cat', 'bday'], doctype: ['doctype', 'docnum'], docnum: ['docnum', 'doctype'] }[f] || [f];
+    related.forEach(function (k) { clearIfValid(node, k, e[k]); });
+  }
+
+  var email = $('#email'), phone = $('#phone'), consent = $('#consent');
+  phone.addEventListener('input', function () {
+    var d = phone.value.replace(/\D/g, '');
+    if (d[0] === '8' || d[0] === '7') d = d.slice(1);
+    d = d.slice(0, 10);
+    var out = '+7';
+    if (d.length) out += ' (' + d.slice(0, 3);
+    if (d.length >= 3) out += ')';
+    if (d.length > 3) out += ' ' + d.slice(3, 6);
+    if (d.length > 6) out += '-' + d.slice(6, 8);
+    if (d.length > 8) out += '-' + d.slice(8, 10);
+    phone.value = d.length ? out : '';
+  });
+  function checkContacts() {
+    var e = {};
+    var em = email.value.trim();
+    if (!em) e.email = 'Укажите почту: туда придёт билет.';
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)) e.email = 'Проверьте адрес: в нём должны быть @ и точка, например name@mail.ru.';
+    var ph = phone.value.replace(/\D/g, '');
+    if (!ph) e.phone = 'Укажите телефон: на него придут изменения рейса.';
+    else if (ph.length !== 11) e.phone = 'Номер из 10 цифр после +7.';
+    if (!consent.checked) e.consent = 'Без согласия билет не оформить: данные нужны авиакомпании.';
+    return e;
+  }
+  [email, phone].forEach(function (el) { el.addEventListener('input', function () { if (touched) clearIfValid(document, el.id, checkContacts()[el.id]); }); });
+  consent.addEventListener('change', function () { if (touched) clearIfValid(document, 'consent', checkContacts().consent); });
+
+  /* ---------- отправка ---------- */
+  var errbox = $('#errbox'), errlist = $('#errlist');
+  var LABEL = { cat: 'категория', last: 'фамилия', first: 'имя', middle: 'отчество', sex: 'пол', bday: 'дата рождения', doctype: 'документ', docnum: 'серия и номер' };
+  function submit() {
+    touched = true;
+    var items = [];
+    $$('[data-pax]', list).forEach(function (node, i) {
+      var e = checkPax(node);
+      ['cat', 'last', 'first', 'middle', 'sex', 'bday', 'doctype', 'docnum'].forEach(function (f) {
+        setErr(node, f, e[f]);
+        if (e[f]) {
+          var target = f === 'sex' ? node.querySelector('[data-f="sex"]') : node.querySelector('[data-f="' + f + '"]');
+          items.push({ text: 'Пассажир ' + (i + 1) + ', ' + LABEL[f] + ': ' + e[f], id: target.id });
+        }
+      });
+    });
+    var c = checkContacts();
+    ['email', 'phone', 'consent'].forEach(function (f) {
+      setErr(document, f, c[f]);
+      if (c[f]) items.push({ text: c[f], id: f });
+    });
+    if (items.length) {
+      errlist.innerHTML = '';
+      items.forEach(function (it) {
+        var li = document.createElement('li'), a = document.createElement('a');
+        a.href = '#' + it.id; a.textContent = it.text;
+        a.addEventListener('click', function (ev) { ev.preventDefault(); var t = document.getElementById(it.id); t.focus(); t.scrollIntoView({ block: 'center', behavior: reduceMQ.matches ? 'auto' : 'smooth' }); });
+        li.appendChild(a); errlist.appendChild(li);
+      });
+      $('h2', errbox).textContent = items.length === 1 ? 'Проверьте одно поле' : 'Проверьте поля: ' + items.length;
+      errbox.hidden = false;
+      errbox.focus({ preventScroll: true });
+      errbox.scrollIntoView({ block: 'start', behavior: reduceMQ.matches ? 'auto' : 'smooth' });
+      play(errbox, { opacity: [0, 1], y: [-6, 0] }, { duration: 0.3, ease: EASE });
+      return;
+    }
+    errbox.hidden = true;
+    showReview();
+  }
+  $('#order').addEventListener('submit', function (e) { e.preventDefault(); submit(); });
+
+  function fmtDoc(node) {
+    var t = $('[data-f="doctype"]', node).value === 'passport' ? 'Паспорт' : 'Свидетельство о рождении';
+    return t + ' ' + $('[data-f="docnum"]', node).value.trim();
+  }
+  function showReview() {
+    var body = $('#rvbody'); body.innerHTML = '';
+    $$('[data-pax]', list).forEach(function (node, i) {
+      var g = function (f) { return $('[data-f="' + f + '"]', node).value.trim(); };
+      var sex = $('[data-f="sex"]:checked', node).value === 'f' ? 'женский' : 'мужской';
+      var name = [g('last'), g('first'), $('[data-f="nomiddle"]', node).checked ? '' : g('middle')].filter(Boolean).join(' ');
+      var box = document.createElement('div'); box.className = 'pax';
+      var h = document.createElement('h3'); h.textContent = 'Пассажир ' + (i + 1); h.style.marginBottom = '10px';
+      var dl = document.createElement('dl');
+      [['ФИО', name.toUpperCase()], ['Льгота', CAT_NAME[g('cat')]], ['Пол, дата рождения', sex + ', ' + g('bday')], ['Документ', fmtDoc(node)]]
+        .concat(g('ffp') ? [['Аэрофлот Бонус', g('ffp')]] : [])
+        .forEach(function (r) { var dt = document.createElement('dt'); dt.textContent = r[0]; var dd = document.createElement('dd'); dd.textContent = r[1]; dl.append(dt, dd); });
+      box.append(h, dl); body.appendChild(box);
+    });
+    var c = document.createElement('div'); c.className = 'pax';
+    var ch = document.createElement('h3'); ch.textContent = 'Контакты'; ch.style.marginBottom = '10px';
+    var cdl = document.createElement('dl');
+    [['Почта', email.value.trim()], ['Телефон', phone.value]].forEach(function (r) { var dt = document.createElement('dt'); dt.textContent = r[0]; var dd = document.createElement('dd'); dd.textContent = r[1]; cdl.append(dt, dd); });
+    c.append(ch, cdl); body.appendChild(c);
+
+    $('#order').hidden = true; $('#review').hidden = false;
+    $('#st-2').removeAttribute('aria-current'); $('#st-2').classList.add('done');
+    $('#st-2 .n').innerHTML = '<i class="ph ph-check"></i>';
+    $('#st-3').setAttribute('aria-current', 'step');
+    $('#page-title').textContent = 'Проверка данных';
+    $('#barbtn').textContent = 'Перейти к оплате';
+    window.scrollTo({ top: 0, behavior: reduceMQ.matches ? 'auto' : 'smooth' });
+    $('#rv-h').focus({ preventScroll: true });
+    play($('#review'), { opacity: [0, 1], y: [10, 0] }, { duration: 0.4, ease: EASE });
+  }
+  $('#back').addEventListener('click', function () {
+    $('#review').hidden = true; $('#order').hidden = false;
+    $('#st-3').removeAttribute('aria-current'); $('#st-2').classList.remove('done'); $('#st-2').setAttribute('aria-current', 'step');
+    $('#st-2 .n').textContent = '2';
+    $('#page-title').textContent = 'Данные пассажиров';
+    $('#barbtn').textContent = 'Проверить данные';
+    $('#page-title').focus();
+    play($('#order'), { opacity: [0, 1] }, { duration: 0.3 });
+  });
+
+  var toast = $('#toast'), tt;
+  function showToast(msg) {
+    toast.textContent = msg; toast.hidden = false;
+    play(toast, { opacity: [0, 1], y: [12, 0] }, { duration: 0.3, ease: EASE });
+    clearTimeout(tt); tt = setTimeout(function () { toast.hidden = true; }, 3800);
+  }
+  function pay() { showToast('В демо-макете оплата отключена. Здесь откроется касса БилетДВ: карта или СБП.'); }
+  $('#pay').addEventListener('click', pay);
+  $('#barbtn').addEventListener('click', function () { if ($('#review').hidden) submit(); else pay(); });
+  $('[data-privacy]').addEventListener('click', function (e) { e.preventDefault(); showToast('Страница политики появится к запуску.'); });
+
+  fillFlight();
+  for (var i = 0; i < START_PAX; i++) {
+    var nd = addPax(false);
+    var cs = $('[data-f="cat"]', nd);
+    if (DOCS[START_CAT]) { cs.value = START_CAT; cs.dispatchEvent(new Event('change')); }
+  }
+});
+</script>
+<noscript><p class="wrap" style="padding:24px 0">Для оформления билета включите JavaScript.</p></noscript>
+</body>
+</html>
