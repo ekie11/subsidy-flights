@@ -78,6 +78,8 @@ jobs:
         run: |
           mkdir -p _site
           cp data/index.html _site/index.html
+          # Концепт нового дизайна: статичный макет на демо-данных, живёт по адресу /design/.
+          if [ -d design ]; then mkdir -p _site/design && cp design/index.html _site/design/index.html; fi
           # .nojekyll: без него Pages прогоняет содержимое через Jekyll
           # и молча выбрасывает файлы, начинающиеся с подчёркивания.
           touch _site/.nojekyll

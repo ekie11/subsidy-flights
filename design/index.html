@@ -1,0 +1,1293 @@
+<!DOCTYPE html>
+<!-- impeccable-disable cramped-padding: у ячеек таблицы сравнения и дней календаря собственные отступы; детектор видит только обёртку -->
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Есть места: субсидированные авиабилеты с Дальнего Востока</title>
+<meta name="description" content="Показываем, сколько мест по субсидированному тарифу осталось на рейсах с Дальнего Востока, и пишем, когда места возвращаются в продажу.">
+<meta name="theme-color" content="#0d1733">
+<meta name="color-scheme" content="light dark">
+<meta name="robots" content="noindex,nofollow">
+<meta property="og:title" content="Есть места: субсидированные авиабилеты">
+<meta property="og:description" content="Сколько мест по субсидии осталось на рейсах с Дальнего Востока.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230d1733'/%3E%3Ccircle cx='16' cy='16' r='6' fill='%23f5a524'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<script defer src="https://cdn.jsdelivr.net/npm/motion@11.18.2/dist/motion.js"></script>
+<style>
+/* ============================================================
+   ТОКЕНЫ
+   Светлая тема: ночь в шапке, день на странице (одна смена темы,
+   как рассвет после ночного рейса). Тёмная тема продолжает ночь
+   на всю страницу. Все пары текст/фон проверены на WCAG AA.
+
+   Радиусы: чипы и категории пилюлями; кнопки, поля, дни календаря 10px;
+   карточки 14px; большие поверхности 20px.
+   Слои: меню 20, уведомление 30, ссылка «к содержимому» 40.
+   ============================================================ */
+:root{
+  --night:#0d1733; --night-2:#16234c; --night-3:#22315f;
+  --cta:#f5a524; --cta-hover:#e8980f; --cta-ink:#3a2600;
+
+  --bg:#f6f7fb; --surface:#ffffff; --surface-2:#eef1f7;
+  --ink:#141a29; --ink-2:#3f4a60; --dim:#5b6577; --faint:#666f83;
+  --line:#e2e6ef; --line-2:#cdd4e6;
+  --brand:#1e3163; --brand-ink:#ffffff; --brand-soft:#eaeefa; --brand-line:#c9d3f0;
+  --green:#12784a; --green-bg:#e7f3ec;
+  --amber:#96600a; --amber-bg:#fdf3e2;
+  --red:#be3229;
+  --focus-surface:#1e3163;
+  --shadow-card:0 1px 2px rgba(20,32,70,.05),0 10px 28px rgba(20,32,70,.07);
+
+  --r-sm:10px; --r:14px; --r-lg:20px;
+  --gutter:clamp(16px,4vw,28px);
+  --ease:cubic-bezier(.16,1,.3,1);
+  --focus:var(--focus-surface);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0c1430; --surface:#131d3d; --surface-2:#1a2549;
+    --ink:#eef1f8; --ink-2:#c9d0e3; --dim:#a8b1c9; --faint:#8f99b5;
+    --line:#26325b; --line-2:#34416e;
+    --brand:#b9c6f0; --brand-ink:#0c1430; --brand-soft:#18224a; --brand-line:#2c3a6e;
+    --green:#5fd49a; --green-bg:#11352a;
+    --amber:#f2b453; --amber-bg:#3a2a10;
+    --red:#ff8a80;
+    --focus-surface:#f5a524;
+    --shadow-card:0 1px 2px rgba(0,0,0,.2),0 10px 28px rgba(0,0,0,.25);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0c1430; --surface:#131d3d; --surface-2:#1a2549;
+  --ink:#eef1f8; --ink-2:#c9d0e3; --dim:#a8b1c9; --faint:#8f99b5;
+  --line:#26325b; --line-2:#34416e;
+  --brand:#b9c6f0; --brand-ink:#0c1430; --brand-soft:#18224a; --brand-line:#2c3a6e;
+  --green:#5fd49a; --green-bg:#11352a;
+  --amber:#f2b453; --amber-bg:#3a2a10;
+  --red:#ff8a80;
+  --focus-surface:#f5a524;
+  --shadow-card:0 1px 2px rgba(0,0,0,.2),0 10px 28px rgba(0,0,0,.25);
+}
+
+/* ---------------- база ---------------- */
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+@media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font:400 17px/1.5 Onest,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+}
+[hidden]{display:none!important}
+.wrap{max-width:1180px;margin-inline:auto;
+  padding-inline:max(var(--gutter),env(safe-area-inset-left)) max(var(--gutter),env(safe-area-inset-right))}
+h1,h2,h3{margin:0;font-weight:800;letter-spacing:-.025em;line-height:1.08;text-wrap:balance}
+h1{font-size:clamp(32px,3.9vw,54px);letter-spacing:-.034em;line-height:1.04}
+h2{font-size:clamp(26px,3vw,38px)}
+h3{font-size:19px;letter-spacing:-.015em;line-height:1.25}
+p{text-wrap:pretty}
+a{color:inherit}
+button,input,select{font:inherit;color:inherit}
+.num{font-variant-numeric:tabular-nums}
+.sr{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:6px}
+[tabindex="-1"]:focus{outline:none}
+
+.skip{position:absolute;left:16px;top:-64px;z-index:40;background:var(--cta);color:var(--cta-ink);
+  padding:10px 16px;border-radius:var(--r-sm);font-weight:700;text-decoration:none;transition:top .2s var(--ease)}
+.skip:focus{top:12px}
+
+.demo p{margin:0}
+.demo{margin:0;background:var(--amber-bg);color:var(--amber);font-size:14px;line-height:1.4;padding:9px var(--gutter);text-align:center}
+
+/* ---------------- ночная шапка ---------------- */
+.night{
+  --focus:#f5a524;
+  position:relative;color:#fff;
+  background:
+    radial-gradient(1100px 520px at 82% -12%,rgba(58,82,156,.5) 0%,rgba(58,82,156,0) 62%),
+    linear-gradient(180deg,#0b132c 0%,var(--night) 45%,#101c40 100%);
+  padding-bottom:clamp(32px,4.5vw,52px);
+}
+/* Линия горизонта: граница ночи и дня. */
+.night::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;
+  background:linear-gradient(90deg,rgba(245,165,36,0),rgba(245,165,36,.55) 55%,rgba(245,165,36,0))}
+
+.top{display:flex;align-items:center;gap:20px;height:68px;position:relative}
+.logo{display:inline-flex;align-items:center;gap:10px;font-weight:800;font-size:19px;letter-spacing:-.03em;
+  color:#fff;text-decoration:none;white-space:nowrap}
+.logo i{width:10px;height:10px;border-radius:50%;background:var(--cta);flex:0 0 auto}
+.topnav{display:flex;gap:4px;margin-left:auto}
+.topnav a,.menu a{color:#c3cbe4;text-decoration:none;font-size:15px;padding:8px 12px;border-radius:999px;
+  transition:color .16s,background-color .16s}
+.topnav a:hover,.menu a:hover{color:#fff;background:rgba(255,255,255,.07)}
+.topnav a[aria-current="true"],.menu a[aria-current="true"]{color:#fff;background:rgba(255,255,255,.11)}
+.tg{display:inline-flex;align-items:center;min-height:40px;padding:0 16px;border-radius:999px;
+  background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:15px;
+  text-decoration:none;white-space:nowrap;transition:background-color .16s}
+.tg:hover{background:rgba(255,255,255,.16)}
+.menu-btn{display:none;margin-left:auto;align-items:center;gap:8px;min-height:44px;padding:0 14px;
+  border-radius:999px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.2);color:#fff;
+  font-size:15px;cursor:pointer}
+.menu-btn i{font-size:20px}
+.menu{position:absolute;top:calc(100% + 6px);right:0;z-index:20;width:min(320px,100%);
+  background:var(--night-2);border:1px solid rgba(255,255,255,.14);border-radius:var(--r-lg);padding:8px;
+  box-shadow:0 18px 44px rgba(4,10,30,.45)}
+.menu ul{list-style:none;margin:0;padding:0;display:grid;gap:2px}
+.menu a{display:flex;min-height:48px;align-items:center;padding:0 14px;border-radius:12px;font-size:16px}
+.menu .tg-link{color:#fff}
+
+/* Первый экран. Порядок в разметке: текст, поиск, табло.
+   На широком экране табло справа, поиск во всю ширину под ними. */
+.hero{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);
+  grid-template-areas:"text board" "finder finder";column-gap:clamp(32px,5vw,64px);row-gap:28px;
+  align-items:center;padding-top:clamp(16px,3vw,36px)}
+.hero-text{grid-area:text}
+.finder{grid-area:finder}
+.board{grid-area:board}
+.stamp{display:inline-flex;align-items:center;gap:9px;margin:0 0 18px;font-size:14px;color:#cfd7ee;
+  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);padding:6px 13px;border-radius:999px}
+.stamp .live{width:8px;height:8px;border-radius:50%;background:#59d18d;flex:0 0 auto}
+.lead{margin:16px 0 0;color:#bcc6e2;font-size:clamp(16px,1.45vw,19px);line-height:1.5;max-width:44ch}
+
+/* Строка поиска */
+.searchbar{display:grid;
+  grid-template-columns:minmax(0,1.15fr) minmax(0,1.15fr) minmax(0,.95fr) minmax(0,.85fr) auto;
+  background:var(--surface);color:var(--ink);border-radius:var(--r-lg);padding:8px;
+  box-shadow:0 18px 44px rgba(4,10,30,.35);--focus:var(--focus-surface)}
+.f{position:relative;min-width:0;padding:12px 18px;border-radius:12px;transition:background-color .16s}
+.f:hover,.f:focus-within{background:var(--surface-2)}
+.f:focus-within{outline:3px solid var(--focus);outline-offset:-3px}
+.f + .f::before{content:"";position:absolute;left:0;top:14px;bottom:14px;width:1px;background:var(--line);transition:opacity .16s}
+.f:hover::before,.f:hover + .f::before,.f:focus-within::before,.f:focus-within + .f::before{opacity:0}
+.f .lbl{display:block;font-size:13px;line-height:1.3;color:var(--dim);margin-bottom:3px}
+.f .v{display:flex;align-items:baseline;gap:7px;min-width:0;font-size:17px;font-weight:600;line-height:1.35;white-space:nowrap}
+.f .v .t{overflow:hidden;text-overflow:ellipsis;min-width:0}
+.f .v small{font-size:14px;font-weight:500;color:var(--faint);flex:0 0 auto}
+/* Настоящие элементы управления лежат прозрачным слоем поверх поля:
+   на телефоне открывается системный выбор, с клавиатуры всё работает. */
+.f .ctl{position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0;opacity:0;cursor:pointer;
+  font-size:16px;color:inherit;border:0;background:transparent;-webkit-appearance:none;appearance:none}
+.f-from{padding-right:32px}
+.swap{position:absolute;right:-17px;top:50%;translate:0 -50%;z-index:2;width:34px;height:34px;border-radius:50%;
+  display:grid;place-items:center;background:var(--surface);border:1px solid var(--line-2);color:var(--brand);
+  font-size:17px;cursor:pointer;transition:border-color .16s,background-color .16s}
+.swap:hover{border-color:var(--brand);background:var(--brand-soft)}
+.swap i{display:block}
+.go{border:0;border-radius:12px;background:var(--cta);color:var(--cta-ink);font-weight:700;font-size:17px;
+  padding:0 30px;white-space:nowrap;cursor:pointer;transition:background-color .16s,transform .12s}
+.go:hover{background:var(--cta-hover)}
+.go:active{transform:scale(.98)}
+.search-err{margin:10px 2px 0;color:#ffb4ab;font-size:14.5px}
+.cats{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.cat{min-height:40px;padding:0 15px;border-radius:999px;border:1px solid rgba(255,255,255,.2);
+  background:rgba(255,255,255,.08);color:#dbe1f2;font-size:15px;cursor:pointer;
+  transition:background-color .16s,color .16s,border-color .16s}
+.cat:hover{background:rgba(255,255,255,.15)}
+.cat[aria-pressed="true"]{background:#fff;border-color:#fff;color:#1e3163;font-weight:600}
+.cat:active{transform:scale(.97)}
+
+/* Табло: язык аэропорта, всегда тёмное */
+.board{background:rgba(6,12,30,.5);border:1px solid rgba(255,255,255,.12);border-radius:var(--r-lg);padding:16px 18px 6px}
+.board-h{font-size:14px;font-weight:500;letter-spacing:0;color:#aab5d6;margin:0;padding:0 2px 12px;border-bottom:1px solid rgba(255,255,255,.1)}
+.board ul{list-style:none;margin:0;padding:0}
+.brow{display:grid;grid-template-columns:48px minmax(0,1fr) auto;gap:14px;align-items:center;
+  padding:10px 2px;border-bottom:1px solid rgba(255,255,255,.07)}
+.brow:last-child{border-bottom:0}
+.brow .d{font:500 14px/1 "JetBrains Mono",ui-monospace,Menlo,monospace;color:#8e9ac0}
+.brow .r{font-size:15.5px;font-weight:500;line-height:1.3;color:#fff;min-width:0}
+.brow .r span{display:block;font-size:13px;font-weight:400;color:#8e9ac0;margin-top:2px}
+.seats{display:flex;align-items:baseline;gap:5px;white-space:nowrap}
+.seats b{font-size:24px;font-weight:800;line-height:1}
+.seats span{font-size:12.5px;color:#8e9ac0}
+.brow.ok b{color:#7ee2a8}.brow.low b{color:#ffc266}.brow.no b{color:#ff8e85;font-size:15px;font-weight:600}
+.board-f{margin:0;padding:10px 2px 8px;border-top:1px solid rgba(255,255,255,.1);font-size:13px;color:#8e9ac0}
+
+/* ---------------- страница ---------------- */
+main section{padding-block:clamp(52px,7vw,88px);scroll-margin-top:12px}
+main section:first-child{padding-top:clamp(40px,5vw,64px)}
+.sec-h{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:22px}
+.sec-h p{margin:10px 0 0;color:var(--dim);max-width:58ch}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:0 20px;
+  border-radius:var(--r-sm);border:1.5px solid transparent;font-weight:700;font-size:15.5px;line-height:1.2;
+  white-space:nowrap;text-decoration:none;cursor:pointer;
+  transition:background-color .16s,border-color .16s,color .16s,transform .12s}
+.btn:active{transform:scale(.97)}
+.btn.p{background:var(--cta);color:var(--cta-ink)}
+.btn.p:hover{background:var(--cta-hover)}
+.btn.s{background:var(--surface);border-color:var(--brand);color:var(--brand)}
+.btn.s:hover{background:var(--brand-soft)}
+
+.docnote{display:flex;gap:12px;align-items:flex-start;margin:0 0 16px;padding:14px 16px;border-radius:var(--r);
+  background:var(--brand-soft);border:1px solid var(--brand-line);color:var(--ink-2);font-size:15.5px;line-height:1.45}
+.docnote i{font-size:22px;color:var(--brand);flex:0 0 auto;margin-top:0}
+.docnote b{color:var(--ink);font-weight:600}
+
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.chip{min-height:40px;padding:0 15px;border-radius:999px;border:1px solid var(--line-2);background:var(--surface);
+  color:var(--ink-2);font-size:15px;cursor:pointer;transition:background-color .16s,border-color .16s,color .16s}
+.chip:hover{border-color:var(--brand)}
+.chip[aria-pressed="true"]{background:var(--brand);border-color:var(--brand);color:var(--brand-ink)}
+.chip:active{transform:scale(.97)}
+
+.flights{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.flight{display:grid;grid-template-columns:minmax(0,1fr) 216px 200px;gap:24px;align-items:center;
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px 22px;
+  transition:border-color .18s,box-shadow .18s}
+.flight:hover{border-color:var(--line-2);box-shadow:var(--shadow-card)}
+.fl-main{display:flex;align-items:center;gap:12px 26px;flex-wrap:wrap;min-width:0}
+.leg{display:flex;align-items:center;gap:14px}
+.pt b{display:block;font-size:22px;font-weight:700;letter-spacing:-.02em;line-height:1.1}
+.pt b sup{font-size:12px;font-weight:600;color:var(--dim);margin-left:2px;vertical-align:top;line-height:1}
+.pt span{font-size:13.5px;color:var(--dim)}
+.path{width:96px;text-align:center;font-size:12.5px;line-height:1.3;color:var(--dim)}
+.path i{display:block;height:1px;margin:5px 0;background:var(--line-2);position:relative}
+.path i::after{content:"";position:absolute;right:0;top:-2px;width:5px;height:5px;border-radius:50%;background:var(--dim)}
+.carrier{font-size:14px;line-height:1.4;color:var(--dim)}
+.carrier b{display:block;font-size:14.5px;font-weight:600;color:var(--ink-2)}
+.count{text-align:right;min-width:0}
+.count b{display:block;font-size:30px;font-weight:800;letter-spacing:-.03em;line-height:1.05}
+.count .u{display:block;font-size:14px;color:var(--dim)}
+.count .trend{display:block;font-size:13px;color:var(--dim);margin-top:4px}
+.flight[data-state="ok"] .count b{color:var(--green)}
+.flight[data-state="low"] .count b,.flight[data-state="short"] .count b{color:var(--amber)}
+.flight[data-state="none"] .count b{color:var(--red);font-size:19px;letter-spacing:-.01em}
+.act{display:flex;justify-content:flex-end}
+.act .btn{width:100%}
+
+.empty{background:var(--surface);border:1px dashed var(--line-2);border-radius:var(--r);padding:32px 24px;text-align:center}
+.empty > i{font-size:34px;color:var(--brand)}
+.empty h3{margin:10px 0 6px}
+.empty p{margin:0 auto 18px;color:var(--dim);max-width:46ch}
+.acts{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+
+/* Календарь */
+.cal{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:clamp(14px,2.4vw,26px)}
+.cal h3{font-size:18px;margin-bottom:16px}
+.cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:clamp(4px,.8vw,8px)}
+.dow{font-size:13px;color:var(--dim);text-align:center;padding-bottom:2px}
+.day{appearance:none;-webkit-appearance:none;min-height:60px;padding:8px 2px;border-radius:var(--r-sm);
+  border:1.5px solid transparent;background:var(--surface-2);color:var(--ink-2);text-align:center;cursor:pointer;
+  transition:border-color .16s,background-color .16s}
+.day .d{display:block;font-size:14px;line-height:1.2}
+.day .s{display:block;font-size:16px;font-weight:700;line-height:1.3;margin-top:3px;min-height:1.3em}
+.day.ok{background:var(--green-bg)}.day.ok .s{color:var(--green)}
+.day.low{background:var(--amber-bg)}.day.low .s{color:var(--amber)}
+.day.no{background:var(--surface);border-color:var(--line)}.day.no .s{color:var(--dim);font-weight:500}
+.day:disabled{background:transparent;border:1.5px dashed var(--line);color:var(--faint);cursor:default}
+.day:not(:disabled):hover{border-color:var(--line-2)}
+.day[aria-pressed="true"]{border-color:var(--brand);box-shadow:inset 0 0 0 1px var(--brand)}
+.pad{visibility:hidden}
+.legend{display:flex;flex-wrap:wrap;gap:10px 20px;margin-top:16px;font-size:14px;color:var(--dim)}
+.legend span{display:inline-flex;align-items:center;gap:8px}
+.legend i{width:14px;height:14px;border-radius:4px;flex:0 0 auto}
+.lg-ok{background:var(--green-bg);border:1px solid var(--green)}
+.lg-low{background:var(--amber-bg);border:1px solid var(--amber)}
+.lg-no{background:var(--surface);border:1px solid var(--line-2)}
+.lg-off{border:1.5px dashed var(--line-2)}
+
+/* Как это работает: маршрут из трёх остановок */
+.route-wrap{position:relative}
+.route-line{position:absolute;left:18px;top:17px;height:0;width:calc((100% - 56px) / 3 * 2 + 56px);
+  border-top:2px dashed var(--line-2);transform-origin:left center}
+.route{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:28px;position:relative}
+.route .mk{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:var(--bg);
+  border:2px solid var(--brand);color:var(--brand);font-weight:700;font-size:15px}
+.route h3{margin:16px 0 8px}
+.route p{margin:0;color:var(--dim);max-width:36ch}
+
+/* Сравнение */
+.cmp{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden}
+.cmp table{width:100%;border-collapse:collapse}
+.cmp th,.cmp td{padding:16px 20px;text-align:left;vertical-align:top;font-size:15.5px;line-height:1.4;border-bottom:1px solid var(--line)}
+.cmp tbody tr:last-child > *{border-bottom:0}
+.cmp thead th{font-size:14px;font-weight:600;color:var(--dim);background:var(--surface-2)}
+.cmp tbody th{font-weight:500;color:var(--ink-2);width:34%}
+.cmp .us{background:var(--brand-soft)}
+.cmp thead .us{color:var(--ink);font-weight:700;background:var(--brand-soft)}
+.yes{color:var(--green);font-weight:600}
+.nope{color:var(--dim)}
+
+/* Отзыв */
+.quote{margin:0;max-width:60ch}
+.quote blockquote{margin:0 0 20px;font-size:clamp(20px,2.3vw,26px);line-height:1.42;font-weight:500;letter-spacing:-.018em}
+.quote figcaption{font-size:15px;color:var(--dim)}
+.quote figcaption b{display:block;font-size:16px;font-weight:600;color:var(--ink)}
+
+/* Подписка */
+.sub{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:clamp(24px,5vw,56px);align-items:center;
+  background:var(--brand-soft);border:1px solid var(--brand-line);border-radius:var(--r-lg);padding:clamp(22px,5vw,52px)}
+.sub > div > p{margin:14px 0 0;color:var(--ink-2);max-width:44ch}
+.form{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:22px}
+.form .ctx{margin:0 0 14px;font-size:14.5px;color:var(--dim)}
+.form .ctx b{color:var(--ink);font-weight:600}
+.form label{display:block;margin-bottom:6px;font-size:14.5px;font-weight:600;color:var(--ink)}
+.form input{width:100%;min-height:50px;padding:0 14px;border-radius:var(--r-sm);border:1.5px solid var(--line-2);
+  background:var(--surface);color:var(--ink);font-size:16px;transition:border-color .16s}
+.form input::placeholder{color:var(--faint)}
+.form input:hover{border-color:var(--dim)}
+.form input:focus-visible{outline:3px solid var(--focus);outline-offset:1px;border-color:var(--brand)}
+.form input[aria-invalid="true"]{border-color:var(--red)}
+.err{margin:8px 0 0;font-size:14px;color:var(--red)}
+.form .btn{width:100%;margin-top:14px}
+.hint{margin:12px 0 0;font-size:13.5px;line-height:1.45;color:var(--dim)}
+.done{text-align:left}
+.done i{font-size:30px;color:var(--green)}
+.done h3{margin:8px 0 6px}
+.done p{margin:0 0 14px;color:var(--dim)}
+.linkbtn{background:none;border:0;padding:0;color:var(--brand);font-weight:600;text-decoration:underline;
+  text-underline-offset:3px;cursor:pointer;min-height:32px}
+
+/* Подвал */
+.foot{background:var(--surface);border-top:1px solid var(--line);color:var(--dim);font-size:15px;
+  padding:48px 0 calc(28px + env(safe-area-inset-bottom))}
+.foot-grid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) minmax(0,1fr);gap:32px}
+.foot .logo{color:var(--ink)}
+.foot-brand p{margin:12px 0 0;max-width:40ch}
+.foot .fh{margin:0 0 12px;font-size:14.5px;font-weight:600;color:var(--ink)}
+.foot ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.foot a{color:var(--ink-2);text-decoration:none}
+.foot a:hover{text-decoration:underline;text-underline-offset:3px}
+.foot-note{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px 24px;margin-top:32px;padding-top:20px;
+  border-top:1px solid var(--line);font-size:13.5px}
+
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));translate:-50% 0;z-index:30;
+  width:max-content;max-width:min(440px,calc(100vw - 32px));background:var(--night-2);color:#fff;
+  border:1px solid rgba(255,255,255,.14);border-radius:var(--r);padding:12px 16px;font-size:15px;line-height:1.4;
+  box-shadow:0 12px 32px rgba(4,10,30,.3)}
+
+/* ---------------- адаптив ---------------- */
+@media (max-width:1100px){
+  .flight{grid-template-columns:minmax(0,1fr) 200px;row-gap:14px}
+  .fl-main{grid-column:1/-1}
+  .count{text-align:left}
+  .searchbar{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .go{grid-column:1/-1;min-height:52px;margin-top:6px}
+}
+@media (max-width:900px){
+  .topnav,.top > .tg{display:none}
+  .menu-btn{display:inline-flex}
+  .hero{grid-template-columns:minmax(0,1fr);grid-template-areas:"text" "finder" "board";row-gap:24px}
+  .lead{max-width:52ch}
+  .sub{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width:760px){
+  .route-line{left:17px;top:18px;bottom:18px;width:0;height:auto;transform-origin:center top;
+    border-top:0;border-left:2px dashed var(--line-2)}
+  .route{grid-template-columns:minmax(0,1fr);gap:26px}
+  .route li{display:grid;grid-template-columns:36px minmax(0,1fr);column-gap:18px}
+  .route .mk{grid-row:1/3}
+  .route h3{margin:6px 0 6px}
+  .foot-grid{grid-template-columns:1fr 1fr}
+  .foot-brand{grid-column:1/-1}
+}
+@media (max-width:680px){
+  .sec-h{flex-direction:column;align-items:stretch;gap:16px}
+  .flight{grid-template-columns:minmax(0,1fr) auto;gap:14px 16px;padding:16px}
+  .act .btn{width:auto}
+  .fl-main{grid-column:1/-1}
+  .count{text-align:left;min-width:0}
+  .act{align-self:center}
+  /* Таблица сравнения становится карточками: у каждой строки свой блок. */
+  .cmp thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+  .cmp tr{display:block;padding:16px 18px;border-bottom:1px solid var(--line)}
+  .cmp tbody tr:last-child{border-bottom:0}
+  .cmp tbody th{display:block;width:auto;padding:0 0 8px;border:0;font-size:16px;font-weight:700;color:var(--ink)}
+  .cmp td{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:12px;padding:6px 0;border:0}
+  .cmp td::before{content:attr(data-label);color:var(--dim);font-size:14px;font-weight:400}
+  .cmp td.us{background:none}
+  .cmp td.us::before{color:var(--ink);font-weight:600}
+}
+@media (max-width:720px){
+  .f-from .v small,.f-to .v small{display:none}
+}
+@media (max-width:640px){
+  .searchbar{grid-template-columns:repeat(2,minmax(0,1fr));padding:6px}
+  .f{padding:10px 14px}
+  .f + .f::before{display:none}
+  .f-from{padding-right:28px}
+  .f-to{padding-left:22px}
+  .f-date,.f-pax{border-top:1px solid var(--line);border-radius:0 0 12px 12px}
+  .swap{right:-16px;width:32px;height:32px}
+  .go{margin-top:4px}
+  .board{padding:14px 14px 4px}
+  .brow{grid-template-columns:44px minmax(0,1fr) auto;gap:10px}
+  .brow .d{font-size:13px}
+  .demo{font-size:13px;padding-block:7px}
+  .stamp{margin-bottom:14px}
+  .day{min-height:52px;padding:7px 1px}
+  .day .d{font-size:13px}
+  .day .s{font-size:14px}
+  p{hyphens:auto;-webkit-hyphens:auto}
+}
+@media (max-width:480px){
+  .flight .act{grid-column:1/-1}
+  .flight .act .btn{width:100%}
+  .count b{display:inline;margin-right:6px}
+  .count .u{display:inline}
+  .foot-grid{grid-template-columns:minmax(0,1fr)}
+  .cmp td{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+}
+@media (max-width:359px){
+  .f{padding:9px 10px}
+  .f-from{padding-right:22px}
+  .f-to{padding-left:20px}
+  .f .lbl{font-size:12.5px}
+  .f .v{font-size:15.5px}
+  .swap{right:-15px;width:30px;height:30px;font-size:15px}
+  .day .s{font-size:13px}
+}
+/* Телефон в альбомной ориентации: экран низкий, поэтому табло уходит под поиск,
+   а строка поиска собирается в один ряд. */
+@media (orientation:landscape) and (max-height:520px) and (min-width:760px){
+  .hero{grid-template-columns:minmax(0,1fr);grid-template-areas:"text" "finder" "board";row-gap:18px;padding-top:6px}
+  .lead{max-width:72ch;margin-top:10px}
+  .stamp{margin-bottom:10px}
+  .searchbar{grid-template-columns:minmax(0,1.1fr) minmax(0,1.1fr) minmax(0,1fr) minmax(0,.9fr) auto}
+  .go{grid-column:auto;min-height:0;margin-top:0;padding:0 18px}
+  .f{padding:10px 12px}
+  .f-from{padding-right:26px}
+  .f-to{padding-left:22px}
+  .f .v small{display:none}
+}
+
+/* Запрос на меньше движения: всё мгновенно. */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}
+}
+@media print{
+  .night{background:none;color:#000}.menu-btn,.tg,.toast,.skip{display:none!important}
+  [style*="opacity"]{opacity:1!important;transform:none!important}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">К содержимому</a>
+<aside class="demo" aria-label="О макете"><p>Демо-макет: рейсы, места и отзыв вымышленные, покупка и подписка не подключены.</p></aside>
+
+<header class="night">
+  <div class="wrap">
+    <div class="top">
+      <a class="logo" href="#main" aria-label="Есть места, к началу страницы"><i aria-hidden="true"></i>Есть места</a>
+      <nav class="topnav" aria-label="Разделы">
+        <a href="#rejsy">Рейсы</a>
+        <a href="#calendar">Календарь</a>
+        <a href="#kak">Как это работает</a>
+      </nav>
+      <a class="tg" href="#podpiska">Бот в Telegram</a>
+      <button class="menu-btn" type="button" aria-expanded="false" aria-controls="menu">
+        <i class="ph ph-list" aria-hidden="true"></i><span>Меню</span>
+      </button>
+      <nav class="menu" id="menu" aria-label="Разделы" hidden>
+        <ul>
+          <li><a href="#rejsy">Рейсы</a></li>
+          <li><a href="#calendar">Календарь</a></li>
+          <li><a href="#kak">Как это работает</a></li>
+          <li><a class="tg-link" href="#podpiska">Бот в Telegram</a></li>
+        </ul>
+      </nav>
+    </div>
+
+    <div class="hero">
+      <div class="hero-text">
+        <p class="stamp"><span class="live" aria-hidden="true"></span>Проверено 4 минуты назад</p>
+        <h1>Места по субсидии кончаются за часы</h1>
+        <p class="lead">Следим за квотой круглосуточно и пишем, как только места возвращаются в продажу. Цена та же, что в кассе.</p>
+      </div>
+
+      <div class="finder">
+        <form class="searchbar" id="search" role="search" aria-label="Поиск мест по субсидии" novalidate>
+          <div class="f f-from">
+            <label class="lbl" for="from">Откуда</label>
+            <div class="v" aria-hidden="true"><span class="t" data-show="from">Хабаровск</span><small data-show="from-code">KHV</small></div>
+            <select class="ctl" id="from" name="from"><option value="KHV" selected>Хабаровск</option><option value="VVO">Владивосток</option><option value="UUS">Южно-Сахалинск</option><option value="PKC">Петропавловск-Камчатский</option><option value="GDX">Магадан</option><option value="YKS">Якутск</option><option value="BQS">Благовещенск</option><option value="MOW">Москва</option><option value="LED">Санкт-Петербург</option><option value="OVB">Новосибирск</option><option value="SVX">Екатеринбург</option></select>
+            <button class="swap" type="button" id="swap" aria-label="Поменять города местами"><i class="ph ph-arrows-left-right" aria-hidden="true"></i></button>
+          </div>
+          <div class="f f-to">
+            <label class="lbl" for="to">Куда</label>
+            <div class="v" aria-hidden="true"><span class="t" data-show="to">Москва</span><small data-show="to-code">MOW</small></div>
+            <select class="ctl" id="to" name="to"><option value="KHV">Хабаровск</option><option value="VVO">Владивосток</option><option value="UUS">Южно-Сахалинск</option><option value="PKC">Петропавловск-Камчатский</option><option value="GDX">Магадан</option><option value="YKS">Якутск</option><option value="BQS">Благовещенск</option><option value="MOW" selected>Москва</option><option value="LED">Санкт-Петербург</option><option value="OVB">Новосибирск</option><option value="SVX">Екатеринбург</option></select>
+          </div>
+          <div class="f f-date">
+            <label class="lbl" for="date">Когда</label>
+            <div class="v" aria-hidden="true"><span class="t" data-show="date">12 сентября</span></div>
+            <input class="ctl" type="date" id="date" name="date" value="2026-09-12" min="2026-09-06" max="2026-09-30">
+          </div>
+          <div class="f f-pax">
+            <label class="lbl" for="pax">Пассажиры</label>
+            <div class="v" aria-hidden="true"><span class="t" data-show="pax">1 пассажир</span></div>
+            <select class="ctl" id="pax" name="pax">
+              <option value="1" selected>1 пассажир</option><option value="2">2 пассажира</option>
+              <option value="3">3 пассажира</option><option value="4">4 пассажира</option>
+              <option value="5">5 пассажиров</option><option value="6">6 пассажиров</option>
+            </select>
+          </div>
+          <button class="go" type="submit">Смотреть места</button>
+        </form>
+        <p class="search-err" id="search-err" role="alert" hidden></p>
+        <div class="cats" role="group" aria-label="Категория льготы">
+          <button class="cat" type="button" data-cat="dfo" aria-pressed="true">Житель ДФО</button>
+          <button class="cat" type="button" data-cat="young" aria-pressed="false">До 23 лет</button>
+          <button class="cat" type="button" data-cat="pension" aria-pressed="false">Пенсионер</button>
+          <button class="cat" type="button" data-cat="family" aria-pressed="false">Многодетная семья</button>
+          <button class="cat" type="button" data-cat="disabled" aria-pressed="false">Инвалидность</button>
+        </div>
+      </div>
+
+      <aside class="board" aria-labelledby="board-h">
+        <p class="board-h" id="board-h">Сейчас на популярных направлениях</p>
+        <ul>
+          <li class="brow ok"><span class="d">12.09</span><span class="r">Хабаровск → Москва<span>SU 1711 · вылет 23:55</span></span><span class="seats"><b>7</b><span>мест</span></span></li>
+          <li class="brow low"><span class="d">13.09</span><span class="r">Владивосток → Москва<span>SU 1701 · вылет 22:20</span></span><span class="seats"><b>2</b><span>места</span></span></li>
+          <li class="brow no"><span class="d">14.09</span><span class="r">Южно-Сахалинск → Москва<span>SU 1731 · вылет 21:40</span></span><span class="seats"><b>нет</b></span></li>
+          <li class="brow ok"><span class="d">15.09</span><span class="r">Хабаровск → Петербург<span>SU 6284 · вылет 20:10</span></span><span class="seats"><b>11</b><span>мест</span></span></li>
+          <li class="brow no"><span class="d">16.09</span><span class="r">Петропавловск-Камчатский → Москва<span>SU 1741 · вылет 19:05</span></span><span class="seats"><b>нет</b></span></li>
+        </ul>
+        <p class="board-f">Обновляем каждые 15 минут. История наличия хранится с 2 июня.</p>
+      </aside>
+    </div>
+  </div>
+</header>
+
+<main id="main" tabindex="-1">
+  <section id="rejsy" aria-labelledby="res-title">
+    <div class="wrap">
+      <div class="sec-h">
+        <div>
+          <h2 id="res-title" tabindex="-1">Хабаровск → Москва, 12 сентября</h2>
+          <p>Четыре рейса в день. Вместо цены показываем число свободных мест: тариф по субсидии одинаковый на всех рейсах.</p>
+        </div>
+        <button class="btn s" type="button" data-notify>Сообщить о местах</button>
+      </div>
+
+      <p class="docnote" id="docnote"><i class="ph ph-identification-card" aria-hidden="true"></i><span data-doc><b>Житель ДФО.</b> На регистрации нужен паспорт с отметкой о регистрации в ДФО. Детям нужны свидетельство о рождении и документ о регистрации.</span></p>
+
+      <div class="filters" role="group" aria-label="Фильтры рейсов">
+        <button class="chip" type="button" data-filter="all" aria-pressed="true">Все рейсы</button>
+        <button class="chip" type="button" data-filter="avail" aria-pressed="false">Только где есть места</button>
+        <button class="chip" type="button" data-filter="direct" aria-pressed="false">Без пересадок</button>
+        <button class="chip" type="button" data-filter="evening" aria-pressed="false">Вылет после 18:00</button>
+      </div>
+
+      <ul class="flights" id="flights">
+        <li class="flight" data-id="SU1703" data-state="none" data-direct="1" data-dep="570">
+          <div class="fl-main">
+            <div class="leg">
+              <div class="pt"><b class="num">09:30</b><span data-code="from">KHV</span></div>
+              <div class="path"><span>8 ч 15 мин</span><i aria-hidden="true"></i><span>прямой</span></div>
+              <div class="pt"><b class="num">10:45</b><span data-code="to">SVO</span></div>
+            </div>
+            <div class="carrier"><b>Аэрофлот</b>SU 1703 · Boeing 777</div>
+          </div>
+          <div class="count" aria-live="off"><b data-seats>Мест нет</b><span class="u" data-unit hidden></span><span class="trend" data-trend>Закончились в 06:12, за сутки возвращались дважды</span></div>
+          <div class="act"><button class="btn p" type="button" data-buy hidden>Купить у партнёра</button><button class="btn s" type="button" data-notify>Сообщить о местах</button></div>
+        </li>
+        <li class="flight" data-id="SU1705" data-state="low" data-direct="1" data-dep="880">
+          <div class="fl-main">
+            <div class="leg">
+              <div class="pt"><b class="num">14:40</b><span data-code="from">KHV</span></div>
+              <div class="path"><span>8 ч 05 мин</span><i aria-hidden="true"></i><span>прямой</span></div>
+              <div class="pt"><b class="num">15:45</b><span data-code="to">SVO</span></div>
+            </div>
+            <div class="carrier"><b>Аэрофлот</b>SU 1705 · Airbus A330</div>
+          </div>
+          <div class="count"><b data-seats>2</b><span class="u" data-unit>места по 10 800 ₽</span><span class="trend" data-trend>Разбирают быстро</span></div>
+          <div class="act"><button class="btn p" type="button" data-buy>Купить у партнёра</button><button class="btn s" type="button" data-notify hidden>Сообщить о местах</button></div>
+        </li>
+        <li class="flight" data-id="HZ5622" data-state="ok" data-direct="0" data-dep="1155">
+          <div class="fl-main">
+            <div class="leg">
+              <div class="pt"><b class="num">19:15</b><span data-code="from">KHV</span></div>
+              <div class="path"><span>10 ч 40 мин</span><i aria-hidden="true"></i><span>1 пересадка</span></div>
+              <div class="pt"><b class="num">22:55</b><span data-code="to">SVO</span></div>
+            </div>
+            <div class="carrier"><b>Аврора и Аэрофлот</b>HZ 5622 / SU 1740</div>
+          </div>
+          <div class="count"><b data-seats>14</b><span class="u" data-unit>мест по 10 800 ₽</span><span class="trend" data-trend>Без изменений сутки</span></div>
+          <div class="act"><button class="btn p" type="button" data-buy>Купить у партнёра</button><button class="btn s" type="button" data-notify hidden>Сообщить о местах</button></div>
+        </li>
+        <li class="flight" data-id="SU1711" data-state="ok" data-direct="1" data-dep="1435">
+          <div class="fl-main">
+            <div class="leg">
+              <div class="pt"><b class="num">23:55</b><span data-code="from">KHV</span></div>
+              <div class="path"><span>8 ч 20 мин</span><i aria-hidden="true"></i><span>прямой</span></div>
+              <div class="pt"><b class="num">01:15<sup>+1</sup></b><span data-code="to">SVO</span></div>
+            </div>
+            <div class="carrier"><b>Аэрофлот</b>SU 1711 · Boeing 777</div>
+          </div>
+          <div class="count"><b data-seats>7</b><span class="u" data-unit>мест по 10 800 ₽</span><span class="trend" data-trend>Утром было 12</span></div>
+          <div class="act"><button class="btn p" type="button" data-buy>Купить у партнёра</button><button class="btn s" type="button" data-notify hidden>Сообщить о местах</button></div>
+        </li>
+      </ul>
+
+      <div class="empty" id="empty-filter" hidden>
+        <i class="ph ph-funnel-x" aria-hidden="true"></i>
+        <h3>Под эти условия рейсов нет</h3>
+        <p>Снимите фильтр или подпишитесь: напишем, когда места появятся.</p>
+        <div class="acts"><button class="btn s" type="button" data-reset>Сбросить фильтры</button><button class="btn p" type="button" data-notify>Сообщить о местах</button></div>
+      </div>
+      <div class="empty" id="empty-off" hidden>
+        <i class="ph ph-calendar-x" aria-hidden="true"></i>
+        <h3>Эту дату мы пока не отслеживаем</h3>
+        <p>Мониторинг идёт с 6 по 30 сентября. Выберите другую дату в календаре.</p>
+        <div class="acts"><a class="btn s" href="#calendar">Открыть календарь</a></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="calendar" aria-labelledby="cal-title">
+    <div class="wrap">
+      <div class="sec-h">
+        <div>
+          <h2 id="cal-title">Где места есть в другие дни</h2>
+          <p>Как календарь низких цен, только вместо цены число свободных мест. Нажмите на день, чтобы открыть рейсы.</p>
+        </div>
+      </div>
+      <div class="cal">
+        <h3 id="cal-route">Сентябрь 2026, Хабаровск → Москва</h3>
+        <div class="cal-grid" role="group" aria-labelledby="cal-route" aria-describedby="cal-keys">
+          <span class="dow" aria-hidden="true">пн</span>
+          <span class="dow" aria-hidden="true">вт</span>
+          <span class="dow" aria-hidden="true">ср</span>
+          <span class="dow" aria-hidden="true">чт</span>
+          <span class="dow" aria-hidden="true">пт</span>
+          <span class="dow" aria-hidden="true">сб</span>
+          <span class="dow" aria-hidden="true">вс</span>
+          <span class="pad" aria-hidden="true"></span>
+          <button class="day" type="button" data-day="1" disabled aria-label="1 сентября, вне мониторинга"><span class="d">1</span><span class="s"></span></button>
+          <button class="day" type="button" data-day="2" disabled aria-label="2 сентября, вне мониторинга"><span class="d">2</span><span class="s"></span></button>
+          <button class="day" type="button" data-day="3" disabled aria-label="3 сентября, вне мониторинга"><span class="d">3</span><span class="s"></span></button>
+          <button class="day" type="button" data-day="4" disabled aria-label="4 сентября, вне мониторинга"><span class="d">4</span><span class="s"></span></button>
+          <button class="day" type="button" data-day="5" disabled aria-label="5 сентября, вне мониторинга"><span class="d">5</span><span class="s"></span></button>
+          <button class="day no" type="button" data-day="6" aria-pressed="false" aria-label="6 сентября, мест нет"><span class="d">6</span><span class="s">нет</span></button>
+          <button class="day ok" type="button" data-day="7" aria-pressed="false" aria-label="7 сентября, 9 мест"><span class="d">7</span><span class="s">9</span></button>
+          <button class="day no" type="button" data-day="8" aria-pressed="false" aria-label="8 сентября, мест нет"><span class="d">8</span><span class="s">нет</span></button>
+          <button class="day no" type="button" data-day="9" aria-pressed="false" aria-label="9 сентября, мест нет"><span class="d">9</span><span class="s">нет</span></button>
+          <button class="day low" type="button" data-day="10" aria-pressed="false" aria-label="10 сентября, 2 места"><span class="d">10</span><span class="s">2</span></button>
+          <button class="day ok" type="button" data-day="11" aria-pressed="false" aria-label="11 сентября, 16 мест"><span class="d">11</span><span class="s">16</span></button>
+          <button class="day ok" type="button" data-day="12" aria-pressed="true" aria-label="12 сентября, 23 места"><span class="d">12</span><span class="s">23</span></button>
+          <button class="day low" type="button" data-day="13" aria-pressed="false" aria-label="13 сентября, 2 места"><span class="d">13</span><span class="s">2</span></button>
+          <button class="day no" type="button" data-day="14" aria-pressed="false" aria-label="14 сентября, мест нет"><span class="d">14</span><span class="s">нет</span></button>
+          <button class="day ok" type="button" data-day="15" aria-pressed="false" aria-label="15 сентября, 11 мест"><span class="d">15</span><span class="s">11</span></button>
+          <button class="day no" type="button" data-day="16" aria-pressed="false" aria-label="16 сентября, мест нет"><span class="d">16</span><span class="s">нет</span></button>
+          <button class="day ok" type="button" data-day="17" aria-pressed="false" aria-label="17 сентября, 5 мест"><span class="d">17</span><span class="s">5</span></button>
+          <button class="day ok" type="button" data-day="18" aria-pressed="false" aria-label="18 сентября, 3 места"><span class="d">18</span><span class="s">3</span></button>
+          <button class="day no" type="button" data-day="19" aria-pressed="false" aria-label="19 сентября, мест нет"><span class="d">19</span><span class="s">нет</span></button>
+          <button class="day no" type="button" data-day="20" aria-pressed="false" aria-label="20 сентября, мест нет"><span class="d">20</span><span class="s">нет</span></button>
+          <button class="day ok" type="button" data-day="21" aria-pressed="false" aria-label="21 сентября, 14 мест"><span class="d">21</span><span class="s">14</span></button>
+          <button class="day ok" type="button" data-day="22" aria-pressed="false" aria-label="22 сентября, 6 мест"><span class="d">22</span><span class="s">6</span></button>
+          <button class="day no" type="button" data-day="23" aria-pressed="false" aria-label="23 сентября, мест нет"><span class="d">23</span><span class="s">нет</span></button>
+          <button class="day low" type="button" data-day="24" aria-pressed="false" aria-label="24 сентября, 2 места"><span class="d">24</span><span class="s">2</span></button>
+          <button class="day ok" type="button" data-day="25" aria-pressed="false" aria-label="25 сентября, 8 мест"><span class="d">25</span><span class="s">8</span></button>
+          <button class="day no" type="button" data-day="26" aria-pressed="false" aria-label="26 сентября, мест нет"><span class="d">26</span><span class="s">нет</span></button>
+          <button class="day no" type="button" data-day="27" aria-pressed="false" aria-label="27 сентября, мест нет"><span class="d">27</span><span class="s">нет</span></button>
+          <button class="day ok" type="button" data-day="28" aria-pressed="false" aria-label="28 сентября, 4 места"><span class="d">28</span><span class="s">4</span></button>
+          <button class="day ok" type="button" data-day="29" aria-pressed="false" aria-label="29 сентября, 9 мест"><span class="d">29</span><span class="s">9</span></button>
+          <button class="day low" type="button" data-day="30" aria-pressed="false" aria-label="30 сентября, 1 место"><span class="d">30</span><span class="s">1</span></button>
+        </div>
+        <p class="sr" id="cal-keys">Дни выбираются стрелками, Enter открывает рейсы.</p>
+        <div class="legend" aria-hidden="true">
+          <span><i class="lg-ok"></i>места есть</span>
+          <span><i class="lg-low"></i>осталось меньше трёх</span>
+          <span><i class="lg-no"></i>мест нет</span>
+          <span><i class="lg-off"></i>вне мониторинга</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="kak" aria-labelledby="kak-title">
+    <div class="wrap">
+      <div class="sec-h">
+        <div>
+          <h2 id="kak-title">Как это работает</h2>
+          <p>Мы не продаём билеты и не берём с вас денег.</p>
+        </div>
+      </div>
+      <div class="route-wrap">
+        <span class="route-line" aria-hidden="true"></span>
+        <ol class="route">
+          <li>
+            <span class="mk" aria-hidden="true">1</span>
+            <h3>Выберите маршрут и дату</h3>
+            <p>Показываем места по субсидированному тарифу из собственной истории наблюдений, а не разовым запросом.</p>
+          </li>
+          <li>
+            <span class="mk" aria-hidden="true">2</span>
+            <h3>Подпишитесь, если мест нет</h3>
+            <p>Квоту возвращают в продажу после отказов от брони. Когда это случится, придёт сообщение в Telegram или на почту.</p>
+          </li>
+          <li>
+            <span class="mk" aria-hidden="true">3</span>
+            <h3>Купите у партнёра</h3>
+            <p>Переходите по ссылке в кассу и оформляете билет. Цена та же, что напрямую: комиссию нам платит касса.</p>
+          </li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section id="zachem" aria-labelledby="cmp-title">
+    <div class="wrap">
+      <div class="sec-h">
+        <div>
+          <h2 id="cmp-title">Зачем это, если есть агрегаторы</h2>
+          <p>Места по субсидии выбирают не по цене, а по наличию. Обычные сервисы отвечают на вопрос «сколько стоит», а здесь важно «есть ли вообще».</p>
+        </div>
+      </div>
+      <div class="cmp">
+        <table role="table">
+          <thead role="rowgroup">
+            <tr role="row">
+              <th role="columnheader" scope="col"><span class="sr">Что важно</span></th>
+              <th role="columnheader" scope="col" class="us">Есть места</th>
+              <th role="columnheader" scope="col">Агрегатор билетов</th>
+              <th role="columnheader" scope="col">Сайт авиакомпании</th>
+            </tr>
+          </thead>
+          <tbody role="rowgroup">
+            <tr role="row">
+              <th role="rowheader" scope="row">Видно, сколько мест по субсидии</th>
+              <td role="cell" class="us yes" data-label="Есть места">Да, числом</td>
+              <td role="cell" class="nope" data-label="Агрегатор">Только «есть» или «нет»</td>
+              <td role="cell" class="nope" data-label="Авиакомпания">Только «есть» или «нет»</td>
+            </tr>
+            <tr role="row">
+              <th role="rowheader" scope="row">История: когда места появлялись раньше</th>
+              <td role="cell" class="us yes" data-label="Есть места">Да, с начала наблюдений</td>
+              <td role="cell" class="nope" data-label="Агрегатор">Нет</td>
+              <td role="cell" class="nope" data-label="Авиакомпания">Нет</td>
+            </tr>
+            <tr role="row">
+              <th role="rowheader" scope="row">Сообщение, когда квоту вернули</th>
+              <td role="cell" class="us yes" data-label="Есть места">Telegram и почта</td>
+              <td role="cell" class="nope" data-label="Агрегатор">Только о цене</td>
+              <td role="cell" class="nope" data-label="Авиакомпания">Нет</td>
+            </tr>
+            <tr role="row">
+              <th role="rowheader" scope="row">Какие документы нужны</th>
+              <td role="cell" class="us yes" data-label="Есть места">По вашей категории</td>
+              <td role="cell" class="nope" data-label="Агрегатор">Общая справка</td>
+              <td role="cell" class="nope" data-label="Авиакомпания">Правила тарифа</td>
+            </tr>
+            <tr role="row">
+              <th role="rowheader" scope="row">Стоимость билета</th>
+              <td role="cell" class="us" data-label="Есть места">Та же</td>
+              <td role="cell" data-label="Агрегатор">Та же или выше</td>
+              <td role="cell" data-label="Авиакомпания">Та же</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section aria-label="Отзыв">
+    <div class="wrap">
+      <figure class="quote">
+        <blockquote>«Три недели заходила на сайт по десять раз в день и всё пропускала. Здесь подписалась на дату и поймала место ночью, за пятнадцать минут.»</blockquote>
+        <figcaption><b>Марина Кравченко</b>Хабаровск, летала к дочери в Петербург</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section id="podpiska" aria-labelledby="sub-title">
+    <div class="wrap">
+      <div class="sub">
+        <div>
+          <h2 id="sub-title">Скажем, когда места вернутся</h2>
+          <p>Один маршрут, одна дата, одно сообщение. Ничего лишнего, отписаться можно в любой момент.</p>
+        </div>
+        <div class="form">
+          <form id="subform" novalidate>
+            <p class="ctx">Следим за: <b data-ctx>Хабаровск → Москва, 12 сентября</b></p>
+            <label for="contact">Telegram или почта</label>
+            <input id="contact" name="contact" type="text" inputmode="email" autocomplete="email"
+                   placeholder="@username или name@mail.ru" aria-describedby="contact-hint contact-err">
+            <p class="err" id="contact-err" role="alert" hidden></p>
+            <button class="btn p" type="submit">Сообщить о местах</button>
+            <p class="hint" id="contact-hint">Проверяем этот маршрут каждые 15 минут, пока вы подписаны.</p>
+          </form>
+          <div class="done" id="subdone" hidden tabindex="-1">
+            <i class="ph ph-check-circle" aria-hidden="true"></i>
+            <h3>Подписка оформлена</h3>
+            <p data-done-text>Напишем, как только появятся места.</p>
+            <button class="linkbtn" type="button" id="subedit">Изменить</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a class="logo" href="#main"><i aria-hidden="true"></i>Есть места</a>
+        <p>Сервис информационный: наличие мест показываем мы, билеты продаёт касса-партнёр.</p>
+      </div>
+      <div>
+        <p class="fh" id="fh-who">Субсидия положена</p>
+        <ul aria-labelledby="fh-who">
+          <li>Жителям Дальнего Востока</li>
+          <li>Молодёжи до 23 лет</li>
+          <li>Женщинам от 55 и мужчинам от 60 лет</li>
+          <li>Многодетным семьям</li>
+          <li>Людям с инвалидностью и сопровождающим</li>
+        </ul>
+      </div>
+      <div>
+        <p class="fh" id="fh-svc">Сервис</p>
+        <ul aria-labelledby="fh-svc">
+          <li><a href="#rejsy">Рейсы</a></li>
+          <li><a href="#calendar">Календарь мест</a></li>
+          <li><a href="#kak">Как это работает</a></li>
+          <li><a href="#podpiska">Бот в Telegram</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-note">
+      <span>Данные обновляются автоматически, возможны расхождения с выдачей перевозчика.</span>
+      <a href="#privacy">Политика обработки данных</a>
+    </div>
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  'use strict';
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+
+  /* ---------- движение ----------
+     Motion (бывший Framer Motion), ванильная сборка. Если библиотека не
+     загрузилась или пользователь просит меньше движения, интерфейс
+     работает так же, только без анимаций. */
+  var reduceMQ = window.matchMedia('(prefers-reduced-motion: reduce)');
+  function M() { return (!reduceMQ.matches && window.Motion) ? window.Motion : null; }
+  var EASE = [0.16, 1, 0.3, 1];
+  var SPRING = { type: 'spring', stiffness: 320, damping: 34 };
+  function play(target, keyframes, options) {
+    var m = M();
+    if (!m || !target || (target.length === 0)) return Promise.resolve();
+    var c = m.animate(target, keyframes, options || { duration: 0.45, ease: EASE });
+    return new Promise(function (res) { c.then ? c.then(res, res) : res(); });
+  }
+
+  /* ---------- данные демо ---------- */
+  var CITIES = {
+    KHV: ['Хабаровск', 'KHV'], VVO: ['Владивосток', 'VVO'], UUS: ['Южно-Сахалинск', 'UUS'],
+    PKC: ['Петропавловск-Камчатский', 'PKC'], GDX: ['Магадан', 'GDX'], YKS: ['Якутск', 'YKS'],
+    BQS: ['Благовещенск', 'BQS'], MOW: ['Москва', 'SVO'], LED: ['Санкт-Петербург', 'LED'],
+    OVB: ['Новосибирск', 'OVB'], SVX: ['Екатеринбург', 'SVX']
+  };
+  var MONTH_GEN = 'сентября';
+  // Всего мест по субсидии на все рейсы дня; null: дата вне мониторинга.
+  var SEATS = [null, null, null, null, null, 0, 9, 0, 0, 2, 16, 23, 2, 0, 11, 0, 5, 3, 0, 0, 14, 6, 0, 2, 8, 0, 0, 4, 9, 1];
+  var DAY12 = { SU1703: 0, SU1705: 2, HZ5622: 14, SU1711: 7 };
+  var TREND12 = {
+    SU1703: 'Закончились в 06:12, за сутки возвращались дважды',
+    SU1705: 'Разбирают быстро', HZ5622: 'Без изменений сутки', SU1711: 'Утром было 12'
+  };
+  var DOCS = {
+    dfo: '<b>Житель ДФО.</b> На регистрации нужен паспорт с отметкой о регистрации в ДФО. Детям нужны свидетельство о рождении и документ о регистрации.',
+    young: '<b>До 23 лет.</b> На регистрации нужен паспорт, по которому видно возраст.',
+    pension: '<b>Пенсионер.</b> Нужен паспорт: тариф действует для женщин от 55 лет и мужчин от 60.',
+    family: '<b>Многодетная семья.</b> Нужны паспорт и удостоверение многодетной семьи.',
+    disabled: '<b>Инвалидность.</b> Нужны паспорт и справка МСЭ. Сопровождающему тоже нужен паспорт.'
+  };
+  var PRICE = '10 800 ₽';
+
+  var state = { from: 'KHV', to: 'MOW', day: 12, pax: 1, cat: 'dfo', filters: { avail: false, direct: false, evening: false } };
+
+  function plural(n, forms) {
+    var a = Math.abs(n) % 100, b = a % 10;
+    if (a > 10 && a < 20) return forms[2];
+    if (b > 1 && b < 5) return forms[1];
+    if (b === 1) return forms[0];
+    return forms[2];
+  }
+  var SEAT_FORMS = ['место', 'места', 'мест'];
+  function routeText() { return CITIES[state.from][0] + ' → ' + CITIES[state.to][0]; }
+  function dateText(d) { return d + ' ' + MONTH_GEN; }
+  function seatsFor(id, day) {
+    if (day === 12) return DAY12[id];
+    var t = SEATS[day - 1] || 0;
+    var a = Math.floor(t * 0.2), b = Math.floor(t * 0.15), c = Math.floor(t * 0.4);
+    return { SU1703: a, SU1705: b, HZ5622: c, SU1711: t - a - b - c }[id];
+  }
+
+  /* ---------- поля поиска ---------- */
+  var fFrom = $('#from'), fTo = $('#to'), fDate = $('#date'), fPax = $('#pax');
+  function showFields() {
+    $('[data-show="from"]').textContent = CITIES[fFrom.value][0];
+    $('[data-show="from-code"]').textContent = fFrom.value;
+    $('[data-show="to"]').textContent = CITIES[fTo.value][0];
+    $('[data-show="to-code"]').textContent = fTo.value;
+    var d = fDate.value ? parseInt(fDate.value.slice(8, 10), 10) : null;
+    $('[data-show="date"]').textContent = d ? dateText(d) : 'Выберите дату';
+    var p = parseInt(fPax.value, 10);
+    $('[data-show="pax"]').textContent = p + ' ' + plural(p, ['пассажир', 'пассажира', 'пассажиров']);
+  }
+  [fFrom, fTo, fPax].forEach(function (el) { el.addEventListener('change', showFields); });
+  fDate.addEventListener('input', showFields);
+  fDate.addEventListener('change', showFields);
+  // Клик по полю даты открывает системный календарь, а не ввод по сегментам.
+  fDate.addEventListener('click', function () { try { fDate.showPicker(); } catch (e) {} });
+
+  var swapRot = 0;
+  $('#swap').addEventListener('click', function () {
+    var a = fFrom.value; fFrom.value = fTo.value; fTo.value = a;
+    showFields();
+    swapRot += 180;
+    play($('#swap i'), { rotate: swapRot }, SPRING);
+    play($$('.f-from .v, .f-to .v'), { opacity: [0, 1], x: [6, 0] }, { duration: 0.3, ease: EASE });
+  });
+
+  var searchErr = $('#search-err');
+  function setSearchError(msg) {
+    searchErr.textContent = msg || '';
+    searchErr.hidden = !msg;
+    if (msg) play(searchErr, { opacity: [0, 1], y: [-4, 0] }, { duration: 0.25, ease: EASE });
+  }
+  $('#search').addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (fFrom.value === fTo.value) return setSearchError('Города вылета и прилёта совпадают. Выберите другой город.');
+    if (!fDate.value) return setSearchError('Выберите дату вылета.');
+    var d = parseInt(fDate.value.slice(8, 10), 10);
+    var mo = fDate.value.slice(0, 7);
+    if (mo !== '2026-09' || d < 6) return setSearchError('Мониторим даты с 6 по 30 сентября.');
+    setSearchError('');
+    state.from = fFrom.value; state.to = fTo.value; state.day = d; state.pax = parseInt(fPax.value, 10);
+    renderAll(true);
+    goTo($('#rejsy'), $('#res-title'));
+  });
+
+  /* ---------- категории ---------- */
+  var docText = $('[data-doc]');
+  $$('.cat').forEach(function (b) {
+    b.addEventListener('click', function () {
+      if (state.cat === b.dataset.cat) return;
+      state.cat = b.dataset.cat;
+      $$('.cat').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+      docText.innerHTML = DOCS[state.cat];
+      play(docText, { opacity: [0, 1], y: [4, 0] }, { duration: 0.35, ease: EASE });
+    });
+  });
+
+  /* ---------- рейсы ---------- */
+  var cards = $$('.flight');
+  var emptyFilter = $('#empty-filter'), emptyOff = $('#empty-off'), filtersBox = $('.filters');
+
+  function renderFlights() {
+    var off = SEATS[state.day - 1] === null;
+    cards.forEach(function (c) {
+      c.querySelector('[data-code="from"]').textContent = CITIES[state.from][1];
+      c.querySelector('[data-code="to"]').textContent = CITIES[state.to][1];
+      var n = off ? 0 : seatsFor(c.dataset.id, state.day);
+      c.dataset.seats = n;
+      var st = n === 0 ? 'none' : (n < state.pax ? 'short' : (n < 3 ? 'low' : 'ok'));
+      c.dataset.state = st;
+      var b = c.querySelector('[data-seats]'), u = c.querySelector('[data-unit]'), t = c.querySelector('[data-trend]');
+      if (st === 'none') {
+        b.textContent = 'Мест нет'; u.hidden = true;
+      } else {
+        b.textContent = n; u.hidden = false;
+        u.textContent = plural(n, SEAT_FORMS) + ' по ' + PRICE;
+      }
+      var trend = state.day === 12 ? TREND12[c.dataset.id] : (st === 'none' ? 'Весь день без мест' : '');
+      if (st === 'short') trend = 'Не хватит на всех пассажиров';
+      t.textContent = trend; t.hidden = !trend;
+      var canBuy = st === 'ok' || st === 'low';
+      c.querySelector('[data-buy]').hidden = !canBuy;
+      c.querySelector('[data-notify]').hidden = canBuy;
+    });
+  }
+  function matches(c) {
+    var f = state.filters;
+    if (f.avail && !(+c.dataset.seats >= state.pax && +c.dataset.seats > 0)) return false;
+    if (f.direct && c.dataset.direct !== '1') return false;
+    if (f.evening && +c.dataset.dep < 18 * 60) return false;
+    return true;
+  }
+
+  var running = [];
+  var flipToken = 0;
+  function stopRunning() { running.forEach(function (c) { try { c.stop(); } catch (e) {} }); running = []; }
+  function track(c) { if (c) running.push(c); return c; }
+
+  /* Смена фильтра (FLIP): уходящие карточки гаснут, оставшиеся переезжают
+     на новые места, новые проявляются. Каждая видимая карточка анимируется
+     к полной непрозрачности, поэтому прерванная анимация не оставляет следов. */
+  var SHOWN = { opacity: 1, scale: 1, y: 0 };
+  function applyFilters(animate) {
+    var token = ++flipToken;
+    var off = SEATS[state.day - 1] === null;
+    var want = new Map();
+    cards.forEach(function (c) { want.set(c, !off && matches(c)); });
+    var anyShown = cards.some(function (c) { return want.get(c); });
+    function finish() {
+      filtersBox.hidden = off;
+      emptyOff.hidden = !off;
+      emptyFilter.hidden = off || anyShown;
+    }
+    var m = animate ? M() : null;
+    stopRunning();
+    if (!m) {
+      cards.forEach(function (c) { c.hidden = !want.get(c); c.style.opacity = ''; c.style.transform = ''; });
+      finish();
+      return;
+    }
+    var leaving = cards.filter(function (c) { return !c.hidden && !want.get(c); });
+    var entering = cards.filter(function (c) { return c.hidden && want.get(c); });
+    var staying = cards.filter(function (c) { return !c.hidden && want.get(c); });
+    var first = new Map();
+    staying.forEach(function (c) { first.set(c, c.getBoundingClientRect().top); });
+    var out = Promise.resolve();
+    if (leaving.length) {
+      var lc = track(m.animate(leaving, { opacity: 0, scale: 0.98 }, { duration: 0.16, ease: 'easeIn' }));
+      out = new Promise(function (res) { lc.then(res, res); });
+    }
+    out.then(function () {
+      if (token !== flipToken) return;
+      leaving.forEach(function (c) { c.hidden = true; m.animate(c, SHOWN, { duration: 0 }); });
+      entering.forEach(function (c) { c.hidden = false; });
+      finish();
+      staying.forEach(function (c) {
+        var dy = first.get(c) - c.getBoundingClientRect().top;
+        track(m.animate(c, { y: [dy, 0], opacity: 1, scale: 1 }, { duration: 0.45, ease: EASE }));
+      });
+      if (entering.length) track(m.animate(entering, { opacity: [0, 1], y: [10, 0], scale: 1 }, { duration: 0.4, ease: EASE, delay: m.stagger(0.05) }));
+      var emptyShown = [emptyFilter, emptyOff].filter(function (e) { return !e.hidden; });
+      if (emptyShown.length) m.animate(emptyShown, { opacity: [0, 1], y: [8, 0] }, { duration: 0.35, ease: EASE });
+    });
+  }
+
+  $$('[data-filter]').forEach(function (chip) {
+    chip.addEventListener('click', function () {
+      var k = chip.dataset.filter;
+      if (k === 'all') { state.filters = { avail: false, direct: false, evening: false }; }
+      else { state.filters[k] = !state.filters[k]; }
+      syncChips();
+      applyFilters(true);
+    });
+  });
+  $('[data-reset]').addEventListener('click', function () {
+    state.filters = { avail: false, direct: false, evening: false };
+    syncChips(); applyFilters(true);
+  });
+  function syncChips() {
+    var any = state.filters.avail || state.filters.direct || state.filters.evening;
+    $$('[data-filter]').forEach(function (c) {
+      var k = c.dataset.filter;
+      c.setAttribute('aria-pressed', String(k === 'all' ? !any : !!state.filters[k]));
+    });
+  }
+
+  /* ---------- календарь ---------- */
+  var days = $$('.day');
+  days.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var d = parseInt(btn.dataset.day, 10);
+      state.day = d;
+      fDate.value = '2026-09-' + (d < 10 ? '0' + d : d);
+      showFields();
+      play(btn, { scale: [0.94, 1] }, SPRING);
+      renderAll(true);
+      goTo($('#rejsy'), $('#res-title'));
+    });
+  });
+  /* Календарь — одна остановка Tab, дни выбираются стрелками (как в сетке дат). */
+  var enabledDays = days.filter(function (b) { return !b.disabled; });
+  $('.cal-grid').addEventListener('keydown', function (e) {
+    var cur = e.target.closest('.day'); if (!cur) return;
+    var d = +cur.dataset.day, target = null;
+    var byDay = function (n) { return enabledDays.filter(function (b) { return +b.dataset.day === n; })[0]; };
+    if (e.key === 'ArrowRight') target = byDay(d + 1);
+    else if (e.key === 'ArrowLeft') target = byDay(d - 1);
+    else if (e.key === 'ArrowDown') target = byDay(d + 7);
+    else if (e.key === 'ArrowUp') target = byDay(d - 7);
+    else if (e.key === 'Home') target = enabledDays[0];
+    else if (e.key === 'End') target = enabledDays[enabledDays.length - 1];
+    else return;
+    e.preventDefault();
+    if (!target) return;
+    enabledDays.forEach(function (b) { b.tabIndex = b === target ? 0 : -1; });
+    target.focus();
+  });
+  function syncCalendar() {
+    days.forEach(function (b) { b.setAttribute('aria-pressed', String(+b.dataset.day === state.day)); });
+    enabledDays.forEach(function (b) { b.tabIndex = +b.dataset.day === state.day ? 0 : -1; });
+    $('#cal-route').textContent = 'Сентябрь 2026, ' + routeText();
+  }
+
+  /* ---------- подписка ---------- */
+  var ctx = $('[data-ctx]'), contact = $('#contact'), err = $('#contact-err');
+  var subform = $('#subform'), subdone = $('#subdone');
+  var ctxFlight = '';
+  function syncContext() {
+    ctx.textContent = routeText() + ', ' + dateText(state.day) + (ctxFlight ? ', рейс ' + ctxFlight : '');
+  }
+  $$('[data-notify]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var card = btn.closest('.flight');
+      ctxFlight = card ? card.querySelector('.carrier').lastChild.textContent.split(' · ')[0].trim() : '';
+      syncContext();
+      if (!subdone.hidden) { subdone.hidden = true; subform.hidden = false; }
+      goTo($('#podpiska'), contact);
+    });
+  });
+  function validContact(v) {
+    return /^@[A-Za-z][A-Za-z0-9_]{4,31}$/.test(v) || /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);
+  }
+  function setErr(msg) {
+    err.textContent = msg || ''; err.hidden = !msg;
+    contact.setAttribute('aria-invalid', msg ? 'true' : 'false');
+    if (msg) play(err, { opacity: [0, 1], y: [-4, 0] }, { duration: 0.25, ease: EASE });
+  }
+  contact.addEventListener('input', function () { if (!err.hidden && validContact(contact.value.trim())) setErr(''); });
+  subform.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var v = contact.value.trim();
+    if (!v) { setErr('Введите Telegram или почту.'); contact.focus(); return; }
+    if (!validContact(v)) { setErr('Проверьте адрес. Ник в Telegram начинается с @, у почты есть @ и точка.'); contact.focus(); return; }
+    setErr('');
+    $('[data-done-text]').textContent = 'Напишем на ' + v + ', как только появятся места: ' + ctx.textContent + '.';
+    subform.hidden = true; subdone.hidden = false;
+    subdone.focus({ preventScroll: true });
+    play(subdone, { opacity: [0, 1], y: [8, 0] }, { duration: 0.4, ease: EASE });
+  });
+  $('#subedit').addEventListener('click', function () {
+    subdone.hidden = true; subform.hidden = false;
+    play(subform, { opacity: [0, 1] }, { duration: 0.3, ease: EASE });
+    contact.focus();
+  });
+
+  /* ---------- общие ---------- */
+  function renderAll(animate) {
+    $('#res-title').textContent = routeText() + ', ' + dateText(state.day);
+    ctxFlight = '';
+    syncContext();
+    syncCalendar();
+    renderFlights();
+    applyFilters(animate);
+    if (animate) {
+      var m = M();
+      var counts = $$('.flight:not([hidden]) .count');
+      if (m) m.animate(counts, { opacity: [0, 1], y: [-6, 0] }, { duration: 0.35, ease: EASE, delay: m.stagger(0.05) });
+    }
+  }
+  function goTo(section, focusEl) {
+    var smooth = !reduceMQ.matches;
+    if (focusEl) focusEl.focus({ preventScroll: true });
+    section.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto', block: 'start' });
+  }
+
+  var toast = $('#toast'), toastTimer = null;
+  function showToast(msg) {
+    toast.textContent = msg; toast.hidden = false;
+    play(toast, { opacity: [0, 1], y: [12, 0] }, { duration: 0.3, ease: EASE });
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () {
+      play(toast, { opacity: 0, y: 8 }, { duration: 0.2, ease: 'easeIn' }).then(function () { toast.hidden = true; toast.style.opacity = ''; toast.style.transform = ''; });
+    }, 3200);
+  }
+  $$('[data-buy]').forEach(function (b) {
+    b.addEventListener('click', function () { showToast('В демо-макете покупка отключена. Здесь откроется касса-партнёр.'); });
+  });
+  $('a[href="#privacy"]').addEventListener('click', function (e) { e.preventDefault(); showToast('Страница политики появится к запуску.'); });
+
+  /* ---------- меню ---------- */
+  var menuBtn = $('.menu-btn'), menu = $('#menu');
+  function setMenu(open, returnFocus) {
+    menuBtn.setAttribute('aria-expanded', String(open));
+    menuBtn.querySelector('i').className = 'ph ' + (open ? 'ph-x' : 'ph-list');
+    if (open) {
+      menu.hidden = false;
+      play(menu, { opacity: [0, 1], y: [-6, 0] }, { duration: 0.22, ease: EASE });
+      var first = menu.querySelector('a'); if (first) first.focus();
+    } else if (!menu.hidden) {
+      play(menu, { opacity: 0, y: -4 }, { duration: 0.14, ease: 'easeIn' }).then(function () {
+        if (menuBtn.getAttribute('aria-expanded') === 'false') { menu.hidden = true; menu.style.opacity = ''; menu.style.transform = ''; }
+      });
+      if (returnFocus) menuBtn.focus();
+    }
+  }
+  menuBtn.addEventListener('click', function () { setMenu(menuBtn.getAttribute('aria-expanded') !== 'true'); });
+  menu.addEventListener('click', function (e) { if (e.target.closest('a')) setMenu(false); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && menuBtn.getAttribute('aria-expanded') === 'true') setMenu(false, true); });
+  document.addEventListener('click', function (e) {
+    if (menuBtn.getAttribute('aria-expanded') === 'true' && !menu.contains(e.target) && !menuBtn.contains(e.target)) setMenu(false);
+  });
+  window.matchMedia('(min-width: 901px)').addEventListener('change', function (q) { if (q.matches) { setMenu(false); menu.hidden = true; } });
+
+  /* Подсветка текущего раздела в навигации (IntersectionObserver, без слушателя прокрутки). */
+  if ('IntersectionObserver' in window) {
+    var links = $$('.topnav a, .menu a');
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (!en.isIntersecting) return;
+        var id = '#' + en.target.id;
+        links.forEach(function (a) { if (a.getAttribute('href') === id) a.setAttribute('aria-current', 'true'); else a.removeAttribute('aria-current'); });
+      });
+    }, { rootMargin: '-45% 0px -50% 0px' });
+    ['rejsy', 'calendar', 'kak', 'podpiska'].forEach(function (id) { var s = document.getElementById(id); if (s) io.observe(s); });
+  }
+
+  renderAll(false);
+  showFields();
+
+  /* ---------- появление при прокрутке ----------
+     Только три места, где порядок что-то значит: рейсы по времени вылета,
+     дни месяца, шаги маршрута. Всё, что уже на экране при загрузке, не прячем. */
+  (function reveals() {
+    var m = M(); if (!m) return;
+    var vh = window.innerHeight;
+    function below(el) { return el.getBoundingClientRect().top > vh * 0.92; }
+    function once(root, fn) {
+      var stop = m.inView(root, function () { fn(); if (stop) stop(); }, { amount: 0.2 });
+    }
+    // Табло: цифры мест «перещёлкиваются», как на табло в аэропорту.
+    m.animate('.brow .seats', { opacity: [0, 1], y: [-8, 0] }, { duration: 0.45, ease: EASE, delay: m.stagger(0.07, { startDelay: 0.15 }) });
+
+    var list = $('#flights');
+    if (below(list)) {
+      var items = $$('.flight:not([hidden])');
+      m.animate(items, { opacity: 0, y: 16 }, { duration: 0 });
+      once(list, function () {
+        if (flipToken > 1) return; // пользователь уже сменил фильтр, карточки показаны им
+        var vis = items.filter(function (c) { return !c.hidden; });
+        track(m.animate(vis, { opacity: 1, y: 0 }, { duration: 0.55, ease: EASE, delay: m.stagger(0.07) }));
+      });
+    }
+    var grid = $('.cal-grid');
+    if (below(grid)) {
+      var ds = $$('.day');
+      m.animate(ds, { opacity: 0, y: 6 }, { duration: 0 });
+      once(grid, function () { m.animate(ds, { opacity: 1, y: 0 }, { duration: 0.4, ease: EASE, delay: m.stagger(0.012) }); });
+    }
+    var rw = $('.route-wrap');
+    if (below(rw)) {
+      var line = $('.route-line'), mks = $$('.route .mk'), txt = $$('.route h3, .route p');
+      var vertical = window.matchMedia('(max-width: 760px)').matches;
+      m.animate(line, vertical ? { scaleY: 0 } : { scaleX: 0 }, { duration: 0 });
+      m.animate(mks, { opacity: 0, scale: 0.6 }, { duration: 0 });
+      m.animate(txt, { opacity: 0, y: 10 }, { duration: 0 });
+      once(rw, function () {
+        m.animate(line, vertical ? { scaleY: 1 } : { scaleX: 1 }, { duration: 0.9, ease: EASE });
+        m.animate(mks, { opacity: 1, scale: 1 }, { type: 'spring', stiffness: 360, damping: 26, delay: m.stagger(0.28) });
+        m.animate(txt, { opacity: 1, y: 0 }, { duration: 0.5, ease: EASE, delay: m.stagger(0.14, { startDelay: 0.1 }) });
+      });
+    }
+  })();
+});
+</script>
+</body>
+</html>
