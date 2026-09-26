@@ -25,12 +25,12 @@
 from __future__ import annotations
 
 import argparse
-import json
 from datetime import datetime, timezone
 from pathlib import Path
 
 import cities
 import config
+from datajson import rows_to_data as _rows_to_data, to_json as _json
 from db import Database
 
 
@@ -54,30 +54,6 @@ JS = _read_asset("webapp.js")
 # ==========================================================================
 # Сборка страницы
 # ==========================================================================
-
-def _rows_to_data(rows) -> list[dict]:
-    out = []
-    for r in rows:
-        out.append({
-            "o": r["origin"] or "",
-            "d": r["destination"] or "",
-            "dt": r["depart_date"] or "",
-            "tm": r["depart_time"] or "",
-            "ar": r["arrive_time"] or "",
-            "fn": r["flight_number"] or "",
-            "al": r["airline"] or "",
-            "fc": r["fare_code"] or "",
-            "q": int(r["avail_qty"] or 0),
-            "p": float(r["price"] or 0),
-            "url": r["book_url"] or "",
-        })
-    return out
-
-
-def _json(obj) -> str:
-    # </script> внутри данных сломал бы страницу — экранируем слэш.
-    return json.dumps(obj, ensure_ascii=False).replace("</", "<\\/")
-
 
 def build(out_path: Path | str | None = None, db: Database | None = None) -> Path:
     db = db or Database()
