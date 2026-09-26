@@ -78,10 +78,17 @@ jobs:
         run: |
           mkdir -p _site
           cp data/index.html _site/index.html
-          # Концепт нового дизайна: витрина и форма пассажиров на демо-данных, живут по адресу /design/.
-          # assets/ — общие токены (design/README.md) и без них страницы придут без стилей.
+          # Макет нового дизайна живёт по адресу /design/: index.html собирается
+          # design_app.py из тех же данных, что и основная витрина (та же БД,
+          # тот же демо-баннер/noindex при отсутствии боевого PartnerID);
+          # checkout.html статичный — данные рейса ему передают через адрес.
+          # Обе страницы подключают общие токены из design/assets/ — без них
+          # придут без стилей.
           if [ -d design ]; then
-            mkdir -p _site/design && cp design/*.html _site/design/
+            mkdir -p _site/design
+            python design_app.py --out _site/design/index.html
+            test -s _site/design/index.html || { echo "design-витрина пустая"; exit 1; }
+            cp design/checkout.html _site/design/checkout.html
             if [ -d design/assets ]; then cp -r design/assets _site/design/assets; fi
           fi
           # .nojekyll: без него Pages прогоняет содержимое через Jekyll

@@ -300,10 +300,10 @@ details.more .grid{margin-top:10px}
         <div class="sum-date" data-s="date">Среда, 14 октября 2026</div>
         <div class="leg">
           <div><b class="num" data-s="dep">23:55</b><span data-s="fromAp">KHV</span></div>
-          <div class="mid"><span data-s="dur">8 ч 20 мин</span><i aria-hidden="true"></i><span data-s="stops">прямой</span></div>
+          <div class="mid"><i aria-hidden="true"></i></div>
           <div style="text-align:right"><b class="num"><span data-s="arr">01:15</span><sup data-s="next">+1</sup></b><span data-s="toAp">SVO</span></div>
         </div>
-        <div class="sum-carrier"><b data-s="carrier">Аэрофлот</b>, <span data-s="num">SU 1711</span><span data-s="plane">, Boeing 777</span></div>
+        <div class="sum-carrier"><b data-s="carrier">Аэрофлот</b>, <span data-s="num">SU 1711</span></div>
       </div>
       <div class="fare">
         <div class="fare-name">Эконом «плоский» <span class="tag">субсидия</span></div>
@@ -343,7 +343,7 @@ details.more .grid{margin-top:10px}
           <option value="young">Молодёжь до 23 лет</option>
           <option value="pension">Женщина от 55 или мужчина от 60 лет</option>
           <option value="family">Член многодетной семьи</option>
-          <option value="disabled">Человек с инвалидностью или сопровождающий</option>
+          <option value="invalid">Человек с инвалидностью или сопровождающий</option>
         </select>
         <p class="err" data-err="cat" hidden></p>
         <p class="docnote" data-doc><i class="ph ph-identification-card" aria-hidden="true"></i><span></span></p>
@@ -426,9 +426,9 @@ document.addEventListener('DOMContentLoaded', function () {
   /* Рейс приходит с витрины в адресе страницы; без параметров показывается пример. */
   var Q = new URLSearchParams(location.search);
   function qp(k, d) { var v = Q.get(k); return v === null || v === '' ? d : v; }
-  var dayN = parseInt(qp('day', ''), 10);
-  var FLIGHT_DATE = dayN >= 1 && dayN <= 30 ? new Date(2026, 8, dayN) : new Date(2026, 9, 14);
-  var PRICE = 10800;
+  var dm = /^(\d{4})-(\d{2})-(\d{2})$/.exec(qp('date', ''));
+  var FLIGHT_DATE = dm ? new Date(+dm[1], +dm[2] - 1, +dm[3]) : new Date(2026, 9, 14);
+  var PRICE = parseInt(qp('price', '10800'), 10) || 10800;
   var SEATS = Math.max(1, parseInt(qp('seats', '7'), 10) || 7);
   var MAX_PAX = 6;
   var START_PAX = Math.min(Math.max(1, parseInt(qp('pax', '1'), 10) || 1), SEATS, MAX_PAX);
@@ -438,9 +438,9 @@ document.addEventListener('DOMContentLoaded', function () {
     young: '<b>Нужен только паспорт.</b> На дату вылета пассажиру должно быть меньше 23 лет.',
     pension: '<b>Нужен только паспорт.</b> На дату вылета женщине должно быть от 55 лет, мужчине от 60.',
     family: '<b>Возьмите паспорт и удостоверение многодетной семьи.</b>',
-    disabled: '<b>Возьмите паспорт и справку МСЭ.</b> Сопровождающему достаточно паспорта.'
+    invalid: '<b>Возьмите паспорт и справку МСЭ об инвалидности.</b> Сопровождающему тоже нужен паспорт.'
   };
-  var CAT_NAME = { dfo: 'Житель Дальнего Востока', young: 'Молодёжь до 23 лет', pension: 'Пенсионер по возрасту', family: 'Многодетная семья', disabled: 'Инвалидность или сопровождение' };
+  var CAT_NAME = { dfo: 'Житель Дальнего Востока', young: 'Молодёжь до 23 лет', pension: 'Пенсионер по возрасту', family: 'Многодетная семья', invalid: 'Инвалидность или сопровождение' };
 
   function fillFlight() {
     var set = function (k, v) { $$('[data-s="' + k + '"]').forEach(function (e) { e.textContent = v; }); };
@@ -451,9 +451,7 @@ document.addEventListener('DOMContentLoaded', function () {
     set('date', dLong.charAt(0).toUpperCase() + dLong.slice(1));
     set('dep', qp('dep', '23:55')); set('arr', qp('arr', '01:15'));
     set('fromAp', qp('fromAp', 'KHV')); set('toAp', qp('toAp', 'SVO'));
-    set('dur', qp('dur', '8 ч 20 мин')); set('stops', qp('stops', 'прямой'));
     set('carrier', qp('carrier', 'Аэрофлот')); set('num', qp('num', 'SU 1711'));
-    var plane = qp('plane', 'Boeing 777'); set('plane', plane ? ', ' + plane : '');
     $$('[data-s="next"]').forEach(function (e) { e.hidden = qp('next', '1') !== '1'; });
     set('seatsTxt', 'Осталось ' + SEATS + ' ' + plural(SEATS, ['место', 'места', 'мест']) + ' по субсидии');
     set('mhead', from + ' → ' + to + ', ' + dShort);

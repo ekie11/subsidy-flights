@@ -465,7 +465,7 @@ main section:first-child{padding-top:clamp(40px,5vw,64px)}
           <button class="cat" type="button" data-cat="young" aria-pressed="false">До 23 лет</button>
           <button class="cat" type="button" data-cat="pension" aria-pressed="false">Пенсионер</button>
           <button class="cat" type="button" data-cat="family" aria-pressed="false">Многодетная семья</button>
-          <button class="cat" type="button" data-cat="disabled" aria-pressed="false">Инвалидность</button>
+          <button class="cat" type="button" data-cat="invalid" aria-pressed="false">Инвалидность</button>
         </div>
       </div>
 
@@ -832,7 +832,7 @@ document.addEventListener('DOMContentLoaded', function () {
     young: '<b>До 23 лет.</b> На регистрации нужен паспорт, по которому видно возраст.',
     pension: '<b>Пенсионер.</b> Нужен паспорт: тариф действует для женщин от 55 лет и мужчин от 60.',
     family: '<b>Многодетная семья.</b> Нужны паспорт и удостоверение многодетной семьи.',
-    disabled: '<b>Инвалидность.</b> Нужны паспорт и справка МСЭ. Сопровождающему тоже нужен паспорт.'
+    invalid: '<b>Инвалидность.</b> Нужны паспорт и справка МСЭ. Сопровождающему тоже нужен паспорт.'
   };
   var PRICE = '10 800 ₽';
 
@@ -1137,15 +1137,14 @@ document.addEventListener('DOMContentLoaded', function () {
       var pts = c.querySelectorAll('.pt b');
       var arr = pts[1].cloneNode(true), plus = arr.querySelector('sup');
       if (plus) plus.remove();
-      var path = c.querySelectorAll('.path span');
       var carrier = c.querySelector('.carrier');
       var tail = carrier.lastChild.textContent.split(' · ');
       var q = new URLSearchParams({
         from: CITIES[state.from][0], to: CITIES[state.to][0],
         fromAp: CITIES[state.from][1], toAp: CITIES[state.to][1],
-        day: state.day, dep: pts[0].textContent.trim(), arr: arr.textContent.trim(), next: plus ? '1' : '0',
-        dur: path[0].textContent, stops: path[1].textContent,
-        carrier: carrier.querySelector('b').textContent, num: tail[0].trim(), plane: (tail[1] || '').trim(),
+        date: '2026-09-' + (state.day < 10 ? '0' : '') + state.day,
+        dep: pts[0].textContent.trim(), arr: arr.textContent.trim(), next: plus ? '1' : '0',
+        carrier: carrier.querySelector('b').textContent, num: tail[0].trim(),
         seats: c.dataset.seats, pax: state.pax, cat: state.cat
       });
       window.location.href = 'checkout.html?' + q.toString();
