@@ -25,6 +25,11 @@ jobs:
 
       - name: Интерфейс витрины
         run: |
+          # uitest.js проверяет реальную выдачу (рейсы, календарь, форму
+          # поиска), поэтому сперва наполняем БД демо-данными из фикстуры —
+          # без этого DATA на странице пустой и большинство проверок ложно
+          # не находят, что тестировать.
+          python collector.py --site
           python webapp.py --out /tmp/index.html
           python colorcheck.py /tmp/index.html
           npm install --no-save jsdom
