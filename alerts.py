@@ -9,6 +9,9 @@
   price     — заметное изменение цены
 
 Дедупликация — по (flight_key, alert_type) с кулдауном из config.ALERTS.
+
+Кроме служебных каналов (Telegram/e-mail владельца), события restock и new
+рассылаются подписчикам с витрины — см. AlertManager.notify_subscribers.
 """
 from __future__ import annotations
 
@@ -31,6 +34,13 @@ log = logging.getLogger("alerts")
 
 SEVERITY_ORDER = {"info": 0, "warning": 1, "critical": 2}
 
+# События, о которых сообщаем подписчикам: оба значат «места есть, можно
+# покупать». soldout/low/drop подписчику не нужны — он ждёт появления мест.
+SUBSCRIBER_ALERT_TYPES = {"restock", "new"}
+
+# Больше рейсов в одном письме подписчику не перечисляем — остальное на сайте.
+SUBSCRIBER_MAX_ITEMS = 10
+
 
 @dataclass
 class Alert:
@@ -42,6 +52,8 @@ class Alert:
     prev_qty: int | None = None
     new_qty: int | None = None
     book_url: str = ""
+    origin: str = ""
+    destination: str = ""
 
     def as_text(self) -> str:
         parts = [f"[{self.severity.upper()}] {self.title}", self.message]
@@ -81,6 +93,7 @@ def evaluate(offer: FlightOffer, prev_row) -> list[Alert]:
                 title=f"Новый рейс с местами: {desc}",
                 message=f"Мест: {new_qty}. Цена: {_money(offer.price, offer.currency)}",
                 prev_qty=None, new_qty=new_qty, book_url=offer.book_url,
+                origin=offer.origin, destination=offer.destination,
             ))
         return out
 
@@ -94,6 +107,7 @@ def evaluate(offer: FlightOffer, prev_row) -> list[Alert]:
             message=f"Было 0, стало {new_qty}. "
                     f"Цена: {_money(offer.price, offer.currency)}",
             prev_qty=prev_qty, new_qty=new_qty, book_url=offer.book_url,
+            origin=offer.origin, destination=offer.destination,
         ))
 
     elif prev_qty > 0 and new_qty == 0 and cfg.notify_on_soldout:
@@ -102,6 +116,7 @@ def evaluate(offer: FlightOffer, prev_row) -> list[Alert]:
             title=f"Мест не осталось: {desc}",
             message=f"Было {prev_qty}, стало 0.",
             prev_qty=prev_qty, new_qty=new_qty, book_url=offer.book_url,
+            origin=offer.origin, destination=offer.destination,
         ))
 
     else:
@@ -112,6 +127,7 @@ def evaluate(offer: FlightOffer, prev_row) -> list[Alert]:
                 title=f"Резко убыло мест: {desc}",
                 message=f"{prev_qty} → {new_qty} (−{drop}).",
                 prev_qty=prev_qty, new_qty=new_qty, book_url=offer.book_url,
+                origin=offer.origin, destination=offer.destination,
             ))
         elif new_qty > 0 and new_qty <= cfg.low_seats_threshold < prev_qty:
             out.append(Alert(
@@ -119,6 +135,7 @@ def evaluate(offer: FlightOffer, prev_row) -> list[Alert]:
                 title=f"Мест почти нет: {desc}",
                 message=f"Осталось {new_qty} (было {prev_qty}).",
                 prev_qty=prev_qty, new_qty=new_qty, book_url=offer.book_url,
+                origin=offer.origin, destination=offer.destination,
             ))
 
     if cfg.price_change_threshold > 0 and prev_price > 0:
@@ -132,6 +149,7 @@ def evaluate(offer: FlightOffer, prev_row) -> list[Alert]:
                         f"{_money(offer.price, offer.currency)} "
                         f"({sign}{_money(abs(delta), offer.currency)})",
                 prev_qty=prev_qty, new_qty=new_qty, book_url=offer.book_url,
+                origin=offer.origin, destination=offer.destination,
             ))
 
     return out
@@ -181,6 +199,53 @@ class AlertManager:
                                a.new_qty, delivered)
         return fresh
 
+    # ---------------------------------------------------------- подписчики
+
+    def notify_subscribers(self, alerts: Iterable[Alert]) -> int:
+        """Шлёт подписчикам письмо о появившихся местах. Возвращает число
+        уведомлённых подписок.
+
+        Подписка разовая: после успешной отправки гасится
+        (db.mark_subscription_notified), повторно письмо не придёт. Если
+        отправить не вышло — подписка остаётся ждать следующего события.
+        """
+        by_route: dict[tuple[str, str], list[Alert]] = {}
+        for a in alerts:
+            if a.alert_type in SUBSCRIBER_ALERT_TYPES and a.origin and a.destination:
+                by_route.setdefault((a.origin, a.destination), []).append(a)
+        if not by_route:
+            return 0
+
+        # Одна подписка может подойти под несколько направлений (общая,
+        # «на любое направление») — собираем ей все события в одно письмо.
+        by_sub: dict[int, tuple] = {}
+        for (origin, destination), items in by_route.items():
+            for sub in self.db.pending_subscriptions_matching(origin, destination):
+                by_sub.setdefault(sub["id"], (sub, []))[1].extend(items)
+
+        notified = 0
+        for sub, items in by_sub.values():
+            contact = sub["contact"]
+            if contact.startswith("@"):
+                # Бот не может написать первым по нику: нужен chat_id, а его
+                # даёт только /start в боте. Пока такие подписки ждут.
+                log.info("подписка #%s (%s): Telegram-рассылка по нику "
+                         "не поддерживается, пропускаю", sub["id"], contact)
+                continue
+            subject, body = _subscriber_letter(items)
+            if self.dry_run:
+                log.info("dry-run: письмо подписчику #%s (%s) не отправлено: %s",
+                         sub["id"], contact, subject)
+                continue
+            if not config.SMTP_HOST:
+                log.warning("SMTP не настроен — подписчик #%s ждёт", sub["id"])
+                continue
+            if self._send_email(subject, body, to=contact):
+                self.db.mark_subscription_notified(sub["id"])
+                notified += 1
+                log.info("подписчик #%s уведомлён: %d рейсов", sub["id"], len(items))
+        return notified
+
     # -------------------------------------------------------------- каналы
 
     def deliver(self, alerts: Sequence[Alert]) -> bool:
@@ -221,11 +286,11 @@ class AlertManager:
             return False
 
     @staticmethod
-    def _send_email(subject: str, body: str) -> bool:
+    def _send_email(subject: str, body: str, to: str | None = None) -> bool:
         msg = EmailMessage()
         msg["Subject"] = subject
         msg["From"] = config.ALERT_EMAIL_FROM or config.SMTP_USER
-        msg["To"] = config.ALERT_EMAIL_TO
+        msg["To"] = to or config.ALERT_EMAIL_TO
         msg.set_content(body)
         try:
             with smtplib.SMTP(config.SMTP_HOST, config.SMTP_PORT, timeout=20) as s:
@@ -237,3 +302,24 @@ class AlertManager:
         except Exception as exc:  # noqa: BLE001
             log.error("SMTP недоступен: %s", exc)
             return False
+
+
+def _subscriber_letter(items: Sequence[Alert]) -> tuple[str, str]:
+    """Тема и текст письма подписчику — без служебных меток серьёзности."""
+    routes = sorted({f"{a.origin}—{a.destination}" for a in items})
+    subject = "Появились субсидированные места: " + ", ".join(routes)
+    lines = ["Здравствуйте! По вашей подписке появились места по субсидированному тарифу.", ""]
+    for a in items[:SUBSCRIBER_MAX_ITEMS]:
+        lines.append(a.title.split(": ", 1)[-1])
+        lines.append(a.message)
+        if a.book_url:
+            lines.append(a.book_url)
+        lines.append("")
+    if len(items) > SUBSCRIBER_MAX_ITEMS:
+        lines += [f"И ещё рейсов: {len(items) - SUBSCRIBER_MAX_ITEMS} — смотрите на сайте.", ""]
+    lines += [
+        "Субсидированных мест мало, и расходятся они быстро.",
+        "Это разовое уведомление: подписка выполнена, больше писем не будет.",
+        "Чтобы следить снова, оформите подписку на сайте ещё раз.",
+    ]
+    return subject, "\n".join(lines)

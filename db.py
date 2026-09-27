@@ -234,6 +234,19 @@ class Database:
         with self.connect() as conn:
             return list(conn.execute(sql, (origin, destination)))
 
+    def pending_subscriptions_matching(self, origin: str,
+                                       destination: str) -> list[sqlite3.Row]:
+        """Неуведомлённые подписки, которым подходит направление: точные по
+        маршруту и те, где аэропорт не указан («любое направление»)."""
+        with self.connect() as conn:
+            return list(conn.execute("""
+                SELECT * FROM subscriptions
+                WHERE notified_at IS NULL
+                  AND (origin IS NULL OR origin = ?)
+                  AND (destination IS NULL OR destination = ?)
+                ORDER BY id
+            """, (origin, destination)))
+
     def mark_subscription_notified(self, sub_id: int) -> None:
         with self.connect() as conn:
             conn.execute("UPDATE subscriptions SET notified_at=? WHERE id=?",

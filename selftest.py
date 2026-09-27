@@ -12,7 +12,8 @@
   5. алерты: restock (0 → есть места), soldout, low, drop;
   6. кулдаун подавляет повторный алерт;
   7. HTML-отчёт генерируется и содержит данные;
-  8. subscribe_api.py — валидация, приём подписки, анти-спам.
+  8. subscribe_api.py — валидация, приём подписки, анти-спам;
+  9. рассылка подписчикам при появлении мест.
 
 Работает в отдельной временной папке — боевую БД не трогает.
 """
@@ -292,6 +293,71 @@ statuses = [_post({"contact": f"flood{i}@b.ru"})[0] for i in range(10)]
 check("анти-спам режет частые запросы", 429 in statuses, str(statuses))
 
 sub_server.shutdown()
+
+section("9. Рассылка подписчикам")
+from alerts import Alert  # noqa: E402
+
+notify_db = Database(TMP / "notify.sqlite3")
+sub_khv_mow = notify_db.add_subscription("route@example.com", "KHV", "MOW")
+sub_any = notify_db.add_subscription("any@example.com")
+sub_other = notify_db.add_subscription("other@example.com", "VVO", "MOW")
+sub_tg = notify_db.add_subscription("@kirill_test", "KHV", "MOW")
+
+restock = Alert(flight_key="KHV-MOW|2026-10-05|SU1|PZZSOC|", alert_type="restock",
+                severity="critical", title="Появились места: KHV-MOW 2026-10-05 · SU 1",
+                message="Было 0, стало 4.", prev_qty=0, new_qty=4,
+                book_url="https://biletdv.ru/book/1", origin="KHV", destination="MOW")
+soldout = Alert(flight_key="KHV-LED|2026-10-06|SU2|PZZSOC|", alert_type="soldout",
+                severity="warning", title="Мест не осталось", message="Было 2, стало 0.",
+                origin="KHV", destination="LED")
+
+sent_mail: list[tuple[str, str, str]] = []
+
+
+def _fake_email(subject, body, to=None):
+    sent_mail.append((to, subject, body))
+    return True
+
+
+dry_mgr = AlertManager(notify_db, dry_run=True)
+check("dry-run: писем нет и подписки не гасятся",
+      dry_mgr.notify_subscribers([restock]) == 0
+      and len(notify_db.pending_subscriptions_matching("KHV", "MOW")) == 3)
+
+live_mgr = AlertManager(notify_db, dry_run=False)
+live_mgr._send_email = _fake_email  # type: ignore[method-assign]
+_smtp_host, config.SMTP_HOST = config.SMTP_HOST, "smtp.test"
+try:
+    n = live_mgr.notify_subscribers([restock, soldout])
+finally:
+    config.SMTP_HOST = _smtp_host
+
+recipients = sorted(m[0] for m in sent_mail)
+check("уведомлены подписчики маршрута и «любого направления»",
+      n == 2 and recipients == ["any@example.com", "route@example.com"], str(recipients))
+check("письмо содержит ссылку на покупку и нужный маршрут",
+      all("biletdv.ru/book/1" in m[2] and "KHV—MOW" in m[1] for m in sent_mail))
+check("soldout подписчикам не рассылается",
+      not any("Мест не осталось" in m[2] for m in sent_mail))
+pending_ids = {r["id"] for r in notify_db.pending_subscriptions_matching("KHV", "MOW")}
+check("уведомлённые подписки погашены, Telegram-ник ждёт",
+      pending_ids == {sub_tg}, str(pending_ids))
+check("чужой маршрут не задет",
+      [r["id"] for r in notify_db.pending_subscriptions_matching("VVO", "MOW")] == [sub_other])
+
+sent_mail.clear()
+config.SMTP_HOST = "smtp.test"
+try:
+    live_mgr.notify_subscribers([restock])
+finally:
+    config.SMTP_HOST = _smtp_host
+check("повторное событие не шлёт второе письмо", sent_mail == [], str(sent_mail))
+
+offer = parser.FlightOffer(route="KHV-MOW", origin="KHV", destination="MOW",
+                           depart_date="2026-10-05", avail_qty=3)
+check("evaluate проставляет маршрут в алерт",
+      all(a.origin == "KHV" and a.destination == "MOW"
+          for a in evaluate(offer, {"avail_qty": 0, "price": 0})))
 
 # --------------------------------------------------------------------------
 print(f"\n{'=' * 52}")
