@@ -132,11 +132,13 @@ def run(args: argparse.Namespace) -> int:
                      route, day, len(offers), seats)
 
     sent = [] if args.no_alerts else manager.process(pending_alerts)
+    n_subscribers = manager.notify_subscribers(sent) if sent else 0
 
     db.finish_run(run_id, n_requests, n_offers, n_errors,
-                  note=f"alerts={len(sent)}")
-    log.info("итого: запросов %d, тарифов %d, ошибок %d, алертов %d",
-             n_requests, n_offers, n_errors, len(sent))
+                  note=f"alerts={len(sent)} subscribers={n_subscribers}")
+    log.info("итого: запросов %d, тарифов %d, ошибок %d, алертов %d, "
+             "уведомлено подписчиков %d",
+             n_requests, n_offers, n_errors, len(sent), n_subscribers)
 
     if args.report:
         import report
