@@ -25,7 +25,7 @@ web
 ## Operating Context
 
 - Маршруты — только отслеживаемые из `config.ROUTES`; окно дат — `config.DATE_FROM..DATE_TO`.
-- Витрина пересобирается `collector.py --site` / `webapp.py` на каждом прогоне сборщика (cron примерно раз в 15 минут на VPS или GitHub Actions для GitHub Pages). Данные вшиты в HTML при сборке; поиск, фильтры и календарь работают на клиенте.
+- Витрина пересобирается `collector.py --site` / `webapp.py` на каждом прогоне сборщика (cron раз в час на VPS или GitHub Actions для GitHub Pages; чаще не даёт лимит партнёра — 1000 запросов на одну продажу в месяц). Данные вшиты в HTML при сборке; поиск, фильтры и календарь работают на клиенте.
 - Публичных поверхностей две: основная витрина (`webapp.py` + `assets/webapp.css`, `assets/webapp.js`) и дизайн-сборка (`design/index.html` → `design_app.py`, плюс `design/checkout.html`, общие токены в `design/assets/tokens.css`).
 - Оформление билета — на сайте партнёра, не здесь.
 

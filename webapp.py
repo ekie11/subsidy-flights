@@ -100,7 +100,7 @@ def build(out_path: Path | str | None = None, db: Database | None = None) -> Pat
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Субсидированные авиабилеты с Дальнего Востока — есть ли места</title>
 <meta name="description" content="Показываем, есть ли свободные места по субсидированным
-тарифам на рейсах с Дальнего Востока. Обновляется автоматически каждые 15 минут.">
+тарифам на рейсах с Дальнего Востока. Обновляется автоматически каждый час.">
 {robots}<style>{CSS}</style></head><body>"""
 
     demo_bar = ("<div class='demo-bar'><div class='wrap'><b>Демо-режим.</b> "
@@ -185,7 +185,7 @@ def build(out_path: Path | str | None = None, db: Database | None = None) -> Pat
     </div>
 
     <div class="underbar">
-      <span>Квота тает за часы — мы проверяем наличие каждые 15 минут</span>
+      <span>Квота тает за часы — мы проверяем наличие каждый час</span>
       <span class="right">обновлено <time id="updated" datetime="{meta['generated']}">{meta['generated'][:16].replace('T', ' ')} UTC</time></span>
     </div>
   </div>
@@ -246,7 +246,7 @@ def build(out_path: Path | str | None = None, db: Database | None = None) -> Pat
 
   <div class="sec how" id="how">
     <b>Как это работает.</b> Мы не продаём билеты и не берём с вас денег.
-    Каждые 15 минут опрашиваем систему бронирования, храним историю наличия мест
+    Каждый час опрашиваем систему бронирования, храним историю наличия мест
     и показываем её здесь. Покупка — на сайте авиакассы-партнёра по нашей ссылке.
   </div>
 </div>
