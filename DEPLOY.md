@@ -57,8 +57,7 @@ Settings → Secrets and variables → Actions → **New repository secret**:
 | Имя | Значение |
 |---|---|
 | `BILETDV_PARTNER_ID` | боевой PartnerID от партнёра |
-| `BILETDV_API_URL` | точный URL метода поиска |
-| `BILETDV_LOGIN` / `BILETDV_PASSWORD` | если партнёр выдаст |
+| `BILETDV_API_URL` | необязательно: по умолчанию `getFaresByFOP_Ex3` на fares.biletdv.ru |
 | `TELEGRAM_BOT_TOKEN` / `TELEGRAM_CHAT_ID` | для алертов, необязательно |
 
 Пока `BILETDV_PARTNER_ID` пуст или равен `KirillTest`, воркфлоу собирает

@@ -1,26 +1,38 @@
 """
-Парсер XML-ответа партнёрского API.
+Парсер ответа БилетДВ getFaresByFOP_Ex3 (FlightsSearchResponse).
 
-Схема ответа партнёра описана неполно, поэтому парсер сознательно сделан
-толерантным: он не завязан на конкретный путь в дереве. Он находит все узлы,
-у которых есть признак тарифа (FareCode / MRID / AvailQty), и собирает
-недостающие поля, поднимаясь по предкам и спускаясь в потомков.
+Структура (по WSDL и живым ответам на тестовый PartnerID):
 
-Ключевые поля (подтверждены на реальном ответе БилетДВ):
-  AvailQty  — живое количество мест по тарифу
-  FareCode  — код тарифа, PZZSOC = субсидированный
-  MRID      — идентификатор субсидии
-  BookURL   — ссылка на бронирование с вшитым PartnerID
+  FlightsSearchResponse
+    isSuccess / ErrorText
+    References            — справочники (авиакомпании, аэропорты, MiniRules)
+    Offers/Proposal       — одно предложение = одна покупка
+        @Total @Currency @Cache_Best_Before @TL_Utc
+        Flights/Flight    — сегменты: @Code @Num @Origin @Destination
+                            @Departure="15.10.2026T10:10" @FareCode @MRID
+                            @AvailQty @Direction (0 — туда) ...
+        BookURL           — глубокая ссылка с PartnerID
+
+Маршрут предложения — тот, что запрашивали (города: KHV-MOW), а не аэропорты
+из ответа (KHV-SVO): иначе рейсы в Шереметьево и Внуково разъехались бы по
+разным «маршрутам».
+
+Ответ на мусорный запрос — тоже isSuccess=true с пустым Offers, так что
+«ошибку» от «мест нет» по ответу не отличить: валидность параметров — на нас.
 """
 from __future__ import annotations
 
+import logging
 import re
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass, asdict
 from datetime import date, datetime
 from typing import Any, Iterable
+from urllib.parse import quote
 
 import config
+
+log = logging.getLogger("parser")
 
 
 # --------------------------------------------------------------------------
@@ -36,7 +48,7 @@ class FlightOffer:
     depart_date: str            # ISO, YYYY-MM-DD
     depart_time: str = ""       # HH:MM, если есть
     arrive_time: str = ""
-    flight_number: str = ""     # "SU 1710"
+    flight_number: str = ""     # "SU 1719", с пересадкой "SU 1719 + SU 1402"
     airline: str = ""
     fare_code: str = ""
     mrid: str = ""
@@ -44,24 +56,23 @@ class FlightOffer:
     price: float = 0.0
     currency: str = "RUB"
     book_url: str = ""
-    raw_id: str = ""            # стабильный ключ для сопоставления между циклами
 
     def key(self) -> str:
         """
         Ключ рейса+тарифа: по нему сравниваем снапшоты между циклами.
 
-        Дата входит в ключ всегда: id предложения у партнёра уникален внутри
-        одного ответа, но повторяется между датами. Тариф и MRID — тоже,
-        иначе два субсидированных тарифа на одном рейсе схлопнутся в один.
+        Id из ответа (rguid/iguid в BookURL) меняются при каждом запросе,
+        поэтому ключ собираем из стабильного: дата, рейсы, тариф, MRID —
+        иначе молодёжный и «прописочный» тарифы одного рейса схлопнутся.
         """
-        ident = self.raw_id or self.flight_number
-        return "|".join([self.route, self.depart_date, ident,
+        return "|".join([self.route, self.depart_date, self.flight_number,
                          self.fare_code, self.mrid])
 
     def is_subsidized(self) -> bool:
-        if self.fare_code.upper() in config.SUBSIDY_FARE_CODES:
+        codes = {c for c in self.fare_code.upper().split("/") if c}
+        if codes and codes <= config.SUBSIDY_FARE_CODES:
             return True
-        if config.TREAT_MRID_AS_SUBSIDY and self.mrid.strip():
+        if config.TREAT_MRID_AS_SUBSIDY and self.mrid.strip() not in ("", "0"):
             return True
         return False
 
@@ -74,11 +85,11 @@ class ParseError(Exception):
 
 
 # --------------------------------------------------------------------------
-# Утилиты обхода дерева
+# Утилиты
 # --------------------------------------------------------------------------
 
 def _localname(tag: str) -> str:
-    """Убирает namespace: '{urn:x}Fare' -> 'fare'."""
+    """Убирает namespace: '{urn:x}Proposal' -> 'proposal'."""
     return tag.split("}")[-1].lower() if isinstance(tag, str) else ""
 
 
@@ -86,57 +97,14 @@ def _attrs_lower(el: ET.Element) -> dict[str, str]:
     return {_localname(k): (v or "").strip() for k, v in el.attrib.items()}
 
 
-def _build_parents(root: ET.Element) -> dict[ET.Element, ET.Element]:
-    parents: dict[ET.Element, ET.Element] = {}
-    for parent in root.iter():
-        for child in parent:
-            parents[child] = parent
-    return parents
+def _children(el: ET.Element, name: str) -> list[ET.Element]:
+    return [c for c in el if _localname(c.tag) == name]
 
 
-def _collect_context(el: ET.Element, parents: dict) -> dict[str, str]:
-    """
-    Собирает плоский словарь поле->значение из:
-      1) атрибутов всех предков и их поддеревьев (ближний предок перекрывает
-         дальнего — так данные «своего» рейса вытесняют данные соседних),
-      2) атрибутов самого узла и его потомков (высший приоритет).
-
-    Узлы-тарифы в поддеревьях игнорируются: иначе AvailQty соседнего тарифа
-    протёк бы в текущее предложение.
-    """
-    ctx: dict[str, str] = {}
-
-    # Предки — от дальнего к ближнему.
-    chain: list[ET.Element] = []
-    node = el
-    while node in parents:
-        node = parents[node]
-        chain.append(node)
-    on_path = set(chain)
-    on_path.add(el)
-
-    for anc in reversed(chain):
-        ctx.update(_attrs_lower(anc))
-        for child in anc:
-            if child in on_path:
-                continue  # ветку с самим тарифом обработаем ниже
-            for sub in child.iter():
-                if _is_fare_node(sub):
-                    continue  # чужой тариф — не смешиваем
-                ctx.update(_attrs_lower(sub))
-                if len(sub) == 0 and (sub.text or "").strip():
-                    ctx[_localname(sub.tag)] = sub.text.strip()
-
-    # Сам узел и его поддерево (глубина 2) — приоритетнее предков.
-    ctx.update(_attrs_lower(el))
-    for child in el.iter():
-        if child is el:
-            continue
-        ctx.update(_attrs_lower(child))
-        if len(child) == 0 and (child.text or "").strip():
-            ctx[_localname(child.tag)] = child.text.strip()
-
-    return ctx
+def _child_text(el: ET.Element, name: str) -> str:
+    for c in _children(el, name):
+        return (c.text or "").strip()
+    return ""
 
 
 def _first(ctx: dict[str, str], *names: str, default: str = "") -> str:
@@ -192,13 +160,58 @@ def _to_time(value: str, default: str = "") -> str:
 # Основной разбор
 # --------------------------------------------------------------------------
 
-_FARE_MARKERS = ("farecode", "mrid", "availqty")
+def _find_response(root: ET.Element) -> ET.Element | None:
+    """FlightsSearchResponse: корень при GET, <…Result> внутри SOAP-конверта."""
+    for el in root.iter():
+        name = _localname(el.tag)
+        if name == "flightssearchresponse" or name.endswith("result"):
+            return el
+    return None
 
 
-def _is_fare_node(el: ET.Element) -> bool:
-    """Узел похож на тариф, если несёт хотя бы один тарифный атрибут."""
-    attrs = _attrs_lower(el)
-    return any(m in attrs for m in _FARE_MARKERS)
+def _with_person_id(url: str) -> str:
+    if not url or not config.PERSON_ID or "personid=" in url.lower():
+        return url
+    sep = "&" if "?" in url else "?"
+    return f"{url}{sep}PersonID={quote(config.PERSON_ID)}"
+
+
+def _proposal_offer(prop: ET.Element, fb_origin: str, fb_dest: str,
+                    fallback_date: str, fallback_url: str) -> FlightOffer | None:
+    """Одно предложение → одна строка. Пересадки склеиваются: места — по самому
+    загруженному сегменту, вылет — первого, прилёт — последнего."""
+    attrs = _attrs_lower(prop)
+    flights = [_attrs_lower(f) for fl in _children(prop, "flights")
+               for f in _children(fl, "flight")]
+    # Direction 0 — туда; обратные сегменты (при backDate) не наш случай.
+    outbound = [f for f in flights if f.get("direction", "0") in ("", "0")] or flights
+    if not outbound:
+        return None
+    first, last = outbound[0], outbound[-1]
+
+    origin = fb_origin or first.get("origin", "").upper()
+    dest = fb_dest or last.get("destination", "").upper()
+    fare_codes = list(dict.fromkeys(f.get("farecode", "") for f in outbound
+                                    if f.get("farecode")))
+    mrids = [f.get("mrid", "") for f in outbound if f.get("mrid", "") not in ("", "0")]
+
+    return FlightOffer(
+        route=f"{origin}-{dest}",
+        origin=origin,
+        destination=dest,
+        depart_date=_to_iso_date(first.get("departure", ""), default=fallback_date),
+        depart_time=_to_time(first.get("departure", "")),
+        arrive_time=_to_time(last.get("arrival", "")),
+        flight_number=" + ".join(
+            f"{f.get('code', '')} {f.get('num', '')}".strip() for f in outbound),
+        airline=first.get("code", ""),
+        fare_code="/".join(fare_codes),
+        mrid=mrids[0] if mrids else "",
+        avail_qty=min(_to_int(f.get("availqty", "")) for f in outbound),
+        price=_to_float(_first(attrs, "total", "fare")),
+        currency=_first(attrs, "currency", default="RUB"),
+        book_url=_with_person_id(_child_text(prop, "bookurl") or fallback_url),
+    )
 
 
 def parse_offers(
@@ -208,10 +221,10 @@ def parse_offers(
     subsidized_only: bool = True,
 ) -> list[FlightOffer]:
     """
-    Разбирает XML-ответ в список предложений.
+    Разбирает ответ getFaresByFOP_Ex3 в список предложений.
 
-    route / depart_date — то, что мы запрашивали; используются как fallback,
-    если в ответе поля не нашлись.
+    route — запрошенный маршрут городами (KHV-MOW), он и станет маршрутом
+    предложения; depart_date — fallback, если у сегмента нет даты вылета.
     """
     if not xml_text or not xml_text.strip():
         raise ParseError("пустой ответ")
@@ -223,7 +236,12 @@ def parse_offers(
 
     _raise_if_api_error(root)
 
-    parents = _build_parents(root)
+    resp = _find_response(root)
+    if resp is None:
+        raise ParseError(f"неизвестный формат ответа: <{_localname(root.tag)}>")
+    if _child_text(resp, "issuccess").lower() == "false":
+        raise ParseError(f"API: {_child_text(resp, 'errortext') or 'isSuccess=false'}")
+
     fallback_date = ""
     if isinstance(depart_date, date):
         fallback_date = depart_date.isoformat()
@@ -232,57 +250,28 @@ def parse_offers(
 
     fb_origin, fb_dest = "", ""
     if route and "-" in route:
-        fb_origin, fb_dest = route.split("-", 1)
+        fb_origin, fb_dest = (p.upper() for p in route.split("-", 1))
 
+    fallback_url = _child_text(resp, "bookurl")
     offers: list[FlightOffer] = []
     seen: set[str] = set()
 
-    for el in root.iter():
-        if not _is_fare_node(el):
-            continue
-        ctx = _collect_context(el, parents)
-
-        origin = _first(ctx, "origin", "from", "departureairport", "depairport",
-                        "departurecode", "origincode", default=fb_origin).upper()
-        dest = _first(ctx, "destination", "to", "arrivalairport", "arrairport",
-                      "arrivalcode", "destinationcode", default=fb_dest).upper()
-
-        raw_dep = _first(ctx, "departuredate", "depdate", "departure",
-                         "departuredatetime", "date", "flightdate")
-        dep_date = _to_iso_date(raw_dep, default=fallback_date)
-
-        offer = FlightOffer(
-            route=f"{origin}-{dest}" if origin and dest else (route or ""),
-            origin=origin,
-            destination=dest,
-            depart_date=dep_date,
-            depart_time=_to_time(_first(ctx, "departuretime", "deptime",
-                                        "departuredatetime", "departure")),
-            arrive_time=_to_time(_first(ctx, "arrivaltime", "arrtime",
-                                        "arrivaldatetime", "arrival")),
-            flight_number=_first(ctx, "flightnumber", "flightno", "flight",
-                                 "number", "flightcode"),
-            airline=_first(ctx, "airline", "carrier", "marketingcarrier",
-                           "operatingcarrier", "airlinecode"),
-            fare_code=_first(ctx, "farecode", "fareclass", "faretype"),
-            mrid=_first(ctx, "mrid"),
-            avail_qty=_to_int(_first(ctx, "availqty", "seats", "availableseats",
-                                     "seatcount", "quantity")),
-            price=_to_float(_first(ctx, "price", "totalprice", "amount",
-                                   "fareamount", "total")),
-            currency=_first(ctx, "currency", "currencycode", default="RUB"),
-            book_url=_first(ctx, "bookurl", "booklink", "deeplink", "url"),
-            raw_id=_first(ctx, "offerid", "recommendationid", "id", "uid"),
-        )
-
-        if subsidized_only and not offer.is_subsidized():
-            continue
-
-        k = offer.key()
-        if k in seen:
-            continue
-        seen.add(k)
-        offers.append(offer)
+    for offers_el in _children(resp, "offers"):
+        for prop in _children(offers_el, "proposal"):
+            offer = _proposal_offer(prop, fb_origin, fb_dest, fallback_date,
+                                    fallback_url)
+            if offer is None:
+                continue
+            if subsidized_only and not offer.is_subsidized():
+                log.warning("пропущен тариф без признаков субсидии: %s %s %s "
+                            "FareCode=%s MRID=%s", offer.route, offer.depart_date,
+                            offer.flight_number, offer.fare_code, offer.mrid or 0)
+                continue
+            k = offer.key()
+            if k in seen:
+                continue
+            seen.add(k)
+            offers.append(offer)
 
     return offers
 

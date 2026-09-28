@@ -82,11 +82,11 @@ function runChecks() {
         !window.META.demo || $$('.buy.off').length === rows.length);
 
   console.log('\n4. Пассажиры');
-  const before = rows.length;
   st.adults = 5; window.renderPax(); window.search();
   const after = $$('.flights tbody tr').length;
-  check('увеличение числа пассажиров отсекает рейсы с малым числом мест',
-        after < before, `было ${before}, стало ${after}`);
+  const enough = shown.filter(f => f.q >= 5).length;
+  check('при 5 пассажирах остаются только рейсы, где мест хватает',
+        after === enough, `в DOM ${after}, ожидалось ${enough}`);
   check('счётчик пассажиров подписан верно',
         $('#paxLabel').textContent.includes('5'), $('#paxLabel').textContent);
   st.infants = 9; window.renderPax();

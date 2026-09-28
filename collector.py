@@ -94,9 +94,11 @@ def run(args: argparse.Namespace) -> int:
     routes = resolve_routes(args.routes)
     dates = resolve_dates(args.date_from, args.date_to)
 
-    log.info("режим: %s | маршрутов: %d | дат: %d | всего запросов: %d",
+    categories = config.PASSENGER_CATEGORIES
+    log.info("режим: %s | маршрутов: %d | дат: %d | категорий: %s | всего запросов: %d",
              "DRY-RUN (фикстура)" if dry_run else "LIVE",
-             len(routes), len(dates), len(routes) * len(dates))
+             len(routes), len(dates), ",".join(categories),
+             len(routes) * len(dates) * len(categories))
 
     db = Database()
     fetcher = Fetcher(dry_run=dry_run)
@@ -108,19 +110,23 @@ def run(args: argparse.Namespace) -> int:
 
     for route in routes:
         for day in dates:
-            n_requests += 1
-            try:
-                xml_text = fetcher.fetch(route.origin, route.destination, day)
-                offers = parse_offers(xml_text, route=str(route), depart_date=day)
-            except (FetchError, ParseError) as exc:
-                n_errors += 1
-                log.error("%s %s — %s", route, day, exc)
-                continue
+            offers = []
+            for category in categories:
+                n_requests += 1
+                try:
+                    xml_text = fetcher.fetch(route.origin, route.destination, day,
+                                             category)
+                    offers += parse_offers(xml_text, route=str(route), depart_date=day)
+                except (FetchError, ParseError) as exc:
+                    n_errors += 1
+                    log.error("%s %s %s — %s", route, day, category, exc)
 
             if not offers:
                 log.debug("%s %s — субсидированных тарифов нет", route, day)
                 continue
 
+            # Один и тот же тариф может прийти по двум категориям — пишем раз.
+            offers = list({o.key(): o for o in offers}.values())
             prev = db.latest_by_key([o.key() for o in offers])
             for offer in offers:
                 pending_alerts.extend(evaluate(offer, prev.get(offer.key())))

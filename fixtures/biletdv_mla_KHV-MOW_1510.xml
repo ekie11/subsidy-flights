@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FlightsSearchResponse xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <BeforeRequestRuleId>255767</BeforeRequestRuleId>
+  <isSuccess>true</isSuccess>
+  <References>
+    <Airlines>
+      <Airline Code="SU" Name="АЭРОФЛОТ" />
+      <Airline Code="FV" Name="РОССИЯ" />
+    </Airlines>
+    <Airports>
+      <Airport Code="KHV" City="Хабаровск" Country="Российская Федерация" Name="Хабаровск(Новый)" />
+      <Airport Code="SVO" City="Москва" Country="Российская Федерация" Name="Москва(Шереметьево)" />
+    </Airports>
+    <MiniRules>
+      <MiniRule Id="43834" Code="ES" Name="СУБСИДИЯ">
+        <Parameters>
+          <MiniRuleParam ParamID="SHLG" Cost="free" />
+          <MiniRuleParam ParamID="SRFR" Cost="charge" />
+          <MiniRuleParam ParamID="SCHR" Cost="charge" />
+        </Parameters>
+      </MiniRule>
+    </MiniRules>
+  </References>
+  <Offers>
+    <Proposal Total="8099" Fare="8099" Tax="0" id_System="1" S="1" TL_Utc="2026-09-28T18:46:00Z" TL_Min="29" Cache_Best_Before="2026-09-28T18:17:18.6292008Z" Selfconnect="false" Currency="RUB">
+      <Flights>
+        <Flight Code="SU" OperatingAirlineCode="SU" ValidatingAirlineCode="SU" Num="1719" Origin="KHV" Destination="SVO" Duration="08:00" Departure="15.10.2026T10:10" Arrival="15.10.2026T11:10" FareCode="PZZSOC" MRID="43834" BookingClass="P" AvailQty="9" Direction="0" Aircraft="359" BaggageRate="1место" CarryonRate="1место" />
+      </Flights>
+      <BookURL>https://avia.biletdv.ru/Order.aspx?rguid=e4401bbe-e8d4-4578-96a7-6e8492a7bac4&amp;iguid=b3643b2f-b308-4667-ad07-c8babec8be9b&amp;PartnerID=KirillTest&amp;q=KHVMOW15102600000000010000E</BookURL>
+    </Proposal>
+    <Proposal Total="8099" Fare="8099" Tax="0" id_System="1" S="1" TL_Utc="2026-09-28T18:46:00Z" TL_Min="29" Cache_Best_Before="2026-09-28T18:17:18.6296744Z" Selfconnect="false" Currency="RUB">
+      <Flights>
+        <Flight Code="SU" OperatingAirlineCode="FV" ValidatingAirlineCode="SU" Num="6298" Origin="KHV" Destination="SVO" Duration="08:00" Departure="15.10.2026T13:50" Arrival="15.10.2026T14:50" FareCode="PZZSOC" MRID="43834" BookingClass="P" AvailQty="9" Direction="0" Aircraft="744" BaggageRate="1место" />
+      </Flights>
+      <BookURL>https://avia.biletdv.ru/Order.aspx?rguid=e4401bbe-e8d4-4578-96a7-6e8492a7bac4&amp;iguid=df447c9d-34fd-45be-ba66-8061223a62ed&amp;PartnerID=KirillTest&amp;q=KHVMOW15102600000000010000E</BookURL>
+    </Proposal>
+    <Proposal Total="8099" Fare="8099" Tax="0" id_System="1" S="1" TL_Utc="2026-09-28T18:46:00Z" TL_Min="29" Cache_Best_Before="2026-09-28T18:17:18.6300104Z" Selfconnect="false" Currency="RUB">
+      <Flights>
+        <Flight Code="SU" OperatingAirlineCode="SU" ValidatingAirlineCode="SU" Num="5807" Origin="KHV" Destination="SVO" Duration="09:00" Departure="15.10.2026T15:35" Arrival="15.10.2026T17:35" FareCode="PZZSOC" MRID="43834" BookingClass="P" AvailQty="9" Direction="0" Aircraft="332" BaggageRate="1место" />
+      </Flights>
+      <BookURL>https://avia.biletdv.ru/Order.aspx?rguid=e4401bbe-e8d4-4578-96a7-6e8492a7bac4&amp;iguid=69b331cf-a6cd-4f8c-bbfa-8587c19e4af8&amp;PartnerID=KirillTest&amp;q=KHVMOW15102600000000010000E</BookURL>
+    </Proposal>
+  </Offers>
+  <EarlierAvailableDate>0001-01-01T00:00:00</EarlierAvailableDate>
+  <LaterAvailableDate>0001-01-01T00:00:00</LaterAvailableDate>
+  <RequestId>c2d393bd-aaa5-4f40-ad07-fa3dea29928a</RequestId>
+  <ResponseId>e4401bbe-e8d4-4578-96a7-6e8492a7bac4</ResponseId>
+</FlightsSearchResponse>
