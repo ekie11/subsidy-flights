@@ -150,7 +150,7 @@ def build(out_path: Path | str | None = None, db: Database | None = None) -> Pat
 
     <div class="hero">
       <h1>Тут видно, есть ли места по субсидии</h1>
-      <div class="cats" role="group" aria-label="Категория льготы">{cats_html}</div>
+      <div class="cats" role="group" aria-label="Льготы — можно выбрать несколько">{cats_html}</div>
       <p class="cat-hint"><a href="#docs" id="catHint">Что взять с собой по льготе «Житель ДФО»</a></p>
     </div>
 

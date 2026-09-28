@@ -153,9 +153,31 @@ function runChecks() {
 
   const cat = $$('.cat')[1];
   cat.dispatchEvent(new window.Event('click'));
-  check('переключение категории меняет памятку',
-        $('#note').textContent.includes(window.CATEGORIES[1].title),
-        $('#note').textContent.slice(0, 50));
+  check('вторая льгота добавляется к первой, а не заменяет её',
+        st.cats.length === 2 && st.cats.includes(window.CATEGORIES[0].id)
+          && st.cats.includes(window.CATEGORIES[1].id), st.cats.join(','));
+  check('памятка показывает обе выбранные льготы',
+        $('#note').textContent.includes(window.CATEGORIES[0].title)
+          && $('#note').textContent.includes(window.CATEGORIES[1].title),
+        $('#note').textContent.slice(0, 80));
+  check('кнопки льгот отражают мультивыбор',
+        $$('.cat[aria-pressed="true"]').length === 2);
+  const saved = window.CATEGORIES.map(c => c.fare_codes);
+  window.CATEGORIES.forEach(c => { c.fare_codes = ['NOPE']; });
+  window.search();
+  check('льготы с чужими кодами тарифа скрывают рейсы',
+        !$$('.flights tbody tr').length);
+  window.CATEGORIES[1].fare_codes = [];
+  window.search();
+  check('рейс виден, если подходит хотя бы под одну льготу',
+        $$('.flights tbody tr').length > 0 && $('.flights .fit')?.textContent.includes(window.CATEGORIES[1].short));
+  window.CATEGORIES.forEach((c, i) => { c.fare_codes = saved[i]; });
+  $$('.cat')[0].dispatchEvent(new window.Event('click'));
+  check('снятие льготы оставляет вторую',
+        st.cats.length === 1 && st.cats[0] === window.CATEGORIES[1].id, st.cats.join(','));
+  $$('.cat')[1].dispatchEvent(new window.Event('click'));
+  check('последнюю льготу снять нельзя', st.cats.length === 1, st.cats.join(','));
+  window.search();
 
   console.log('\n8. Направления под мониторингом');
   const pops = $$('.pop');

@@ -105,11 +105,20 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  var state = { from: '', to: '', date: '', pax: 1, cat: 'dfo', filters: { avail: false, evening: false } };
+  var state = { from: '', to: '', date: '', pax: 1, cats: ['dfo'], filters: { avail: false, evening: false } };
   function routeText() { return cityName(state.from) + ' → ' + cityName(state.to); }
   function dateText(iso) { return fmtDate(iso); }
   function seatsNeeded() { return state.pax; }
   function matchesRoute(f) { return f.o === state.from && f.d === state.to; }
+
+  /* Льгот можно выбрать несколько: рейс подходит, если подходит хотя бы под
+     одну выбранную. Категория без fare_codes (пока таких все, см. cities.py)
+     подходит под любой субсидированный тариф — квота общая. */
+  function selectedCats() { return CATEGORIES.filter(function (c) { return state.cats.indexOf(c.id) >= 0; }); }
+  function catFits(c, f) { return !(c.fare_codes || []).length || c.fare_codes.indexOf(f.fc) >= 0; }
+  function catsFor(f) { return selectedCats().filter(function (c) { return catFits(c, f); }); }
+  function matchCategory(f) { return catsFor(f).length > 0; }
+  function matches(f) { return matchesRoute(f) && matchCategory(f); }
 
   /* ---------- поля поиска ---------- */
   var fFrom = $('#from'), fTo = $('#to'), fDate = $('#date'), fPax = $('#pax');
@@ -192,17 +201,27 @@ document.addEventListener('DOMContentLoaded', function () {
   /* ---------- категории ---------- */
   var docText = $('[data-doc]');
   function renderNote() {
-    var c = CATEGORIES.filter(function (x) { return x.id === state.cat; })[0];
-    if (!c) return;
-    docText.innerHTML = '<b>' + esc(c.title) + '.</b> ' + c.requirements.map(esc).join('. ') + '.';
+    var cs = selectedCats();
+    if (!cs.length) return;
+    docText.innerHTML = cs.map(function (c) {
+      return '<b>' + esc(c.title) + '.</b> ' + c.requirements.map(esc).join('. ') + '.';
+    }).join('<br>') + (cs.length > 1 ? '<br>Документы нужны только по той льготе, по которой покупаете билет.' : '');
   }
+  function renderCats() {
+    $$('.cat').forEach(function (x) { x.setAttribute('aria-pressed', String(state.cats.indexOf(x.dataset.cat) >= 0)); });
+  }
+  /* Последнюю выбранную льготу снять нельзя — иначе непонятно, что искать. */
   $$('.cat').forEach(function (b) {
     b.addEventListener('click', function () {
-      if (state.cat === b.dataset.cat) return;
-      state.cat = b.dataset.cat;
-      $$('.cat').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+      var id = b.dataset.cat, on = state.cats.indexOf(id) >= 0;
+      if (on && state.cats.length === 1) { showToast('Нужна хотя бы одна льгота.'); return; }
+      state.cats = CATEGORIES.map(function (c) { return c.id; }).filter(function (x) {
+        return x === id ? !on : state.cats.indexOf(x) >= 0;
+      });
+      renderCats();
       renderNote();
       play(docText, { opacity: [0, 1], y: [4, 0] }, { duration: 0.35, ease: EASE });
+      if (state.date) { renderAll(false); renderBoard(); }
     });
   });
 
@@ -212,7 +231,7 @@ document.addEventListener('DOMContentLoaded', function () {
   var cards = [], currentFlights = [];
 
   function flightsForDate() {
-    return DATA.filter(function (f) { return matchesRoute(f) && f.dt === state.date; })
+    return DATA.filter(function (f) { return matches(f) && f.dt === state.date; })
       .sort(function (a, b) { return (a.tm || '').localeCompare(b.tm || ''); });
   }
   function cardHtml(f) {
@@ -222,7 +241,9 @@ document.addEventListener('DOMContentLoaded', function () {
     var seatsHtml = st === 'none'
       ? '<b data-seats>Мест нет</b>'
       : '<b data-seats>' + f.q + '</b><span class="u" data-unit>' + plural(f.q, SEAT_FORMS) + ' по ' + fmtPrice(f.p) + '</span>';
-    var trend = st === 'short' ? 'Не хватит на всех пассажиров' : '';
+    var fit = catsFor(f);
+    var trend = st === 'short' ? 'Не хватит на всех пассажиров'
+      : (fit.length < state.cats.length ? 'По льготе: ' + fit.map(function (c) { return c.short; }).join(', ') : '');
     return '<li class="flight" data-state="' + st + '" data-seats="' + f.q + '" data-dep="' + timeToMin(f.tm) + '">' +
       '<div class="fl-main"><div class="leg">' +
       '<div class="pt"><b class="num">' + esc(f.tm || '—') + '</b><span data-code="from">' + esc(f.o) + '</span></div>' +
@@ -243,7 +264,8 @@ document.addEventListener('DOMContentLoaded', function () {
       fromAp: state.from, toAp: state.to,
       date: state.date, dep: f.tm || '', arr: f.ar || '', next: next,
       carrier: airlineName(f.al), num: f.fn || '',
-      seats: f.q, pax: state.pax, cat: state.cat, price: Math.round(f.p || 0)
+      seats: f.q, pax: state.pax, cat: catsFor(f)[0].id,
+      cats: catsFor(f).map(function (c) { return c.id; }).join(','), price: Math.round(f.p || 0)
     });
     window.location.href = 'checkout.html?' + q.toString();
   }
@@ -361,7 +383,7 @@ document.addEventListener('DOMContentLoaded', function () {
   var calGrid = $('.cal-grid');
   function renderCalendar() {
     var need = seatsNeeded(), by = {};
-    DATA.filter(matchesRoute).forEach(function (f) { by[f.dt] = (by[f.dt] || 0) + (f.q >= need ? f.q : 0); });
+    DATA.filter(matches).forEach(function (f) { by[f.dt] = (by[f.dt] || 0) + (f.q >= need ? f.q : 0); });
     var ym = state.date.slice(0, 7).split('-').map(Number);
     var y = ym[0], m = ym[1];
     $('#cal-route').textContent = MONTHS_N[m - 1] + ' ' + y + ', ' + routeText();
@@ -421,7 +443,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var box = $('.board ul');
     if (!box) return;
     box.innerHTML = ROUTES.map(function (r) {
-      var recs = DATA.filter(function (f) { return f.o === r.origin && f.d === r.destination; });
+      var recs = DATA.filter(function (f) { return f.o === r.origin && f.d === r.destination && matchCategory(f); });
       var best = recs.length ? recs.reduce(function (a, b) { return b.q > a.q ? b : a; }) : null;
       if (!best || best.q === 0) {
         return '<li class="brow no"><span class="d">—</span><span class="r">' + esc(cityName(r.origin)) + ' → ' + esc(cityName(r.destination)) + '</span><span class="seats"><b>нет</b></span></li>';
@@ -515,12 +537,13 @@ document.addEventListener('DOMContentLoaded', function () {
     fillSelect(fFrom, origins, state.from);
     fillSelect(fTo, dests, state.to);
 
-    var onRoute = DATA.filter(matchesRoute);
+    var onRoute = DATA.filter(matches);
     var withSeats = onRoute.filter(function (f) { return f.q > 0; }).map(function (f) { return f.dt; }).sort();
     state.date = withSeats[0] || META.date_from;
     fDate.value = state.date;
     fDate.min = META.date_from; fDate.max = META.date_to;
 
+    renderCats();
     renderNote();
     renderStamp();
     renderBoard();
