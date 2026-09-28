@@ -11,6 +11,14 @@ const DOW=['пн','вт','ср','чт','пт','сб','вс'];
 
 const seatsNeeded = ()=> state.adults + state.children;   // младенцы летят на руках
 const cityName = c => (AIRPORTS[c]||{}).city || c;
+const airlineName = c => (typeof AIRLINES!=='undefined' && AIRLINES[c]) || c;
+
+/* Всё, что пришло от партнёра (номер рейса, ссылка), экранируем перед
+   вставкой в разметку: кавычка в BookURL иначе ломала бы атрибут href. */
+const esc = v => String(v??'').replace(/[&<>"']/g,
+  ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+const ICON_NEXT = '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false">'
+  +'<path d="m9 18 6-6-6-6"/></svg>';
 
 function fmtDate(iso){
   const d=new Date(iso+'T00:00:00');
@@ -58,21 +66,41 @@ function init(){
   $('#find').onclick=search;
   $('#sort').onchange=e=>{state.sort=e.target.value;search()};
 
-  $('#paxBtn').onclick=e=>{e.stopPropagation();$('#paxPop').classList.toggle('open')};
-  document.addEventListener('click',()=>$('#paxPop').classList.remove('open'));
+  $('#paxBtn').onclick=e=>{e.stopPropagation();setPax(!$('#paxPop').classList.contains('open'))};
+  document.addEventListener('click',()=>setPax(false));
   $('#paxPop').onclick=e=>e.stopPropagation();
+  document.addEventListener('keydown',e=>{
+    if(e.key!=='Escape') return;
+    if($('#watch').classList.contains('open')){ closeWatch(); return; }
+    if($('#paxPop').classList.contains('open')){ setPax(false); $('#paxBtn').focus(); }
+  });
   $$('.step').forEach(b=>b.onclick=()=>{
     state[b.dataset.k]+=(+b.dataset.d);
     renderPax(); search();          // корректность состава чинит clampPax()
   });
 
   $$('.cat').forEach(b=>b.onclick=()=>{
-    $$('.cat').forEach(x=>x.classList.remove('on'));
-    b.classList.add('on'); state.cat=b.dataset.id; renderNote();
+    $$('.cat').forEach(x=>{x.classList.remove('on');x.setAttribute('aria-pressed','false')});
+    b.classList.add('on'); b.setAttribute('aria-pressed','true');
+    state.cat=b.dataset.id; renderNote();
   });
 
-  $('#watchClose').onclick=()=>$('#watch').classList.remove('open');
+  $('#watchClose').onclick=closeWatch;
   $('#watchSave').onclick=submitWatch;
+  $('#watchInput').onkeydown=e=>{ if(e.key==='Enter') submitWatch(); };
+  $('#watch').onclick=e=>{ if(e.target===e.currentTarget) closeWatch(); };
+  $('#watch').addEventListener('keydown',trapFocus);
+
+  $$('footer a[data-o]').forEach(a=>a.onclick=e=>{
+    e.preventDefault(); goRoute(a.dataset.o,a.dataset.d);
+  });
+
+  // Время обновления — в часовом поясе читателя, а не в UTC.
+  const upd=$('#updated'), when=new Date(META.generated);
+  if(upd && !isNaN(when)){
+    upd.textContent=when.toLocaleString('ru-RU',{day:'numeric',month:'long',
+      hour:'2-digit',minute:'2-digit'});
+  }
 
   renderPax(); renderNote(); renderPopular(); search();
 }
@@ -90,7 +118,10 @@ function search(){
   $('#fromCode').textContent=state.from;
   $('#toCode').textContent=state.to;
   $('#routeTitle').textContent=cityName(state.from)+' → '+cityName(state.to);
-  $('#routeSub').textContent=fmtDate(state.date)+', '+need+' '+plural(need,'место','места','мест');
+  $('#routeSub').textContent=fmtDate(state.date)+', нужно '+need+' '+plural(need,'место','места','мест');
+  $('#status').textContent = fit.length
+    ? `${fmtDate(state.date)}: ${fit.length} ${plural(fit.length,'рейс','рейса','рейсов')} с местами`
+    : `${fmtDate(state.date)}: мест нет`;
 }
 
 function sortFlights(list){
@@ -105,8 +136,9 @@ function renderBoard(fit,onDate,need){
   const box=$('#board');
   if(!DATA.some(matches)){
     box.innerHTML=`<div class="empty"><div class="big">Это направление мы пока не отслеживаем</div>
-      <div class="sm">Сейчас в мониторинге: ${ROUTES.map(r=>cityName(r.origin)+' → '+cityName(r.destination)).join(', ')}.
-      Напишите, какое направление добавить — поставим на отслеживание.</div></div>`;
+      <div class="sm">Сейчас в мониторинге: ${esc(ROUTES.map(r=>cityName(r.origin)+' → '+cityName(r.destination)).join(', '))}.
+      Напишите, какое направление добавить, и мы поставим его на отслеживание.</div>
+      <a class="watch" href="mailto:harhanovk@gmail.com?subject=${encodeURIComponent('Добавить направление '+cityName(state.from)+' → '+cityName(state.to))}">Предложить направление</a></div>`;
     return;
   }
   if(!fit.length){
@@ -134,11 +166,11 @@ function rowHtml(f){
   const cls=f.q===0?'no':(f.q<=LOW?'low':'ok');
   const btn = META.demo
     ? `<span class="buy off">демо</span>`
-    : (f.url ? `<a class="buy" href="${f.url}" target="_blank" rel="noopener nofollow">Выбрать</a>`
+    : (f.url ? `<a class="buy" href="${esc(f.url)}" target="_blank" rel="noopener nofollow">Выбрать</a>`
              : `<button class="watch" onclick="openWatch()">Следить</button>`);
   return `<tr>
-    <td><div class="time">${f.tm||'—'}${f.ar?`<small>прилёт ${f.ar}</small>`:''}</div></td>
-    <td class="fl"><b>${f.fn||'—'}</b><span>тариф ${f.fc||'—'}</span></td>
+    <td><div class="time">${esc(f.tm||'—')}${f.ar?`<small>прилёт ${esc(f.ar)}</small>`:''}</div></td>
+    <td class="fl"><b>${esc(f.fn||'—')}</b><span>${esc(airlineName(f.al)||'')}</span></td>
     <td><div class="seats ${cls}">${f.q}<small>${f.q?'мест свободно':'нет мест'}</small></div></td>
     <td><div class="price">${f.p?nf.format(f.p)+' ₽':'—'}<small>субсидированный</small></div></td>
     <td>${btn}</td></tr>`;
@@ -179,7 +211,7 @@ function renderPopular(){
     return `<button class="pop" onclick="goRoute('${r.o}','${r.d}')">
       <div class="txt"><b>${cityName(r.o)} — ${cityName(r.d)}</b>
       <span class="p"> ${r.min<Infinity?'от '+nf.format(r.min)+' ₽':'цена уточняется'}</span>
-      <div class="q ${cls}">${txt}</div></div><span class="ch">›</span></button>`;
+      <div class="q ${cls}">${txt}</div></div><span class="ch">${ICON_NEXT}</span></button>`;
   }).join('');
 }
 
@@ -207,7 +239,9 @@ function renderCalendar(){
     const sel=iso===state.date?' sel':'';
     const priceHtml = (q && cell.p<Infinity)
       ? `<span class="p">${nf.format(cell.p)} ₽</span>` : '';
-    cells+=`<button class="day ${cls}${sel}" ${known?`onclick="goDate('${iso}')"`:'disabled'}>
+    const label=`${d} ${MONTHS[m-1]}: `+(!known?'вне мониторинга'
+      :(q?`${q} ${plural(q,'место','места','мест')}`+(cell.p<Infinity?`, от ${nf.format(cell.p)} ₽`:''):'мест нет'));
+    cells+=`<button class="day ${cls}${sel}" aria-label="${label}"${sel?' aria-current="date"':''} ${known?`onclick="goDate('${iso}')"`:'disabled'}>
       <span class="n">${d}</span>
       <span class="q">${known?(q?q:'—'):'·'}</span>${priceHtml}</button>`;
   }
@@ -245,12 +279,38 @@ function renderPax(){
 function renderNote(){
   const c=CATEGORIES.find(x=>x.id===state.cat);
   if(!c) return;
+  const hint=$('#catHint');
+  if(hint) hint.textContent=`Что взять с собой по льготе «${c.short}»`;
   $('#note').innerHTML=`<b>${c.title}.</b> Что попросят показать при посадке:
     <ul>${c.requirements.map(r=>`<li>${r}</li>`).join('')}</ul>
     <div style="margin-top:9px">Наличие мест одинаково для всех льготных категорий:
     субсидированная квота на рейсе общая.</div>`;
 }
-function openWatch(){ $('#watch').classList.add('open'); $('#watchMsg').textContent=''; }
+function setPax(open){
+  $('#paxPop').classList.toggle('open',open);
+  $('#paxBtn').setAttribute('aria-expanded',String(open));
+}
+
+/* Окно подписки ведёт себя как диалог: фокус заходит внутрь, Tab не уходит
+   на страницу под затемнением, Esc и клик по фону закрывают, фокус
+   возвращается на кнопку, которая окно открыла. */
+let watchOpener=null;
+function openWatch(){
+  watchOpener=document.activeElement;
+  $('#watch').classList.add('open'); $('#watchMsg').textContent='';
+  $('#watchInput').focus();
+}
+function closeWatch(){
+  $('#watch').classList.remove('open');
+  if(watchOpener && watchOpener.focus) watchOpener.focus();
+}
+function trapFocus(e){
+  if(e.key!=='Tab') return;
+  const f=$$('#watch input, #watch button:not(:disabled)');
+  const first=f[0], last=f[f.length-1];
+  if(e.shiftKey && document.activeElement===first){ e.preventDefault(); last.focus(); }
+  else if(!e.shiftKey && document.activeElement===last){ e.preventDefault(); first.focus(); }
+}
 
 /* Бэкенд подписки (subscribe_api.py) — отдельный процесс, который есть
    не на каждом деплое: на GitHub Pages (статика) его нет и не будет,
@@ -298,4 +358,4 @@ document.addEventListener('DOMContentLoaded',init);
    скрипте живут в скрипт-скоупе и снаружи не видны. На работу страницы не влияет. */
 Object.assign(window,{DATA,ROUTES,META,AIRPORTS,CATEGORIES,LOW,state,
   search,renderPax,renderCalendar,renderPopular,goDate,goRoute,nearestDates,
-  openWatch,submitWatch,clampPax});
+  openWatch,closeWatch,submitWatch,clampPax});

@@ -16,3 +16,7 @@ package-lock.json
 
 # Прочее
 .DS_Store
+
+# Локальные настройки Claude Code и Impeccable (у каждого свои)
+.claude/settings.local.json
+.impeccable/config.local.json
