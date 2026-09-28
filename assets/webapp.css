@@ -147,7 +147,9 @@ h1,h2,h3{letter-spacing:-.02em}
 .strip .ic{width:22px;height:22px;color:var(--green);flex:none}
 .strip a{margin-left:auto;color:var(--brand);font-weight:700;text-decoration:none;
   white-space:nowrap}
-.page{padding:44px 0 0}
+/* Только верхний отступ: сокращённое padding:44px 0 0 затирало боковые поля
+   .wrap, и на экранах уже 1160px контент прилипал к краю. */
+.page{padding-top:44px}
 .sec{margin-bottom:44px}
 .sec-h{display:flex;align-items:baseline;flex-wrap:wrap;gap:12px;margin-bottom:16px}
 .sec-h h2{margin:0;font-size:24px;font-weight:800}
@@ -190,6 +192,7 @@ h1,h2,h3{letter-spacing:-.02em}
 .watch{background:var(--brand);border:0;border-radius:10px;padding:13px 24px;color:#fff;
   font-weight:800;font-size:16px;white-space:nowrap}
 .watch:hover{background:var(--brand-dk)}
+a.watch{display:inline-block;text-decoration:none}
 
 .empty{background:var(--grey);border-radius:var(--r);padding:44px 28px;text-align:center}
 .empty .big{font-size:22px;font-weight:800;margin-bottom:8px}
@@ -285,12 +288,15 @@ footer{border-top:1px solid var(--line);margin-top:20px;padding:28px 0 40px;
   .btn-find{grid-column:1/-1;border-radius:0 0 10px 10px;padding:18px 0}
   .pops{grid-template-columns:1fr}
   .fcols{grid-template-columns:1fr 1fr}
-  .flights td{display:block;padding:10px 18px;border:0}
-  .flights td:first-child{border-radius:var(--r) var(--r) 0 0;padding-top:16px}
-  .flights td:last-child{border-radius:0 0 var(--r) var(--r);text-align:left;
-    padding-bottom:16px}
+  /* Строка рейса становится карточкой: таблица, tbody и tr переводятся
+     в блоки, иначе рамка строки-«table-row» рисуется обрезанной. */
+  .flights,.flights tbody,.flights tr{display:block}
+  .flights tr{border:1px solid var(--line);border-radius:var(--r);margin-bottom:10px;
+    display:grid;grid-template-columns:1fr 1fr;align-items:end;overflow:hidden}
+  .flights td,.flights td:first-child,.flights td:last-child{display:block;border:0;
+    border-radius:0;padding:14px 18px 0}
   .flights td:nth-child(2){display:none}
-  .flights tr{box-shadow:0 0 0 1px var(--line)}
+  .flights td:last-child{grid-column:1/-1;text-align:left;padding:14px 18px 16px}
   .buy,.watch{display:block;width:100%;text-align:center}
 }
 

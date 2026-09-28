@@ -118,7 +118,7 @@ function search(){
   $('#fromCode').textContent=state.from;
   $('#toCode').textContent=state.to;
   $('#routeTitle').textContent=cityName(state.from)+' → '+cityName(state.to);
-  $('#routeSub').textContent=fmtDate(state.date)+', '+need+' '+plural(need,'место','места','мест');
+  $('#routeSub').textContent=fmtDate(state.date)+', нужно '+need+' '+plural(need,'место','места','мест');
   $('#status').textContent = fit.length
     ? `${fmtDate(state.date)}: ${fit.length} ${plural(fit.length,'рейс','рейса','рейсов')} с местами`
     : `${fmtDate(state.date)}: мест нет`;
@@ -137,7 +137,8 @@ function renderBoard(fit,onDate,need){
   if(!DATA.some(matches)){
     box.innerHTML=`<div class="empty"><div class="big">Это направление мы пока не отслеживаем</div>
       <div class="sm">Сейчас в мониторинге: ${esc(ROUTES.map(r=>cityName(r.origin)+' → '+cityName(r.destination)).join(', '))}.
-      Напишите, какое направление добавить — поставим на отслеживание.</div></div>`;
+      Напишите, какое направление добавить, и мы поставим его на отслеживание.</div>
+      <a class="watch" href="mailto:harhanovk@gmail.com?subject=${encodeURIComponent('Добавить направление '+cityName(state.from)+' → '+cityName(state.to))}">Предложить направление</a></div>`;
     return;
   }
   if(!fit.length){
