@@ -178,7 +178,10 @@ main section:first-child{padding-top:clamp(40px,5vw,64px)}
 .fl-main{display:flex;align-items:center;gap:12px 26px;flex-wrap:wrap;min-width:0}
 .leg{display:flex;align-items:center;gap:14px}
 .pt b{display:block;font-size:22px;font-weight:700;letter-spacing:-.02em;line-height:1.1}
-.pt b sup{font-size:12px;font-weight:600;color:var(--dim);margin-left:2px;vertical-align:top;line-height:1}
+.pt b{position:relative}
+/* «+1» висит справа от времени и не расширяет колонку — перевозчик во всех
+   карточках начинается с одной вертикали. */
+.pt b sup{position:absolute;left:100%;top:0;margin-left:2px;font-size:12px;font-weight:600;color:var(--dim);line-height:1}
 .pt span{font-size:13.5px;color:var(--dim)}
 .path{width:96px;text-align:center;font-size:12.5px;line-height:1.3;color:var(--dim)}
 .path i{display:block;height:1px;margin:5px 0;background:var(--line-2);position:relative}
@@ -206,7 +209,8 @@ main section:first-child{padding-top:clamp(40px,5vw,64px)}
 .cal h3{font-size:18px;margin-bottom:16px}
 .cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:clamp(4px,.8vw,8px)}
 .dow{font-size:13px;color:var(--dim);text-align:center;padding-bottom:2px}
-.day{appearance:none;-webkit-appearance:none;min-height:60px;padding:8px 2px;border-radius:var(--r-sm);
+.day{appearance:none;-webkit-appearance:none;min-height:60px;padding:8px 2px;
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-start;border-radius:var(--r-sm);
   border:1.5px solid transparent;background:var(--surface-2);color:var(--ink-2);text-align:center;cursor:pointer;
   transition:border-color .16s,background-color .16s}
 .day .d{display:block;font-size:14px;line-height:1.2}
@@ -254,6 +258,7 @@ main section:first-child{padding-top:clamp(40px,5vw,64px)}
 .cmp tbody tr:last-child > *{border-bottom:0}
 .cmp thead th{font-size:14px;font-weight:600;color:var(--dim);background:var(--surface-2)}
 .cmp tbody th{font-weight:500;color:var(--ink-2);width:34%}
+.cmp td{color:var(--ink-2)}
 .cmp .us{background:var(--brand-soft)}
 .cmp thead .us{color:var(--ink);font-weight:700;background:var(--brand-soft)}
 .yes{color:var(--green);font-weight:600}
@@ -490,11 +495,11 @@ main section:first-child{padding-top:clamp(40px,5vw,64px)}
       <aside class="board" aria-labelledby="board-h">
         <p class="board-h" id="board-h">Сейчас на популярных направлениях</p>
         <ul>
-          <li class="brow ok"><span class="d">12.09</span><span class="r">Хабаровск → Москва<span>SU 1711 · вылет 23:55</span></span><span class="seats"><b>7</b><span>мест</span></span></li>
-          <li class="brow low"><span class="d">13.09</span><span class="r">Владивосток → Москва<span>SU 1701 · вылет 22:20</span></span><span class="seats"><b>2</b><span>места</span></span></li>
-          <li class="brow no"><span class="d">14.09</span><span class="r">Южно-Сахалинск → Москва<span>SU 1731 · вылет 21:40</span></span><span class="seats"><b>нет</b></span></li>
-          <li class="brow ok"><span class="d">15.09</span><span class="r">Хабаровск → Петербург<span>SU 6284 · вылет 20:10</span></span><span class="seats"><b>11</b><span>мест</span></span></li>
-          <li class="brow no"><span class="d">16.09</span><span class="r">Петропавловск-Камчатский → Москва<span>SU 1741 · вылет 19:05</span></span><span class="seats"><b>нет</b></span></li>
+          <li class="brow ok"><span class="d">12.09</span><span class="r">Хабаровск →&nbsp;Москва<span>SU 1711 · вылет 23:55</span></span><span class="seats"><b>7</b><span>мест</span></span></li>
+          <li class="brow low"><span class="d">13.09</span><span class="r">Владивосток →&nbsp;Москва<span>SU 1701 · вылет 22:20</span></span><span class="seats"><b>2</b><span>места</span></span></li>
+          <li class="brow no"><span class="d">14.09</span><span class="r">Южно-Сахалинск →&nbsp;Москва<span>SU 1731 · вылет 21:40</span></span><span class="seats"><b>нет</b></span></li>
+          <li class="brow ok"><span class="d">15.09</span><span class="r">Хабаровск →&nbsp;Петербург<span>SU 6284 · вылет 20:10</span></span><span class="seats"><b>11</b><span>мест</span></span></li>
+          <li class="brow no"><span class="d">16.09</span><span class="r">Петропавловск-Камчатский →&nbsp;Москва<span>SU 1741 · вылет 19:05</span></span><span class="seats"><b>нет</b></span></li>
         </ul>
         <p class="board-f">Обновляем каждые 15 минут. История наличия хранится с 2 июня.</p>
       </aside>
@@ -507,7 +512,7 @@ main section:first-child{padding-top:clamp(40px,5vw,64px)}
     <div class="wrap">
       <div class="sec-h">
         <div>
-          <h2 id="res-title" tabindex="-1">Хабаровск → Москва, 12 сентября</h2>
+          <h2 id="res-title" tabindex="-1">Хабаровск →&nbsp;Москва, 12 сентября</h2>
           <p>Четыре рейса в день. Вместо цены показываем число свободных мест: тариф по субсидии одинаковый на всех рейсах.</p>
         </div>
         <button class="btn s" type="button" data-notify>Сообщить о местах</button>
@@ -597,7 +602,7 @@ main section:first-child{padding-top:clamp(40px,5vw,64px)}
         </div>
       </div>
       <div class="cal">
-        <h3 id="cal-route">Сентябрь 2026, Хабаровск → Москва</h3>
+        <h3 id="cal-route">Сентябрь 2026, Хабаровск →&nbsp;Москва</h3>
         <div class="cal-grid" role="group" aria-labelledby="cal-route" aria-describedby="cal-keys">
           <span class="dow" aria-hidden="true">пн</span>
           <span class="dow" aria-hidden="true">вт</span>
@@ -753,7 +758,7 @@ main section:first-child{padding-top:clamp(40px,5vw,64px)}
         </div>
         <div class="form">
           <form id="subform" novalidate>
-            <p class="ctx">Следим за: <b data-ctx>Хабаровск → Москва, 12 сентября</b></p>
+            <p class="ctx">Следим за: <b data-ctx>Хабаровск →&nbsp;Москва, 12 сентября</b></p>
             <label for="contact">Telegram или почта</label>
             <input id="contact" name="contact" type="text" inputmode="email" autocomplete="email"
                    placeholder="@username или name@mail.ru" aria-describedby="contact-hint contact-err">
@@ -864,7 +869,7 @@ document.addEventListener('DOMContentLoaded', function () {
     return forms[2];
   }
   var SEAT_FORMS = ['место', 'места', 'мест'];
-  function routeText() { return CITIES[state.from][0] + ' → ' + CITIES[state.to][0]; }
+  function routeText() { return CITIES[state.from][0] + ' →\u00a0' + CITIES[state.to][0]; }
   function dateText(d) { return d + ' ' + MONTH_GEN; }
   function seatsFor(id, day) {
     if (day === 12) return DAY12[id];
