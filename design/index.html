@@ -467,7 +467,7 @@ main section:first-child{padding-top:clamp(40px,5vw,64px)}
           <button class="go" type="submit">Смотреть места</button>
         </form>
         <p class="search-err" id="search-err" role="alert" hidden></p>
-        <div class="cats" role="group" aria-label="Категория льготы">
+        <div class="cats" role="group" aria-label="Льготы — можно выбрать несколько">
           <button class="cat" type="button" data-cat="dfo" aria-pressed="true">Житель ДФО</button>
           <button class="cat" type="button" data-cat="young" aria-pressed="false">До 23 лет</button>
           <button class="cat" type="button" data-cat="pension" aria-pressed="false">Пенсионер</button>
@@ -843,7 +843,7 @@ document.addEventListener('DOMContentLoaded', function () {
   };
   var PRICE = '10 800 ₽';
 
-  var state = { from: 'KHV', to: 'MOW', day: 12, pax: 1, cat: 'dfo', filters: { avail: false, direct: false, evening: false } };
+  var state = { from: 'KHV', to: 'MOW', day: 12, pax: 1, cats: ['dfo'], filters: { avail: false, direct: false, evening: false } };
 
   function plural(n, forms) {
     var a = Math.abs(n) % 100, b = a % 10;
@@ -910,12 +910,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
   /* ---------- категории ---------- */
   var docText = $('[data-doc]');
+  /* Льгот можно выбрать несколько (житель ДФО до 23 лет и т. п.); последнюю снять нельзя. */
+  var CAT_ORDER = $$('.cat').map(function (x) { return x.dataset.cat; });
   $$('.cat').forEach(function (b) {
     b.addEventListener('click', function () {
-      if (state.cat === b.dataset.cat) return;
-      state.cat = b.dataset.cat;
-      $$('.cat').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
-      docText.innerHTML = DOCS[state.cat];
+      var id = b.dataset.cat, on = state.cats.indexOf(id) >= 0;
+      if (on && state.cats.length === 1) { showToast('Нужна хотя бы одна льгота.'); return; }
+      state.cats = CAT_ORDER.filter(function (x) { return x === id ? !on : state.cats.indexOf(x) >= 0; });
+      $$('.cat').forEach(function (x) { x.setAttribute('aria-pressed', String(state.cats.indexOf(x.dataset.cat) >= 0)); });
+      docText.innerHTML = state.cats.map(function (c) { return DOCS[c]; }).join('<br>') +
+        (state.cats.length > 1 ? '<br>Документы нужны только по той льготе, по которой покупаете билет.' : '');
       play(docText, { opacity: [0, 1], y: [4, 0] }, { duration: 0.35, ease: EASE });
     });
   });
@@ -1152,7 +1156,7 @@ document.addEventListener('DOMContentLoaded', function () {
         date: '2026-09-' + (state.day < 10 ? '0' : '') + state.day,
         dep: pts[0].textContent.trim(), arr: arr.textContent.trim(), next: plus ? '1' : '0',
         carrier: carrier.querySelector('b').textContent, num: tail[0].trim(),
-        seats: c.dataset.seats, pax: state.pax, cat: state.cat
+        seats: c.dataset.seats, pax: state.pax, cat: state.cats[0], cats: state.cats.join(',')
       });
       window.location.href = 'checkout.html?' + q.toString();
     });

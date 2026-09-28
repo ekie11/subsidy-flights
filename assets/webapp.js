@@ -1,6 +1,6 @@
 const $ = (s,r=document)=>r.querySelector(s);
 const $$ = (s,r=document)=>[...r.querySelectorAll(s)];
-const state = {from:'',to:'',date:'',adults:1,children:0,infants:0,cat:'dfo',sort:'time',calMonth:''};
+const state = {from:'',to:'',date:'',adults:1,children:0,infants:0,cats:['dfo'],sort:'time',calMonth:''};
 
 const nf = new Intl.NumberFormat('ru-RU');
 const MONTHS=['января','февраля','марта','апреля','мая','июня','июля','августа',
@@ -79,11 +79,7 @@ function init(){
     renderPax(); search();          // корректность состава чинит clampPax()
   });
 
-  $$('.cat').forEach(b=>b.onclick=()=>{
-    $$('.cat').forEach(x=>{x.classList.remove('on');x.setAttribute('aria-pressed','false')});
-    b.classList.add('on'); b.setAttribute('aria-pressed','true');
-    state.cat=b.dataset.id; renderNote();
-  });
+  $$('.cat').forEach(b=>b.onclick=()=>toggleCat(b.dataset.id));
 
   $('#watchClose').onclick=closeWatch;
   $('#watchSave').onclick=submitWatch;
@@ -102,11 +98,38 @@ function init(){
       hour:'2-digit',minute:'2-digit'});
   }
 
-  renderPax(); renderNote(); renderPopular(); search();
+  renderPax(); renderCats(); renderNote(); renderPopular(); search();
+}
+
+/* ---------- льготы ---------- */
+/* Льгот можно выбрать несколько — у человека их бывает больше одной
+   (житель ДФО до 23 лет, многодетная пенсионерка). Рейс показываем, если
+   он подходит хотя бы под одну из выбранных. Пока у категорий нет своих
+   кодов тарифа (cities.CATEGORIES → fare_codes пустые), подходит любой
+   субсидированный рейс: квота общая. Последнюю льготу снять нельзя —
+   иначе непонятно, что искать. */
+function selectedCats(){ return CATEGORIES.filter(c=>state.cats.includes(c.id)); }
+function catFits(c,f){ return !(c.fare_codes||[]).length || c.fare_codes.includes(f.fc); }
+function catsFor(f){ return selectedCats().filter(c=>catFits(c,f)); }
+function matchCategory(f){ return catsFor(f).length>0; }
+
+function toggleCat(id){
+  const on=state.cats.includes(id);
+  if(on && state.cats.length===1) return;
+  state.cats = on ? state.cats.filter(x=>x!==id)
+                  : CATEGORIES.map(c=>c.id).filter(x=>x===id||state.cats.includes(x));
+  renderCats(); renderNote(); renderPopular(); search();
+}
+function renderCats(){
+  $$('.cat').forEach(b=>{
+    const on=state.cats.includes(b.dataset.id);
+    b.classList.toggle('on',on); b.setAttribute('aria-pressed',String(on));
+  });
 }
 
 /* ---------- поиск ---------- */
-function matches(f){ return f.o===state.from && f.d===state.to; }
+function onRoute(f){ return f.o===state.from && f.d===state.to; }
+function matches(f){ return onRoute(f) && matchCategory(f); }
 
 function search(){
   clampPax();
@@ -134,7 +157,7 @@ function sortFlights(list){
 
 function renderBoard(fit,onDate,need){
   const box=$('#board');
-  if(!DATA.some(matches)){
+  if(!DATA.some(onRoute)){
     box.innerHTML=`<div class="empty"><div class="big">Это направление мы пока не отслеживаем</div>
       <div class="sm">Сейчас в мониторинге: ${esc(ROUTES.map(r=>cityName(r.origin)+' → '+cityName(r.destination)).join(', '))}.
       Напишите, какое направление добавить, и мы поставим его на отслеживание.</div>
@@ -164,6 +187,11 @@ function renderBoard(fit,onDate,need){
 
 function rowHtml(f){
   const cls=f.q===0?'no':(f.q<=LOW?'low':'ok');
+  /* Под какие из выбранных льгот подходит рейс — пишем, только когда это
+     не «все выбранные»: иначе строка повторяла бы шапку на каждом рейсе. */
+  const fit=catsFor(f);
+  const catNote = fit.length<state.cats.length
+    ? `<small class="fit">по льготе: ${esc(fit.map(c=>c.short).join(', '))}</small>` : '';
   const btn = META.demo
     ? `<span class="buy off">демо</span>`
     : (f.url ? `<a class="buy" href="${esc(f.url)}" target="_blank" rel="noopener nofollow">Выбрать</a>`
@@ -172,7 +200,7 @@ function rowHtml(f){
     <td><div class="time">${esc(f.tm||'—')}${f.ar?`<small>прилёт ${esc(f.ar)}</small>`:''}</div></td>
     <td class="fl"><b>${esc(f.fn||'—')}</b><span>${esc(airlineName(f.al)||'')}</span></td>
     <td><div class="seats ${cls}">${f.q}<small>${f.q?'мест свободно':'нет мест'}</small></div></td>
-    <td><div class="price">${f.p?nf.format(f.p)+' ₽':'—'}<small>субсидированный</small></div></td>
+    <td><div class="price">${f.p?nf.format(f.p)+' ₽':'—'}<small>субсидированный</small>${catNote}</div></td>
     <td>${btn}</td></tr>`;
 }
 
@@ -200,6 +228,7 @@ function renderPopular(){
   DATA.forEach(f=>{
     const k=f.o+'|'+f.d;
     if(!agg[k]) agg[k]={o:f.o,d:f.d,seats:0,min:Infinity,days:new Set()};
+    if(!matchCategory(f)) return;      // направление остаётся в списке, но без чужих мест
     agg[k].seats+=f.q;
     if(f.q>0){ agg[k].days.add(f.dt); if(f.p>0) agg[k].min=Math.min(agg[k].min,f.p); }
   });
@@ -277,14 +306,20 @@ function renderPax(){
   });
 }
 function renderNote(){
-  const c=CATEGORIES.find(x=>x.id===state.cat);
-  if(!c) return;
+  const cs=selectedCats();
+  if(!cs.length) return;
   const hint=$('#catHint');
-  if(hint) hint.textContent=`Что взять с собой по льготе «${c.short}»`;
-  $('#note').innerHTML=`<b>${c.title}.</b> Что попросят показать при посадке:
-    <ul>${c.requirements.map(r=>`<li>${r}</li>`).join('')}</ul>
-    <div style="margin-top:9px">Наличие мест одинаково для всех льготных категорий:
-    субсидированная квота на рейсе общая.</div>`;
+  if(hint) hint.textContent = cs.length===1
+    ? `Что взять с собой по льготе «${cs[0].short}»`
+    : `Что взять с собой по льготам: ${cs.map(c=>`«${c.short}»`).join(', ')}`;
+  const blocks=cs.map(c=>`<b>${esc(c.title)}.</b> Что попросят показать при посадке:
+    <ul>${c.requirements.map(r=>`<li>${esc(r)}</li>`).join('')}</ul>`).join('');
+  const tail = cs.length>1
+    ? `Выбрано несколько льгот — показываем рейсы, подходящие хотя бы под одну.
+       Оформить билет можно по любой из них: документы нужны только для той, по которой покупаете.`
+    : `Наличие мест одинаково для всех льготных категорий: субсидированная квота на рейсе общая.
+       Если подходите под несколько льгот, выберите их все.`;
+  $('#note').innerHTML=blocks+`<div style="margin-top:9px">${tail}</div>`;
 }
 function setPax(open){
   $('#paxPop').classList.toggle('open',open);
@@ -357,5 +392,5 @@ document.addEventListener('DOMContentLoaded',init);
 /* Экспорт в window для автотеста uitest.js: объявления const/let в классическом
    скрипте живут в скрипт-скоупе и снаружи не видны. На работу страницы не влияет. */
 Object.assign(window,{DATA,ROUTES,META,AIRPORTS,CATEGORIES,LOW,state,
-  search,renderPax,renderCalendar,renderPopular,goDate,goRoute,nearestDates,
+  search,renderPax,toggleCat,matchCategory,renderCalendar,renderPopular,goDate,goRoute,nearestDates,
   openWatch,closeWatch,submitWatch,clampPax});
