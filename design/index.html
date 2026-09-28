@@ -102,12 +102,16 @@ body{text-rendering:optimizeLegibility}
 .f .ctl{position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0;opacity:0;cursor:pointer;
   font-size:16px;color:inherit;border:0;background:transparent;-webkit-appearance:none;appearance:none}
 .f-from{padding-right:32px}
-.swap{position:absolute;right:-20px;top:50%;translate:0 -50%;z-index:2;width:40px;height:40px;border-radius:50%;
+/* Кнопка обмена выступает в «Куда» на половину ширины — отступ держит зазор
+   ~12px до текста. */
+.f-to{padding-left:30px}
+.swap{position:absolute;right:-17px;top:50%;translate:0 -50%;z-index:2;width:34px;height:34px;border-radius:50%;
   display:grid;place-items:center;background:var(--surface);border:1px solid var(--line-2);color:var(--brand);
   font-size:17px;cursor:pointer;transition:border-color .16s,background-color .16s}
 .swap:hover{border-color:var(--brand);background:var(--brand-soft)}
-/* Зона нажатия 44px при видимом круге 40px. */
-.swap::after{content:"";position:absolute;inset:-2px;border-radius:50%}
+/* Круг 34px: он выступает в поле «Куда» на 17px при отступе текста 18px, крупнее —
+   наезжает на название города. Зона нажатия всё равно 44px, она невидима. */
+.swap::after{content:"";position:absolute;inset:-5px;border-radius:50%}
 .swap i{display:block}
 .go{border:0;border-radius:12px;background:var(--cta);color:var(--cta-ink);font-weight:700;font-size:17px;
   padding:0 30px;white-space:nowrap;cursor:pointer;transition:background-color .16s,transform .12s}
@@ -342,9 +346,10 @@ main section:first-child{padding-top:clamp(40px,5vw,64px)}
   .f{padding:10px 14px}
   .f + .f::before{display:none}
   .f-from{padding-right:28px}
-  .f-to{padding-left:22px}
+  .f-to{padding-left:28px}
   .f-date,.f-pax{border-top:1px solid var(--line);border-radius:0 0 12px 12px}
-  .swap{right:-20px}
+  .swap{right:-16px;width:32px;height:32px}
+  .swap::after{inset:-6px}
   .go{margin-top:4px}
   .board{padding:14px 14px 4px}
   .brow{grid-template-columns:44px minmax(0,1fr) auto;gap:10px}
@@ -367,7 +372,7 @@ main section:first-child{padding-top:clamp(40px,5vw,64px)}
 @media (max-width:359px){
   .f{padding:9px 10px}
   .f-from{padding-right:22px}
-  .f-to{padding-left:20px}
+  .f-to{padding-left:26px}
   .f .lbl{font-size:12.5px}
   .f .v{font-size:15.5px}
   .swap{right:-15px;width:30px;height:30px;font-size:15px}
@@ -384,7 +389,7 @@ main section:first-child{padding-top:clamp(40px,5vw,64px)}
   .go{grid-column:auto;min-height:0;margin-top:0;padding:0 18px}
   .f{padding:10px 12px}
   .f-from{padding-right:26px}
-  .f-to{padding-left:22px}
+  .f-to{padding-left:30px}
   .f .v small{display:none}
 }
 
