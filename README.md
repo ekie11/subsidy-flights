@@ -116,7 +116,7 @@ head -c 500 /tmp/probe.xml
 ### cron
 
 ```cron
-*/15 * * * * cd /opt/subsidy && set -a && . ./.env && set +a && \
+17 * * * * cd /opt/subsidy && set -a && . ./.env && set +a && \
   .venv/bin/python collector.py --live --report >> data/cron.log 2>&1
 ```
 
@@ -281,7 +281,7 @@ Telegram включается парой `TELEGRAM_BOT_TOKEN` + `TELEGRAM_CHAT_I
   категория меняет только памятку о документах. Фильтр уже написан и
   включится сам. Льгот можно выбрать несколько сразу: рейс
   показывается, если подходит хотя бы под одну из выбранных.
-* История в SQLite не чистится. При годовом горизонте и опросе раз в 15 минут
+* История в SQLite не чистится. При годовом горизонте и опросе раз в час
   таблица вырастет до сотен тысяч строк — это нормально для SQLite, но
   ротацию (`DELETE FROM observations WHERE depart_date < date('now','-30 day')`)
   стоит поставить в cron раз в неделю.

@@ -9,8 +9,8 @@
     python collector.py --date-from 2026-10-01 --date-to 2026-10-07
     python collector.py --report             # после сбора собрать HTML-отчёт
 
-Cron (раз в 15 минут):
-    */15 * * * * cd /opt/subsidy && /opt/subsidy/.venv/bin/python collector.py --live --report >> data/cron.log 2>&1
+Cron (раз в час — лимит партнёра 1000 запросов на продажу в месяц):
+    17 * * * * cd /opt/subsidy && /opt/subsidy/.venv/bin/python collector.py --live --report >> data/cron.log 2>&1
 """
 from __future__ import annotations
 

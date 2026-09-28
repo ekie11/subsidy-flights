@@ -472,7 +472,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var gen = META.generated ? new Date(META.generated) : null;
     var txt;
     if (!gen || isNaN(gen.getTime())) {
-      txt = 'Обновляем каждые 15 минут';
+      txt = 'Обновляем каждый час';
     } else {
       var mins = Math.max(0, Math.round((Date.now() - gen.getTime()) / 60000));
       txt = mins < 1 ? 'Проверено только что'
