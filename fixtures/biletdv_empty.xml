@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FlightsSearchResponse xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <BeforeRequestRuleId>255767</BeforeRequestRuleId>
+  <isSuccess>true</isSuccess>
+  <References>
+    <Airlines />
+    <Airports />
+    <MiniRules />
+  </References>
+  <Offers />
+  <EarlierAvailableDate>0001-01-01T00:00:00</EarlierAvailableDate>
+  <LaterAvailableDate>0001-01-01T00:00:00</LaterAvailableDate>
+  <RequestId>e434c639-23e1-451b-ab25-f454f08f51fc</RequestId>
+  <ResponseId>92422600-384a-4671-8b14-e91e7bc8027b</ResponseId>
+</FlightsSearchResponse>

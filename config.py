@@ -19,21 +19,38 @@ DATA_DIR.mkdir(parents=True, exist_ok=True)
 DB_PATH = Path(os.getenv("SUBSIDY_DB_PATH", DATA_DIR / "subsidy.sqlite3"))
 REPORT_PATH = Path(os.getenv("SUBSIDY_REPORT_PATH", DATA_DIR / "report.html"))
 LOG_PATH = Path(os.getenv("SUBSIDY_LOG_PATH", DATA_DIR / "collector.log"))
-FIXTURE_PATH = Path(os.getenv("SUBSIDY_FIXTURE", BASE_DIR / "fixtures" / "sample_response.xml"))
+FIXTURE_PATH = Path(os.getenv("SUBSIDY_FIXTURE", BASE_DIR / "fixtures" / "biletdv_mla_KHV-MOW_1510.xml"))
+FIXTURE_EMPTY_PATH = BASE_DIR / "fixtures" / "biletdv_empty.xml"
 
 
 # --------------------------------------------------------------------------
 # Партнёрский API (БилетДВ)
 # --------------------------------------------------------------------------
 
-API_URL = os.getenv("BILETDV_API_URL", "https://api.biletdv.ru/xml/search")
-PARTNER_ID = os.getenv("BILETDV_PARTNER_ID", "KirillTest")
-API_LOGIN = os.getenv("BILETDV_LOGIN", "")
-API_PASSWORD = os.getenv("BILETDV_PASSWORD", "")
+# Метод getFaresByFOP_Ex3, HTTP GET. Регистр в пути важен: SASSirenaFares.asmx
+# отвечает, SasSirenaFares.asmx — 404. Пустой секрет в CI не должен затирать
+# адрес по умолчанию, поэтому `or`, а не второй аргумент getenv.
+API_URL = (os.getenv("BILETDV_API_URL")
+           or "http://fares.biletdv.ru/SASSirenaFares.asmx/getFaresByFOP_Ex3")
+PARTNER_ID = os.getenv("BILETDV_PARTNER_ID") or "KirillTest"
 
-# Метод запроса: "GET" (параметры в query) или "POST" (XML-конверт в теле).
-# Уточняется по документации партнёра; парсер ответа от этого не зависит.
-API_METHOD = os.getenv("BILETDV_API_METHOD", "GET").upper()
+# Категории пассажира, по которым опрашиваем каждый маршрут и дату. Один
+# запрос — одна категория: параметры API — это число пассажиров, и mla=1&aaa=1
+# означает бронь на двоих, а не две льготы сразу.
+#   mla — молодёжь 2–23 (субсидия по возрасту; по словам партнёра, если она
+#         есть, то есть и для пенсионеров, инвалидов, многодетных);
+#   aaa — взрослый (субсидия по прописке в ДФО).
+# Каждая категория умножает число запросов, а лимит — 1000 запросов на одну
+# продажу за календарный месяц.
+PASSENGER_CATEGORIES = [
+    c.strip().lower()
+    for c in (os.getenv("BILETDV_CATEGORIES") or "mla,aaa").split(",")
+    if c.strip()
+]
+
+# Необязательная метка для глубокой ссылки: по ней отчёт партнёра связывает
+# переходы с продажами (поле PersonID в отчёте). Пусто — ссылка как есть.
+PERSON_ID = os.getenv("BILETDV_PERSON_ID", "")
 
 HTTP_TIMEOUT = float(os.getenv("SUBSIDY_HTTP_TIMEOUT", "30"))
 HTTP_RETRIES = int(os.getenv("SUBSIDY_HTTP_RETRIES", "3"))
@@ -52,15 +69,20 @@ DRY_RUN = os.getenv("SUBSIDY_DRY_RUN", "1") not in ("0", "false", "False", "")
 # Признаки субсидированного тарифа
 # --------------------------------------------------------------------------
 
-# Коды субсидированных тарифов. PZZSOC подтверждён на реальном ответе БилетДВ.
+# Партнёр отдаёт в getFaresByFOP_Ex3 только субсидированные тарифы, так что
+# фильтр — страховка, а не основной признак. Коды у каждой авиакомпании свои
+# (со слов партнёра): SU — PZZSOC (молодёжь), PSOCDO (прописка ДФО);
+# U6 — UBDOWZZ (молодёжь), RBDOWD (прописка ДФО).
 SUBSIDY_FARE_CODES = {
     code.strip().upper()
-    for code in os.getenv("SUBSIDY_FARE_CODES", "PZZSOC").split(",")
+    for code in (os.getenv("SUBSIDY_FARE_CODES")
+                 or "PZZSOC,PSOCDO,UBDOWZZ,RBDOWD").split(",")
     if code.strip()
 }
 
-# Наличие непустого MRID у тарифа — второй независимый признак субсидии.
-# Если True, тариф с MRID считается субсидированным даже при неизвестном FareCode.
+# MRID — числовой id субсидии (в ответе он же Id правила «СУБСИДИЯ» в
+# References/MiniRules). Приходит всегда; 0 — субсидии нет. Если True, тариф
+# с ненулевым MRID считается субсидированным даже при незнакомом FareCode.
 TREAT_MRID_AS_SUBSIDY = os.getenv("SUBSIDY_MRID_IS_SUBSIDY", "1") not in ("0", "false", "")
 
 

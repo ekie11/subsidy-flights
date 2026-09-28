@@ -1,8 +1,8 @@
 """
-HTTP-клиент к партнёрскому API.
+HTTP-клиент к партнёрскому API: метод getFaresByFOP_Ex3 по HTTP GET.
 
 Особенности:
-  * DRY_RUN — вместо сети читает fixtures/sample_response.xml (и позволяет
+  * DRY_RUN — вместо сети читает fixtures/biletdv_*.xml (и позволяет
     прогнать весь пайплайн без боевого доступа);
   * ретраи с экспоненциальным backoff на 429/5xx и сетевых ошибках;
   * сохранение сырых ответов на диск (data/raw/) — критично для разбора
@@ -54,55 +54,46 @@ class Fetcher:
 
     # ----------------------------------------------------------------- public
 
-    def fetch(self, origin: str, destination: str, depart_date: date) -> str:
-        """Возвращает текст XML-ответа по одному направлению и дате."""
+    def fetch(self, origin: str, destination: str, depart_date: date,
+              category: str = "mla") -> str:
+        """Текст XML-ответа по одному направлению, дате и категории пассажира."""
         if self.dry_run:
-            return self._fetch_fixture(origin, destination, depart_date)
-        return self._fetch_http(origin, destination, depart_date)
+            return self._fetch_fixture(origin, destination, depart_date, category)
+        return self._fetch_http(origin, destination, depart_date, category)
 
     # ---------------------------------------------------------------- private
 
-    def _fetch_fixture(self, origin: str, destination: str, depart_date: date) -> str:
-        path = Path(config.FIXTURE_PATH)
+    def _fetch_fixture(self, origin: str, destination: str, depart_date: date,
+                       category: str) -> str:
+        # Фикстуры — настоящие ответы партнёра на KHV-MOW 15.10: по mla три
+        # рейса, по aaa пусто. Подставляем запрошенные город и дату, чтобы
+        # одна фикстура обслуживала все маршруты и даты в dry-run.
+        path = Path(config.FIXTURE_PATH if category == "mla"
+                    else config.FIXTURE_EMPTY_PATH)
         if not path.exists():
             raise FetchError(f"фикстура не найдена: {path}")
         text = path.read_text(encoding="utf-8")
-        # Подставляем запрошенные параметры, чтобы одна фикстура
-        # обслуживала все маршруты и даты в dry-run.
         text = (text
                 .replace('Origin="KHV"', f'Origin="{origin}"')
-                .replace('Destination="MOW"', f'Destination="{destination}"')
-                .replace("2026-10-01", depart_date.isoformat()))
-        log.debug("dry-run: фикстура для %s-%s %s", origin, destination, depart_date)
+                .replace("15.10.2026", depart_date.strftime("%d.%m.%Y")))
+        if destination != "MOW":  # SVO — аэропорт Москвы, для других городов
+            text = text.replace('Destination="SVO"', f'Destination="{destination}"')
+        log.debug("dry-run: фикстура для %s-%s %s %s",
+                  origin, destination, depart_date, category)
         return text
 
-    def _params(self, origin: str, destination: str, depart_date: date) -> dict[str, str]:
-        params = {
+    @staticmethod
+    def _params(origin: str, destination: str, depart_date: date,
+                category: str) -> dict[str, str]:
+        # depDate — ДДММ без года, как в примере партнёра и в проверенном
+        # запросе (1510 → рейсы 15.10.2026).
+        return {
+            "depCity": origin,
+            "destCity": destination,
+            "depDate": depart_date.strftime("%d%m"),
+            category: "1",
             "PartnerID": config.PARTNER_ID,
-            "Origin": origin,
-            "Destination": destination,
-            "DepartureDate": depart_date.isoformat(),
-            "AdultCount": "1",
-            "Currency": "RUB",
         }
-        if config.API_LOGIN:
-            params["Login"] = config.API_LOGIN
-        if config.API_PASSWORD:
-            params["Password"] = config.API_PASSWORD
-        return params
-
-    def _body(self, origin: str, destination: str, depart_date: date) -> str:
-        return (
-            '<?xml version="1.0" encoding="UTF-8"?>'
-            "<AirSearchRequest>"
-            f"<PartnerID>{config.PARTNER_ID}</PartnerID>"
-            f"<Origin>{origin}</Origin>"
-            f"<Destination>{destination}</Destination>"
-            f"<DepartureDate>{depart_date.isoformat()}</DepartureDate>"
-            "<AdultCount>1</AdultCount>"
-            "<Currency>RUB</Currency>"
-            "</AirSearchRequest>"
-        )
 
     def _throttle(self) -> None:
         elapsed = time.time() - self._last_request_ts
@@ -111,25 +102,18 @@ class Fetcher:
             time.sleep(wait)
         self._last_request_ts = time.time()
 
-    def _fetch_http(self, origin: str, destination: str, depart_date: date) -> str:
+    def _fetch_http(self, origin: str, destination: str, depart_date: date,
+                    category: str) -> str:
         last_error: Exception | None = None
 
         for attempt in range(1, config.HTTP_RETRIES + 1):
             self._throttle()
             try:
-                if config.API_METHOD == "POST":
-                    resp = self._session.post(
-                        config.API_URL,
-                        data=self._body(origin, destination, depart_date).encode("utf-8"),
-                        headers={"Content-Type": "application/xml; charset=utf-8"},
-                        timeout=config.HTTP_TIMEOUT,
-                    )
-                else:
-                    resp = self._session.get(
-                        config.API_URL,
-                        params=self._params(origin, destination, depart_date),
-                        timeout=config.HTTP_TIMEOUT,
-                    )
+                resp = self._session.get(
+                    config.API_URL,
+                    params=self._params(origin, destination, depart_date, category),
+                    timeout=config.HTTP_TIMEOUT,
+                )
             except Exception as exc:  # noqa: BLE001 — сетевые ошибки любого рода
                 last_error = exc
                 log.warning("попытка %s/%s — сетевая ошибка: %s",
@@ -153,13 +137,15 @@ class Fetcher:
             if resp.status_code != 200:
                 raise FetchError(f"HTTP {resp.status_code}: {resp.text[:300]}")
 
-            text = resp.text
+            # Не resp.text: без charset в заголовке requests декодирует
+            # text/xml как latin-1, и кириллица в References ломается.
+            text = resp.content.decode("utf-8", errors="replace")
             if self.save_raw:
-                self._dump(origin, destination, depart_date, text)
+                self._dump(origin, destination, depart_date, category, text)
             return text
 
         raise FetchError(
-            f"не удалось получить {origin}-{destination} {depart_date} "
+            f"не удалось получить {origin}-{destination} {depart_date} {category} "
             f"за {config.HTTP_RETRIES} попыток: {last_error}"
         )
 
@@ -168,10 +154,11 @@ class Fetcher:
         time.sleep(config.HTTP_BACKOFF ** attempt)
 
     @staticmethod
-    def _dump(origin: str, destination: str, depart_date: date, text: str) -> None:
+    def _dump(origin: str, destination: str, depart_date: date, category: str,
+              text: str) -> None:
         RAW_DIR.mkdir(parents=True, exist_ok=True)
         stamp = time.strftime("%Y%m%dT%H%M%S")
-        name = f"{origin}-{destination}_{depart_date.isoformat()}_{stamp}.xml"
+        name = f"{origin}-{destination}_{depart_date.isoformat()}_{category}_{stamp}.xml"
         try:
             (RAW_DIR / name).write_text(text, encoding="utf-8")
         except OSError as exc:

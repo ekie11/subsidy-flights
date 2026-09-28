@@ -52,8 +52,6 @@ jobs:
         env:
           BILETDV_PARTNER_ID: ${{ secrets.BILETDV_PARTNER_ID }}
           BILETDV_API_URL: ${{ secrets.BILETDV_API_URL }}
-          BILETDV_LOGIN: ${{ secrets.BILETDV_LOGIN }}
-          BILETDV_PASSWORD: ${{ secrets.BILETDV_PASSWORD }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
