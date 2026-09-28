@@ -90,6 +90,8 @@ document.addEventListener('DOMContentLoaded', function () {
   function cityName(c) { return (AIRPORTS[c] || {}).city || c; }
   function airlineName(c) { return AIRLINES[c] || c; }
   function fmtPrice(p) { return p ? nf.format(p) + ' ₽' : '—'; }
+  // Для узкой клетки календаря: 10 800 → «10,8к», 9 500 → «9,5к».
+  function shortPrice(p) { return (Math.round(p / 100) / 10).toLocaleString('ru-RU') + 'к'; }
   function fmtDate(iso) { var d = new Date(iso + 'T00:00:00'); return d.getDate() + ' ' + MONTHS[d.getMonth()]; }
   function plural(n, f) {
     var a = Math.abs(n) % 100, b = a % 10;
@@ -382,8 +384,13 @@ document.addEventListener('DOMContentLoaded', function () {
   /* ---------- календарь ---------- */
   var calGrid = $('.cal-grid');
   function renderCalendar() {
-    var need = seatsNeeded(), by = {};
-    DATA.filter(matches).forEach(function (f) { by[f.dt] = (by[f.dt] || 0) + (f.q >= need ? f.q : 0); });
+    var need = seatsNeeded(), by = {}, minP = {};
+    DATA.filter(matches).forEach(function (f) {
+      var fits = f.q >= need;
+      by[f.dt] = (by[f.dt] || 0) + (fits ? f.q : 0);
+      // Цена «от» — только среди рейсов, где мест хватает на всех пассажиров.
+      if (fits && f.p > 0 && !(minP[f.dt] <= f.p)) minP[f.dt] = f.p;
+    });
     var ym = state.date.slice(0, 7).split('-').map(Number);
     var y = ym[0], m = ym[1];
     $('#cal-route').textContent = MONTHS_N[m - 1] + ' ' + y + ', ' + routeText();
@@ -398,10 +405,13 @@ document.addEventListener('DOMContentLoaded', function () {
       var q = by[iso];
       var cls = !known ? '' : (q === 0 ? 'no' : (q <= LOW ? 'low' : 'ok'));
       var sel = iso === state.date;
-      var label = d + ' ' + MONTHS[m - 1] + ', ' + (!known ? 'вне мониторинга' : (q ? q + ' ' + plural(q, SEAT_FORMS) : 'мест нет'));
+      var p = q ? minP[iso] : 0;
+      var label = d + ' ' + MONTHS[m - 1] + ', ' + (!known ? 'вне мониторинга' : (q ? q + ' ' + plural(q, SEAT_FORMS) : 'мест нет')) +
+        (p ? ', от ' + fmtPrice(p) : '');
+      var priceHtml = p ? '<span class="p" aria-hidden="true"><span class="f">от ' + fmtPrice(p) + '</span><span class="k">' + shortPrice(p) + '</span></span>' : '';
       html += '<button class="day' + (cls ? ' ' + cls : '') + '" type="button" data-day="' + d + '" data-iso="' + iso + '"' +
         (known ? '' : ' disabled') + ' aria-pressed="' + sel + '" aria-label="' + esc(label) + '">' +
-        '<span class="d">' + d + '</span><span class="s">' + (!known ? '' : (q ? q : 'нет')) + '</span></button>';
+        '<span class="d">' + d + '</span><span class="s">' + (!known ? '' : (q ? q : 'нет')) + '</span>' + priceHtml + '</button>';
     }
     calGrid.innerHTML = html;
     wireCalendarDays();
