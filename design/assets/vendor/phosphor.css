@@ -1,0 +1,77 @@
+/* Phosphor Icons 2.1.1 (MIT), только иконки, которые используются в design/.
+   Новая иконка: добавить её код в шрифт и сюда (см. design/README.md). */
+@font-face {
+  font-family: "Phosphor";
+  src: url("fonts/Phosphor-subset.woff2") format("woff2");
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+}
+
+.ph {
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: "Phosphor" !important;
+  speak: never;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+
+  /* Enable Ligatures ================ */
+  letter-spacing: 0;
+  -webkit-font-feature-settings: "liga";
+  -moz-font-feature-settings: "liga=1";
+  -moz-font-feature-settings: "liga";
+  -ms-font-feature-settings: "liga" 1;
+  font-feature-settings: "liga";
+  -webkit-font-variant-ligatures: discretionary-ligatures;
+  font-variant-ligatures: discretionary-ligatures;
+
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.ph.ph-arrow-square-out:before {
+  content: "\e5de";
+}
+.ph.ph-arrows-left-right:before {
+  content: "\e0a0";
+}
+.ph.ph-calendar-x:before {
+  content: "\e10c";
+}
+.ph.ph-caret-down:before {
+  content: "\e136";
+}
+.ph.ph-caret-right:before {
+  content: "\e13a";
+}
+.ph.ph-check:before {
+  content: "\e182";
+}
+.ph.ph-check-circle:before {
+  content: "\e184";
+}
+.ph.ph-currency-rub:before {
+  content: "\e55e";
+}
+.ph.ph-funnel-x:before {
+  content: "\e26c";
+}
+.ph.ph-identification-card:before {
+  content: "\e2c8";
+}
+.ph.ph-list:before {
+  content: "\e2f0";
+}
+.ph.ph-lock-simple:before {
+  content: "\e308";
+}
+.ph.ph-user-plus:before {
+  content: "\e4d0";
+}
+.ph.ph-x:before {
+  content: "\e4f6";
+}
