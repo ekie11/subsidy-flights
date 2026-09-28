@@ -48,5 +48,12 @@
 персональных данных (152-ФЗ): уведомление Роскомнадзора, политика обработки,
 хранение в России.
 
-Перед запуском в бою: разместить шрифты, иконки Phosphor и Motion у себя
-вместо CDN.
+Шрифты (Onest, JetBrains Mono), иконки Phosphor и Motion лежат в
+`assets/vendor/`, внешних CDN страницы не используют. Шрифт иконок урезан до
+тех, что есть в разметке (`assets/vendor/phosphor.css`). Новая иконка
+Phosphor: добавить её класс и код в `phosphor.css` и пересобрать шрифт из
+пакета `@phosphor-icons/web@2.1.1`:
+
+    pyftsubset node_modules/@phosphor-icons/web/src/regular/Phosphor.woff2 \
+      --unicodes=U+e5de,U+e0a0,... --flavor=woff2 \
+      --output-file=assets/vendor/fonts/Phosphor-subset.woff2
