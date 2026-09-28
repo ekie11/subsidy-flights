@@ -76,6 +76,10 @@ button,input,select{font:inherit;color:inherit}
 .sr{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
 :focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:6px}
 [tabindex="-1"]:focus{outline:none}
+/* Поверхности браузера — из той же палитры: выделение текста янтарём
+   рассвета, каретка и системные флажки/ползунки — цветом бренда. */
+::selection{background:rgba(245,165,36,.32);color:inherit}
+html{accent-color:var(--brand);caret-color:var(--brand);scrollbar-color:var(--line-2) var(--bg)}
 
 .demo p{margin:0}
 .demo{margin:0;background:var(--amber-bg);color:var(--amber);font-size:14px;line-height:1.4;padding:9px var(--gutter);text-align:center}

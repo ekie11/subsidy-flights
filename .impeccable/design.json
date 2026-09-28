@@ -1,0 +1,765 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-28T17:50:39+00:00",
+  "title": "Design System: Есть места",
+  "extensions": {
+    "colorMeta": {
+      "night-sky": {
+        "role": "primary",
+        "displayName": "Ночное небо",
+        "canonical": "#0d1733",
+        "oklch": "oklch(21.3% 0.057 266.8)",
+        "tonalRamp": [
+          "#030823",
+          "#182341",
+          "#344161",
+          "#526182",
+          "#7382a5",
+          "#95a5ca",
+          "#b8c9ef",
+          "#e8eefe"
+        ]
+      },
+      "night-sky-raised": {
+        "role": "primary",
+        "displayName": "Ночное небо, поднятый слой",
+        "canonical": "#16234c",
+        "oklch": "oklch(27.0% 0.078 267.7)",
+        "tonalRamp": [
+          "#02052b",
+          "#15214a",
+          "#30406b",
+          "#4e5f8e",
+          "#6e81b2",
+          "#90a4d7",
+          "#b3c8fd",
+          "#e8eefe"
+        ]
+      },
+      "night-sky-high": {
+        "role": "primary",
+        "displayName": "Ночное небо, верхний слой",
+        "canonical": "#22315f",
+        "oklch": "oklch(32.6% 0.084 268.0)",
+        "tonalRamp": [
+          "#02042e",
+          "#14214d",
+          "#2f3f6e",
+          "#4d5f91",
+          "#6d81b5",
+          "#8ea4da",
+          "#b3c8fd",
+          "#e8eefe"
+        ]
+      },
+      "runway-amber": {
+        "role": "secondary",
+        "displayName": "Огни полосы",
+        "canonical": "#f5a524",
+        "oklch": "oklch(78.2% 0.158 72.3)",
+        "tonalRamp": [
+          "#130900",
+          "#352002",
+          "#5b3a07",
+          "#845607",
+          "#b07409",
+          "#dd941c",
+          "#fcbb65",
+          "#ffebd4"
+        ]
+      },
+      "runway-amber-hover": {
+        "role": "secondary",
+        "displayName": "Огни полосы, нажатие",
+        "canonical": "#e8980f",
+        "oklch": "oklch(74.2% 0.157 71.4)",
+        "tonalRamp": [
+          "#130900",
+          "#361f00",
+          "#5b3a09",
+          "#85560c",
+          "#b17310",
+          "#dd9322",
+          "#fcbb67",
+          "#ffebd4"
+        ]
+      },
+      "runway-amber-ink": {
+        "role": "secondary",
+        "displayName": "Текст на янтаре",
+        "canonical": "#3a2600",
+        "oklch": "oklch(28.6% 0.059 78.6)",
+        "tonalRamp": [
+          "#120900",
+          "#332100",
+          "#533e1a",
+          "#745d39",
+          "#967e59",
+          "#baa17b",
+          "#dfc59e",
+          "#feecd0"
+        ]
+      },
+      "brand-indigo": {
+        "role": "primary",
+        "displayName": "Индиго бренда",
+        "canonical": "#1e3163",
+        "oklch": "oklch(32.7% 0.092 265.9)",
+        "tonalRamp": [
+          "#010231",
+          "#102051",
+          "#2b3f72",
+          "#485f95",
+          "#6881ba",
+          "#8aa4df",
+          "#b1c9fe",
+          "#e7efff"
+        ],
+        "darkValue": "#b9c6f0"
+      },
+      "brand-indigo-ink": {
+        "role": "primary",
+        "displayName": "Текст на индиго",
+        "canonical": "#ffffff",
+        "oklch": "oklch(100.0% 0.000 89.9)",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#252525",
+          "#424242",
+          "#616161",
+          "#828282",
+          "#a5a5a5",
+          "#c9c9c9",
+          "#eeeeee"
+        ],
+        "darkValue": "#0c1430"
+      },
+      "brand-indigo-soft": {
+        "role": "primary",
+        "displayName": "Мягкий индиго",
+        "canonical": "#eaeefa",
+        "oklch": "oklch(95.0% 0.017 271.2)",
+        "tonalRamp": [
+          "#090b12",
+          "#22252d",
+          "#3f424b",
+          "#5e616b",
+          "#7e828d",
+          "#a1a5b0",
+          "#c5c9d4",
+          "#eaeefa"
+        ],
+        "darkValue": "#18224a"
+      },
+      "brand-indigo-line": {
+        "role": "primary",
+        "displayName": "Линия мягкого индиго",
+        "canonical": "#c9d3f0",
+        "oklch": "oklch(86.8% 0.042 270.4)",
+        "tonalRamp": [
+          "#05091c",
+          "#1d2439",
+          "#394159",
+          "#586079",
+          "#79829c",
+          "#9ba4c0",
+          "#bfc8e5",
+          "#e8eeff"
+        ],
+        "darkValue": "#2c3a6e"
+      },
+      "morning-bg": {
+        "role": "neutral",
+        "displayName": "Утренний фон",
+        "canonical": "#f6f7fb",
+        "oklch": "oklch(97.7% 0.005 275.0)",
+        "tonalRamp": [
+          "#0a0b0d",
+          "#242528",
+          "#414245",
+          "#606164",
+          "#818286",
+          "#a4a5a8",
+          "#c8c9cd",
+          "#edeef2"
+        ],
+        "darkValue": "#0c1430"
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "Поверхность",
+        "canonical": "#ffffff",
+        "oklch": "oklch(100.0% 0.000 89.9)",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#252525",
+          "#424242",
+          "#616161",
+          "#828282",
+          "#a5a5a5",
+          "#c9c9c9",
+          "#eeeeee"
+        ],
+        "darkValue": "#131d3d"
+      },
+      "surface-sunk": {
+        "role": "neutral",
+        "displayName": "Утопленная поверхность",
+        "canonical": "#eef1f7",
+        "oklch": "oklch(95.8% 0.009 264.5)",
+        "tonalRamp": [
+          "#090b0f",
+          "#232529",
+          "#404247",
+          "#5f6166",
+          "#808288",
+          "#a2a5ab",
+          "#c6c9cf",
+          "#ebeef4"
+        ],
+        "darkValue": "#1a2549"
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Чернила",
+        "canonical": "#141a29",
+        "oklch": "oklch(22.0% 0.031 267.1)",
+        "tonalRamp": [
+          "#060a18",
+          "#1e2534",
+          "#3b4253",
+          "#596173",
+          "#7a8296",
+          "#9ca5b9",
+          "#c0c9de",
+          "#e7eeff"
+        ],
+        "darkValue": "#eef1f8"
+      },
+      "ink-2": {
+        "role": "neutral",
+        "displayName": "Чернила, второй уровень",
+        "canonical": "#3f4a60",
+        "oklch": "oklch(40.9% 0.040 264.0)",
+        "tonalRamp": [
+          "#040a1c",
+          "#1b2539",
+          "#374258",
+          "#566178",
+          "#76839b",
+          "#98a5bf",
+          "#bccae4",
+          "#e7effe"
+        ],
+        "darkValue": "#c9d0e3"
+      },
+      "dim": {
+        "role": "neutral",
+        "displayName": "Приглушённый текст",
+        "canonical": "#5b6577",
+        "oklch": "oklch(50.5% 0.031 262.2)",
+        "tonalRamp": [
+          "#050b18",
+          "#1d2534",
+          "#394253",
+          "#586273",
+          "#788396",
+          "#9ba6b9",
+          "#becade",
+          "#e6efff"
+        ],
+        "darkValue": "#a8b1c9"
+      },
+      "faint": {
+        "role": "neutral",
+        "displayName": "Плейсхолдер",
+        "canonical": "#666f83",
+        "oklch": "oklch(54.1% 0.033 266.1)",
+        "tonalRamp": [
+          "#050a19",
+          "#1d2535",
+          "#3a4254",
+          "#586175",
+          "#798297",
+          "#9ba5bb",
+          "#bfc9e0",
+          "#e7efff"
+        ],
+        "darkValue": "#8f99b5"
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Линия",
+        "canonical": "#e2e6ef",
+        "oklch": "oklch(92.5% 0.013 266.7)",
+        "tonalRamp": [
+          "#090b11",
+          "#22252c",
+          "#3f4249",
+          "#5e6169",
+          "#7f828a",
+          "#a1a5ad",
+          "#c5c9d2",
+          "#eaeef8"
+        ],
+        "darkValue": "#26325b"
+      },
+      "line-2": {
+        "role": "neutral",
+        "displayName": "Линия интерактивных элементов",
+        "canonical": "#cdd4e6",
+        "oklch": "oklch(87.0% 0.026 268.8)",
+        "tonalRamp": [
+          "#070b16",
+          "#202532",
+          "#3c4250",
+          "#5b6171",
+          "#7c8292",
+          "#9ea5b6",
+          "#c2c9db",
+          "#e8eefe"
+        ],
+        "darkValue": "#34416e"
+      },
+      "seats-green": {
+        "role": "tertiary",
+        "displayName": "Места есть",
+        "canonical": "#12784a",
+        "oklch": "oklch(50.7% 0.114 157.2)",
+        "tonalRamp": [
+          "#000f06",
+          "#032d19",
+          "#084f2f",
+          "#087446",
+          "#3b9766",
+          "#61bb88",
+          "#86e0ac",
+          "#c6fedb"
+        ],
+        "darkValue": "#5fd49a"
+      },
+      "seats-green-bg": {
+        "role": "tertiary",
+        "displayName": "Места есть, подложка",
+        "canonical": "#e7f3ec",
+        "oklch": "oklch(95.3% 0.016 160.6)",
+        "tonalRamp": [
+          "#060d09",
+          "#1f2822",
+          "#3b453f",
+          "#5a645e",
+          "#7b857f",
+          "#9da8a2",
+          "#c1ccc6",
+          "#e6f2eb"
+        ],
+        "darkValue": "#11352a"
+      },
+      "seats-amber": {
+        "role": "tertiary",
+        "displayName": "Мест мало",
+        "canonical": "#96600a",
+        "oklch": "oklch(53.6% 0.113 70.3)",
+        "tonalRamp": [
+          "#140800",
+          "#362002",
+          "#5c3905",
+          "#865505",
+          "#ad752a",
+          "#d29850",
+          "#f8bc75",
+          "#feebd6"
+        ],
+        "darkValue": "#f2b453"
+      },
+      "seats-amber-bg": {
+        "role": "tertiary",
+        "displayName": "Мест мало, подложка",
+        "canonical": "#fdf3e2",
+        "oklch": "oklch(96.7% 0.025 81.1)",
+        "tonalRamp": [
+          "#100a02",
+          "#2b2417",
+          "#494133",
+          "#696052",
+          "#8a8172",
+          "#ada494",
+          "#d2c8b7",
+          "#f7eddc"
+        ],
+        "darkValue": "#3a2a10"
+      },
+      "seats-red": {
+        "role": "tertiary",
+        "displayName": "Мест нет",
+        "canonical": "#be3229",
+        "oklch": "oklch(53.3% 0.178 28.4)",
+        "tonalRamp": [
+          "#1f0000",
+          "#4d0101",
+          "#810104",
+          "#b0221c",
+          "#d84c40",
+          "#fc7667",
+          "#fdb4aa",
+          "#fee9e6"
+        ],
+        "darkValue": "#ff8a80"
+      },
+      "seats-red-bg": {
+        "role": "tertiary",
+        "displayName": "Мест нет, подложка",
+        "canonical": "#fbeceb",
+        "oklch": "oklch(95.5% 0.016 22.1)",
+        "tonalRamp": [
+          "#110808",
+          "#2d2221",
+          "#4a3f3e",
+          "#6a5e5d",
+          "#8c7f7e",
+          "#afa1a0",
+          "#d4c5c4",
+          "#f9eae9"
+        ],
+        "darkValue": "#3a1a1c"
+      },
+      "night-text": {
+        "role": "neutral",
+        "displayName": "Текст на ночи",
+        "canonical": "#c3cbe4",
+        "oklch": "oklch(84.4% 0.036 271.5)",
+        "tonalRamp": [
+          "#060a1a",
+          "#1f2437",
+          "#3b4155",
+          "#5a6076",
+          "#7a8299",
+          "#9da4bc",
+          "#c0c8e1",
+          "#e9eeff"
+        ]
+      },
+      "night-text-dim": {
+        "role": "neutral",
+        "displayName": "Подписи на ночи",
+        "canonical": "#8e9ac0",
+        "oklch": "oklch(69.0% 0.058 271.1)",
+        "tonalRamp": [
+          "#040723",
+          "#1b2341",
+          "#374061",
+          "#556083",
+          "#7581a6",
+          "#97a4ca",
+          "#bbc8f0",
+          "#e9eefe"
+        ]
+      },
+      "board-green": {
+        "role": "tertiary",
+        "displayName": "Табло: места есть",
+        "canonical": "#7ee2a8",
+        "oklch": "oklch(83.6% 0.126 156.8)",
+        "tonalRamp": [
+          "#001005",
+          "#022e18",
+          "#054f2e",
+          "#027445",
+          "#2f9863",
+          "#58bc85",
+          "#7ee2a8",
+          "#c5ffda"
+        ]
+      },
+      "board-amber": {
+        "role": "tertiary",
+        "displayName": "Табло: мест мало",
+        "canonical": "#ffc266",
+        "oklch": "oklch(85.2% 0.129 75.7)",
+        "tonalRamp": [
+          "#130900",
+          "#342101",
+          "#593b03",
+          "#805811",
+          "#ab7718",
+          "#d39839",
+          "#fabd61",
+          "#ffebd1"
+        ]
+      },
+      "board-red": {
+        "role": "tertiary",
+        "displayName": "Табло: мест нет",
+        "canonical": "#ff8e85",
+        "oklch": "oklch(76.7% 0.138 25.6)",
+        "tonalRamp": [
+          "#1f0001",
+          "#4c0307",
+          "#7b1316",
+          "#a13a36",
+          "#c85d56",
+          "#ef8077",
+          "#feb3ab",
+          "#ffe9e6"
+        ]
+      },
+      "live-dot": {
+        "role": "tertiary",
+        "displayName": "Индикатор «проверено»",
+        "canonical": "#59d18d",
+        "oklch": "oklch(77.5% 0.146 155.7)",
+        "tonalRamp": [
+          "#001005",
+          "#032e18",
+          "#084f2d",
+          "#077443",
+          "#079b5b",
+          "#45c07d",
+          "#6ee5a0",
+          "#c6ffd9"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Единственный заголовок первого экрана."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Заголовки разделов."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Заголовки карточек, шагов, пустых состояний."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Основной текст."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Подписи полей поиска, дни недели, подписи на табло."
+      },
+      "numeral": {
+        "displayName": "Numeral",
+        "purpose": "Число мест в карточке рейса — главная цифра экрана."
+      },
+      "board-mono": {
+        "displayName": "Board Mono",
+        "purpose": "Только даты на табло вылетов."
+      }
+    },
+    "shadows": [
+      {
+        "name": "card-hover",
+        "value": "0 1px 2px rgba(20,32,70,.05), 0 10px 28px rgba(20,32,70,.07)",
+        "purpose": "Карточка рейса при наведении (тёмная тема: rgba(0,0,0,.2) / .25)."
+      },
+      {
+        "name": "searchbar-over-night",
+        "value": "0 18px 44px rgba(4,10,30,.35)",
+        "purpose": "Белая строка поиска на ночном фоне."
+      },
+      {
+        "name": "menu",
+        "value": "0 18px 44px rgba(4,10,30,.45)",
+        "purpose": "Выпадающее меню на телефоне."
+      },
+      {
+        "name": "toast",
+        "value": "0 12px 32px rgba(4,10,30,.3)",
+        "purpose": "Всплывающее уведомление."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-out-expo",
+        "value": "cubic-bezier(.16,1,.3,1)",
+        "purpose": "Появления, FLIP карточек, переходы (Motion и CSS)."
+      },
+      {
+        "name": "state-transition",
+        "value": "160ms",
+        "purpose": "Цвет, фон, рамка при наведении и выборе."
+      },
+      {
+        "name": "press",
+        "value": "transform scale(.97) 120ms",
+        "purpose": "Нажатие кнопок и чипов."
+      },
+      {
+        "name": "spring",
+        "value": "spring stiffness 320, damping 34",
+        "purpose": "Поворот кнопки обмена городов, отклик выбранного дня."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "prefers-reduced-motion: reduce → 0.01ms",
+        "purpose": "Всё движение отключается; интерфейс работает и без Motion."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "wide",
+        "value": "1100px"
+      },
+      {
+        "name": "nav-collapse",
+        "value": "900px"
+      },
+      {
+        "name": "route-vertical",
+        "value": "760px"
+      },
+      {
+        "name": "field-codes",
+        "value": "720px"
+      },
+      {
+        "name": "cards-compact",
+        "value": "680px"
+      },
+      {
+        "name": "search-2x2",
+        "value": "640px"
+      },
+      {
+        "name": "phone",
+        "value": "480px"
+      },
+      {
+        "name": "narrow-phone",
+        "value": "359px"
+      },
+      {
+        "name": "landscape-phone",
+        "value": "orientation: landscape and max-height 520px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Основная кнопка",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Единственный цвет действия: «Смотреть места», «Купить у партнёра».",
+      "html": "<button class=\"ds-btn-primary\" type=\"button\">Купить у партнёра</button>",
+      "css": ".ds-btn-primary{font-family:Onest,ui-sans-serif,system-ui,sans-serif;display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:0 20px;border-radius:10px;border:1.5px solid transparent;background:#f5a524;color:#3a2600;font-weight:700;font-size:15.5px;cursor:pointer;transition:background-color .16s,transform .12s}.ds-btn-primary:hover{background:#e8980f}.ds-btn-primary:focus-visible{outline:3px solid #1e3163;outline-offset:2px}.ds-btn-primary:active{transform:scale(.97)}"
+    },
+    {
+      "name": "Вторичная кнопка",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "«Сообщить о местах», сброс фильтров, действия пустых состояний.",
+      "html": "<button class=\"ds-btn-secondary\" type=\"button\">Сообщить о местах</button>",
+      "css": ".ds-btn-secondary{font-family:Onest,ui-sans-serif,system-ui,sans-serif;display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:0 20px;border-radius:10px;border:1.5px solid #1e3163;background:#fff;color:#1e3163;font-weight:700;font-size:15.5px;cursor:pointer;transition:background-color .16s,transform .12s}.ds-btn-secondary:hover{background:#eaeefa}.ds-btn-secondary:focus-visible{outline:3px solid #1e3163;outline-offset:2px}.ds-btn-secondary:active{transform:scale(.97)}"
+    },
+    {
+      "name": "Чипы фильтров",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "Фильтры рейсов; нажатый — заливка индиго.",
+      "html": "<div class=\"ds-chips\"><button class=\"ds-chip\" aria-pressed=\"true\">Все рейсы</button><button class=\"ds-chip\" aria-pressed=\"false\">Только где есть места</button><button class=\"ds-chip\" aria-pressed=\"false\">Вылет после 18:00</button></div>",
+      "css": ".ds-chips{display:flex;flex-wrap:wrap;gap:8px}.ds-chip{font-family:Onest,ui-sans-serif,system-ui,sans-serif;min-height:40px;padding:0 15px;border-radius:999px;border:1px solid #cdd4e6;background:#fff;color:#3f4a60;font-size:15px;cursor:pointer;transition:background-color .16s,border-color .16s,color .16s}.ds-chip:hover{border-color:#1e3163}.ds-chip[aria-pressed=\"true\"]{background:#1e3163;border-color:#1e3163;color:#fff}.ds-chip:focus-visible{outline:3px solid #1e3163;outline-offset:2px}"
+    },
+    {
+      "name": "Поле ввода",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Поле формы подписки и оформления.",
+      "html": "<label class=\"ds-field\"><span>Telegram или почта</span><input class=\"ds-input\" placeholder=\"@username или name@mail.ru\"></label>",
+      "css": ".ds-field{font-family:Onest,ui-sans-serif,system-ui,sans-serif;display:block;max-width:360px}.ds-field span{display:block;margin-bottom:6px;font-size:14.5px;font-weight:600;color:#141a29}.ds-input{font-family:Onest,ui-sans-serif,system-ui,sans-serif;box-sizing:border-box;width:100%;min-height:50px;padding:0 14px;border-radius:10px;border:1.5px solid #cdd4e6;background:#fff;color:#141a29;font-size:16px;transition:border-color .16s}.ds-input::placeholder{color:#666f83}.ds-input:hover{border-color:#5b6577}.ds-input:focus-visible{outline:3px solid #1e3163;outline-offset:1px;border-color:#1e3163}"
+    },
+    {
+      "name": "Навигация на ночи",
+      "kind": "nav",
+      "refersTo": "",
+      "description": "Пилюли разделов в ночной шапке, текущий раздел подсвечен.",
+      "html": "<nav class=\"ds-nav\"><span class=\"ds-logo\"><i></i>Есть места</span><a href=\"#\" aria-current=\"true\">Рейсы</a><a href=\"#\">Календарь</a><a href=\"#\">Как это работает</a></nav>",
+      "css": ".ds-nav{font-family:Onest,ui-sans-serif,system-ui,sans-serif;display:flex;align-items:center;gap:4px;padding:14px 18px;background:#0d1733;border-radius:20px}.ds-logo{display:inline-flex;align-items:center;gap:10px;margin-right:auto;font-weight:800;font-size:19px;letter-spacing:-.03em;color:#fff}.ds-logo i{width:10px;height:10px;border-radius:50%;background:#f5a524}.ds-nav a{color:#c3cbe4;text-decoration:none;font-size:15px;padding:8px 12px;border-radius:999px;transition:color .16s,background-color .16s}.ds-nav a:hover{color:#fff;background:rgba(255,255,255,.07)}.ds-nav a[aria-current=\"true\"]{color:#fff;background:rgba(255,255,255,.11)}.ds-nav a:focus-visible{outline:3px solid #f5a524;outline-offset:2px}"
+    },
+    {
+      "name": "Карточка рейса",
+      "kind": "card",
+      "refersTo": "flight-card",
+      "description": "Время и путь слева, число мест цветом статуса и действие справа.",
+      "html": "<div class=\"ds-flight\"><div class=\"ds-leg\"><div><b>23:55</b><span>KHV</span></div><div class=\"ds-path\"><span>8 ч 20 мин</span><i></i><span>прямой</span></div><div><b>01:15</b><span>SVO</span></div><div class=\"ds-car\"><b>Аэрофлот</b>SU 1711</div></div><div class=\"ds-count\"><b>7</b><span>мест по 10 800 ₽</span><em>Утром было 12</em></div><button class=\"ds-buy\">Купить у партнёра</button></div>",
+      "css": ".ds-flight{font-family:Onest,ui-sans-serif,system-ui,sans-serif;display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:24px;align-items:center;background:#fff;border:1px solid #e2e6ef;border-radius:14px;padding:18px 22px;color:#141a29;transition:border-color .18s,box-shadow .18s}.ds-flight:hover{border-color:#cdd4e6;box-shadow:0 1px 2px rgba(20,32,70,.05),0 10px 28px rgba(20,32,70,.07)}.ds-leg{display:flex;align-items:center;gap:14px}.ds-leg b{display:block;font-size:22px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums}.ds-leg span{font-size:13.5px;color:#5b6577}.ds-path{width:96px;text-align:center;font-size:12.5px;color:#5b6577}.ds-path i{display:block;height:1px;margin:5px 0;background:#cdd4e6}.ds-car{margin-left:12px;font-size:14px;color:#5b6577}.ds-car b{font-size:14.5px;font-weight:600;color:#3f4a60;letter-spacing:0}.ds-count{text-align:right}.ds-count b{display:block;font-size:30px;font-weight:800;letter-spacing:-.03em;line-height:1.05;color:#12784a}.ds-count span,.ds-count em{display:block;font-size:14px;font-style:normal;color:#5b6577}.ds-buy{font-family:Onest,ui-sans-serif,system-ui,sans-serif;min-height:46px;padding:0 20px;border-radius:10px;border:0;background:#f5a524;color:#3a2600;font-weight:700;font-size:15.5px;cursor:pointer}.ds-buy:hover{background:#e8980f}.ds-buy:focus-visible{outline:3px solid #1e3163;outline-offset:2px}"
+    },
+    {
+      "name": "Клетки календаря",
+      "kind": "custom",
+      "refersTo": "calendar-day-available",
+      "description": "Статус дня фоном: есть, мало, нет, вне мониторинга; выбранный — рамка индиго.",
+      "html": "<div class=\"ds-cal\"><button class=\"ds-day ds-off\" disabled><span>5</span></button><button class=\"ds-day ds-no\"><span>6</span><b>нет</b></button><button class=\"ds-day ds-ok\"><span>7</span><b>9</b><small>от 10 800 ₽</small></button><button class=\"ds-day ds-low\"><span>10</span><b>2</b><small>от 10 800 ₽</small></button><button class=\"ds-day ds-ok\" aria-pressed=\"true\"><span>12</span><b>23</b><small>от 10 800 ₽</small></button></div>",
+      "css": ".ds-cal{font-family:Onest,ui-sans-serif,system-ui,sans-serif;display:grid;grid-template-columns:repeat(5,110px);gap:8px}.ds-day{font-family:Onest,ui-sans-serif,system-ui,sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;min-height:60px;padding:8px 2px;border-radius:10px;border:1.5px solid transparent;background:#eef1f7;color:#3f4a60;cursor:pointer;transition:border-color .16s}.ds-day span{font-size:14px}.ds-day b{font-size:16px;font-weight:700;margin-top:3px}.ds-day small{font-size:12px;margin-top:2px;font-variant-numeric:tabular-nums}.ds-ok{background:#e7f3ec}.ds-ok b{color:#12784a}.ds-low{background:#fdf3e2}.ds-low b{color:#96600a}.ds-no{background:#fff;border-color:#e2e6ef}.ds-no b{color:#5b6577;font-weight:500}.ds-off{background:transparent;border:1.5px dashed #e2e6ef;color:#666f83;cursor:default}.ds-day:not(:disabled):hover{border-color:#cdd4e6}.ds-day[aria-pressed=\"true\"]{border-color:#1e3163;box-shadow:inset 0 0 0 1px #1e3163}.ds-day:focus-visible{outline:3px solid #1e3163;outline-offset:2px}"
+    },
+    {
+      "name": "Табло вылетов",
+      "kind": "custom",
+      "refersTo": "",
+      "description": "Всегда тёмное табло: моноширинная дата, маршрут, число мест светлым статусом.",
+      "html": "<div class=\"ds-board\"><p>Сейчас на популярных направлениях</p><div class=\"ds-row\"><span class=\"ds-d\">12.09</span><span class=\"ds-r\">Хабаровск → Москва<small>SU 1711 · вылет 23:55</small></span><span class=\"ds-s ds-g\"><b>7</b> мест</span></div><div class=\"ds-row\"><span class=\"ds-d\">13.09</span><span class=\"ds-r\">Владивосток → Москва<small>SU 1701 · вылет 22:20</small></span><span class=\"ds-s ds-a\"><b>2</b> места</span></div><div class=\"ds-row\"><span class=\"ds-d\">14.09</span><span class=\"ds-r\">Южно-Сахалинск → Москва<small>SU 1731 · вылет 21:40</small></span><span class=\"ds-s ds-n\"><b>нет</b></span></div></div>",
+      "css": ".ds-board{font-family:Onest,ui-sans-serif,system-ui,sans-serif;max-width:460px;background:#0d1733;border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:16px 18px 6px;color:#fff}.ds-board p{margin:0;padding:0 2px 12px;font-size:14px;font-weight:500;color:#aab5d6;border-bottom:1px solid rgba(255,255,255,.1)}.ds-row{display:grid;grid-template-columns:48px minmax(0,1fr) auto;gap:14px;align-items:center;padding:10px 2px;border-bottom:1px solid rgba(255,255,255,.07)}.ds-row:last-child{border-bottom:0}.ds-d{font:500 14px/1 \"JetBrains Mono\",ui-monospace,Menlo,monospace;color:#8e9ac0}.ds-r{font-size:15.5px;font-weight:500;line-height:1.3}.ds-r small{display:block;font-size:13px;font-weight:400;color:#8e9ac0;margin-top:2px}.ds-s{font-size:12.5px;color:#8e9ac0;white-space:nowrap}.ds-s b{font-size:24px;font-weight:800;line-height:1}.ds-g b{color:#7ee2a8}.ds-a b{color:#ffc266}.ds-n b{color:#ff8e85;font-size:15px;font-weight:600}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Ночной рейс",
+    "overview": "**Creative North Star: \"Ночной рейс\"**\n\nСервис смотрит на небо, пока человек спит: следит за субсидированной квотой круглосуточно и говорит, когда места вернулись. Интерфейс рассказывает эту историю одной сменой освещения: шапка — ночь (глубокий индиго с мягким светом в углу), всё ниже — утро после ночного рейса (светлый, чуть подкрашенный синим фон). Границу между ними прочерчивает тонкая янтарная линия горизонта. В тёмной теме ночь просто продолжается на всю страницу.\n\nНастроение — спокойная уверенность. Срочность передают цифры мест и их цвет, а не оформление: нет мигающих плашек, таймеров и крика. Янтарь — огни взлётной полосы, он зажигается только там, где можно действовать. Плотность умеренная: крупные цели нажатия, щедрые отступы между разделами, тесные группы внутри карточек. Анимация одна по смыслу на каждое место, где порядок что-то значит (рейсы по времени, дни месяца, шаги маршрута), и отключается целиком при запросе меньшего движения.",
+    "keyCharacteristics": [
+      "Одна смена темы на странице: ночная шапка → дневное содержимое, граница — янтарная линия горизонта.",
+      "Главная цифра экрана — число свободных мест, крупно, табличными цифрами, цветом статуса.",
+      "Янтарь только на действиях; индиго — на выбранном состоянии и вторичных кнопках.",
+      "Нейтральные не серые, а подкрашенные синим бренда.",
+      "Табло в шапке говорит языком аэропорта: моноширинные даты, короткие строки, статус цветом.",
+      "Плоско в покое, тень — ответ на наведение или признак всплывающего слоя."
+    ],
+    "rules": [
+      {
+        "name": "The Runway Lights Rule",
+        "body": "Янтарь горит только там, где можно нажать и продвинуться: кнопка действия, фокус на ночи, линия горизонта. Никаких янтарных заголовков, иконок-украшений и фоновых заливок.",
+        "section": "colors"
+      },
+      {
+        "name": "The Tinted Neutral Rule",
+        "body": "Серых нет: каждый нейтральный цвет — низконасыщенный синий бренда. Чистый серый выглядит безжизненно и спорит с индиго.",
+        "section": "colors"
+      },
+      {
+        "name": "The Three Statuses Rule",
+        "body": "Зелёный, янтарный и красный означают только наличие мест (есть / мало / нет) и ошибку. Для украшения, категорий или маркетинга они не используются.",
+        "section": "colors"
+      },
+      {
+        "name": "The Number First Rule",
+        "body": "Число мест — самый крупный и самый контрастный элемент карточки, крупнее времени вылета и названия перевозчика. Цена — мелкая подпись к нему.",
+        "section": "typography"
+      },
+      {
+        "name": "The Tabular Rule",
+        "body": "Все цифры, которые сравнивают по вертикали (время, места, цены в календаре), — табличные (`font-variant-numeric: tabular-nums`).",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat-At-Rest Rule",
+        "body": "В покое на светлой поверхности нет теней. Если элементу нужна отделённость, сначала тон и рамка; тень — только за состояние или за настоящий слой.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** держать одну смену освещения на странице: ночная шапка сверху, светлое содержимое ниже, янтарная линия горизонта между ними.",
+      "**Do** делать число мест главным элементом карточки: 30px 800, табличные цифры, цвет статуса.",
+      "**Do** брать цвет только из токенов `design/assets/tokens.css`; новое значение, нужное больше чем в одном месте, — сначала в токены.",
+      "**Do** различать три пустых состояния разными формами: «не отслеживаем» (пунктир, иконка календаря), «мест нет» (статус красным и подписка), «под фильтр ничего» (пунктир, сброс фильтров).",
+      "**Do** давать каждой интерактивной цели не меньше 40px (кнопки 46px, пункты меню 48px) и видимый фокус 3px.",
+      "**Do** выключать всё движение при `prefers-reduced-motion: reduce`; интерфейс должен работать так же без библиотеки Motion."
+    ],
+    "donts": [
+      "**Don't** красить янтарём что-либо, кроме действий, фокуса на ночи и линии горизонта (The Runway Lights Rule).",
+      "**Don't** использовать зелёный, янтарный и красный не по назначению (The Three Statuses Rule).",
+      "**Don't** вводить чистые серые нейтральные (The Tinted Neutral Rule).",
+      "**Don't** ставить тени на элементы в покое на светлой поверхности (The Flat-At-Rest Rule)."
+    ]
+  }
+}

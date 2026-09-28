@@ -108,7 +108,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   var state = { from: '', to: '', date: '', pax: 1, cats: ['dfo'], filters: { avail: false, evening: false } };
-  function routeText() { return cityName(state.from) + ' → ' + cityName(state.to); }
+  function routeText() { return cityName(state.from) + ' →\u00a0' + cityName(state.to); }
   function dateText(iso) { return fmtDate(iso); }
   function seatsNeeded() { return state.pax; }
   function matchesRoute(f) { return f.o === state.from && f.d === state.to; }
@@ -456,11 +456,11 @@ document.addEventListener('DOMContentLoaded', function () {
       var recs = DATA.filter(function (f) { return f.o === r.origin && f.d === r.destination && matchCategory(f); });
       var best = recs.length ? recs.reduce(function (a, b) { return b.q > a.q ? b : a; }) : null;
       if (!best || best.q === 0) {
-        return '<li class="brow no"><span class="d">—</span><span class="r">' + esc(cityName(r.origin)) + ' → ' + esc(cityName(r.destination)) + '</span><span class="seats"><b>нет</b></span></li>';
+        return '<li class="brow no"><span class="d">—</span><span class="r">' + esc(cityName(r.origin)) + ' →&nbsp;' + esc(cityName(r.destination)) + '</span><span class="seats"><b>нет</b></span></li>';
       }
       var cls = best.q <= LOW ? 'low' : 'ok';
       var dd = best.dt.slice(8, 10) + '.' + best.dt.slice(5, 7);
-      return '<li class="brow ' + cls + '"><span class="d">' + dd + '</span><span class="r">' + esc(cityName(r.origin)) + ' → ' + esc(cityName(r.destination)) +
+      return '<li class="brow ' + cls + '"><span class="d">' + dd + '</span><span class="r">' + esc(cityName(r.origin)) + ' →&nbsp;' + esc(cityName(r.destination)) +
         '<span>' + esc(best.fn || '') + ' · вылет ' + esc(best.tm || '—') + '</span></span>' +
         '<span class="seats"><b>' + best.q + '</b><span>' + plural(best.q, SEAT_FORMS) + '</span></span></li>';
     }).join('');
