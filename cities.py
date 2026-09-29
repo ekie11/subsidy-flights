@@ -95,12 +95,14 @@ def airline_name(code: str) -> str:
 # бы пользователю. На витринах можно выбрать несколько льгот сразу: рейс
 # показывается, если подходит хотя бы под одну (matchCategory в webapp.js и
 # design_app.py). Категория с пустым fare_codes подходит под любой
-# субсидированный тариф; как только партнёр подтвердит коды — вписать их сюда,
+# субсидированный тариф своей категории партнёра (psg: aaa — прописка,
+# mla — молодёжь/пенсионеры/многодетные/инвалиды; места у каждой свои); как только партнёр подтвердит коды — вписать их сюда,
 # фильтрация включится сама.
 
 CATEGORIES: list[dict] = [
     {
         "id": "dfo",
+        "psg": "aaa",
         "title": "Прописка в ДФО",
         "short": "Житель ДФО",
         "requirements": [
@@ -112,6 +114,7 @@ CATEGORIES: list[dict] = [
     },
     {
         "id": "young",
+        "psg": "mla",
         "title": "Молодёжь до 23 лет",
         "short": "До 23 лет",
         "requirements": [
@@ -123,6 +126,7 @@ CATEGORIES: list[dict] = [
     },
     {
         "id": "pension",
+        "psg": "mla",
         "title": "Пенсионеры",
         "short": "Пенсионер",
         "requirements": [
@@ -133,6 +137,7 @@ CATEGORIES: list[dict] = [
     },
     {
         "id": "family",
+        "psg": "mla",
         "title": "Многодетные семьи",
         "short": "Многодетные",
         "requirements": [
@@ -143,6 +148,7 @@ CATEGORIES: list[dict] = [
     },
     {
         "id": "invalid",
+        "psg": "mla",
         "title": "Инвалиды I группы и сопровождающие",
         "short": "Инвалидность",
         "requirements": [

@@ -116,7 +116,10 @@ def run(args: argparse.Namespace) -> int:
                 try:
                     xml_text = fetcher.fetch(route.origin, route.destination, day,
                                              category)
-                    offers += parse_offers(xml_text, route=str(route), depart_date=day)
+                    found = parse_offers(xml_text, route=str(route), depart_date=day)
+                    for o in found:
+                        o.psg = category
+                    offers += found
                 except (FetchError, ParseError) as exc:
                     n_errors += 1
                     log.error("%s %s %s — %s", route, day, category, exc)
@@ -125,7 +128,7 @@ def run(args: argparse.Namespace) -> int:
                 log.debug("%s %s — субсидированных тарифов нет", route, day)
                 continue
 
-            # Один и тот же тариф может прийти по двум категориям — пишем раз.
+            # Категория входит в ключ: у каждой свои места, дубли — только внутри одной.
             offers = list({o.key(): o for o in offers}.values())
             prev = db.latest_by_key([o.key() for o in offers])
             for offer in offers:

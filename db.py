@@ -34,7 +34,8 @@ CREATE TABLE IF NOT EXISTS observations (
     avail_qty     INTEGER NOT NULL DEFAULT 0,
     price         REAL NOT NULL DEFAULT 0,
     currency      TEXT,
-    book_url      TEXT
+    book_url      TEXT,
+    psg           TEXT NOT NULL DEFAULT ''
 );
 CREATE INDEX IF NOT EXISTS idx_obs_key_time  ON observations(flight_key, observed_at DESC);
 CREATE INDEX IF NOT EXISTS idx_obs_route     ON observations(route, depart_date);
@@ -101,6 +102,9 @@ class Database:
     def _init_schema(self) -> None:
         with self.connect() as conn:
             conn.executescript(SCHEMA)
+            cols = {r[1] for r in conn.execute("PRAGMA table_info(observations)")}
+            if "psg" not in cols:
+                conn.execute("ALTER TABLE observations ADD COLUMN psg TEXT NOT NULL DEFAULT ''")
 
     # ------------------------------------------------------------ наблюдения
 
@@ -129,7 +133,7 @@ class Database:
         rows = [(
             o.key(), ts, o.route, o.origin, o.destination, o.depart_date,
             o.depart_time, o.arrive_time, o.flight_number, o.airline,
-            o.fare_code, o.mrid, o.avail_qty, o.price, o.currency, o.book_url,
+            o.fare_code, o.mrid, o.avail_qty, o.price, o.currency, o.book_url, o.psg,
         ) for o in offers]
         if not rows:
             return 0
@@ -138,8 +142,8 @@ class Database:
                 INSERT INTO observations (
                     flight_key, observed_at, route, origin, destination,
                     depart_date, depart_time, arrive_time, flight_number,
-                    airline, fare_code, mrid, avail_qty, price, currency, book_url
-                ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                    airline, fare_code, mrid, avail_qty, price, currency, book_url, psg
+                ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
             """, rows)
         return len(rows)
 

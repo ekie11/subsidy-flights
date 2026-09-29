@@ -117,7 +117,10 @@ document.addEventListener('DOMContentLoaded', function () {
      одну выбранную. Категория без fare_codes (пока таких все, см. cities.py)
      подходит под любой субсидированный тариф — квота общая. */
   function selectedCats() { return CATEGORIES.filter(function (c) { return state.cats.indexOf(c.id) >= 0; }); }
-  function catFits(c, f) { return !(c.fare_codes || []).length || c.fare_codes.indexOf(f.fc) >= 0; }
+  function catFits(c, f) {
+    if (c.psg && f.pc && c.psg !== f.pc) return false;
+    return !(c.fare_codes || []).length || c.fare_codes.indexOf(f.fc) >= 0;
+  }
   function catsFor(f) { return selectedCats().filter(function (c) { return catFits(c, f); }); }
   function matchCategory(f) { return catsFor(f).length > 0; }
   function matches(f) { return matchesRoute(f) && matchCategory(f); }
