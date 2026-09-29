@@ -109,7 +109,10 @@ function init(){
    субсидированный рейс: квота общая. Последнюю льготу снять нельзя —
    иначе непонятно, что искать. */
 function selectedCats(){ return CATEGORIES.filter(c=>state.cats.includes(c.id)); }
-function catFits(c,f){ return !(c.fare_codes||[]).length || c.fare_codes.includes(f.fc); }
+function catFits(c,f){
+  if(c.psg && f.pc && c.psg!==f.pc) return false;   // у каждой категории свои места
+  return !(c.fare_codes||[]).length || c.fare_codes.includes(f.fc);
+}
 function catsFor(f){ return selectedCats().filter(c=>catFits(c,f)); }
 function matchCategory(f){ return catsFor(f).length>0; }
 

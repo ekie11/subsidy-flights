@@ -25,6 +25,7 @@ def rows_to_data(rows) -> list[dict]:
             "q": int(r["avail_qty"] or 0),
             "p": float(r["price"] or 0),
             "url": r["book_url"] or "",
+            "pc": (r["psg"] if "psg" in r.keys() else "") or "",
         })
     return out
 

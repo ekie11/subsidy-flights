@@ -56,6 +56,7 @@ class FlightOffer:
     price: float = 0.0
     currency: str = "RUB"
     book_url: str = ""
+    psg: str = ""               # категория пассажира партнёра (mla/aaa), по которой пришёл тариф
 
     def key(self) -> str:
         """
@@ -66,7 +67,7 @@ class FlightOffer:
         иначе молодёжный и «прописочный» тарифы одного рейса схлопнутся.
         """
         return "|".join([self.route, self.depart_date, self.flight_number,
-                         self.fare_code, self.mrid])
+                         self.fare_code, self.mrid, self.psg])
 
     def is_subsidized(self) -> bool:
         codes = {c for c in self.fare_code.upper().split("/") if c}
