@@ -56,6 +56,9 @@ jobs:
           BILETDV_API_URL: ${{ secrets.BILETDV_API_URL }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          # Адрес воркера поиска по запросу (worker/). Не секрет — это
+          # переменная: Settings → Secrets and variables → Actions → Variables.
+          SUBSIDY_SEARCH_API: ${{ vars.SUBSIDY_SEARCH_API }}
         run: |
           set -e
           # Живой режим включаем только когда есть боевой PartnerID.

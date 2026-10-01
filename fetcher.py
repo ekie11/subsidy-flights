@@ -69,7 +69,7 @@ class Fetcher:
         # рейса, по aaa пусто. Подставляем запрошенные город и дату, чтобы
         # одна фикстура обслуживала все маршруты и даты в dry-run.
         path = Path(config.FIXTURE_PATH if category == "mla"
-                    else config.FIXTURE_EMPTY_PATH)
+                    else config.FIXTURE_AAA_PATH)
         if not path.exists():
             raise FetchError(f"фикстура не найдена: {path}")
         text = path.read_text(encoding="utf-8")

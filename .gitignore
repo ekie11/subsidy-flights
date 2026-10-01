@@ -20,3 +20,6 @@ package-lock.json
 # Локальные настройки Claude Code и Impeccable (у каждого свои)
 .claude/settings.local.json
 .impeccable/config.local.json
+
+# Cloudflare Worker: локальный кэш wrangler
+.wrangler/

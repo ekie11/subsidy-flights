@@ -21,6 +21,11 @@ REPORT_PATH = Path(os.getenv("SUBSIDY_REPORT_PATH", DATA_DIR / "report.html"))
 LOG_PATH = Path(os.getenv("SUBSIDY_LOG_PATH", DATA_DIR / "collector.log"))
 FIXTURE_PATH = Path(os.getenv("SUBSIDY_FIXTURE", BASE_DIR / "fixtures" / "biletdv_mla_KHV-MOW_1510.xml"))
 FIXTURE_EMPTY_PATH = BASE_DIR / "fixtures" / "biletdv_empty.xml"
+# Фикстура для категории aaa (прописка ДФО). По умолчанию пустая — как
+# настоящий ответ партнёра. Тест интерфейса подставляет сюда непустую:
+# льгота по умолчанию на витрине — «Житель ДФО», и с пустой фикстурой
+# первый экран нечем проверять.
+FIXTURE_AAA_PATH = Path(os.getenv("SUBSIDY_FIXTURE_AAA", FIXTURE_EMPTY_PATH))
 
 
 # --------------------------------------------------------------------------
@@ -164,6 +169,11 @@ SUBSCRIBE_PORT = int(os.getenv("SUBSIDY_SUBSCRIBE_PORT", "8787"))
 # явно (SUBSIDY_SUBSCRIBE_ENABLED=1) только там, где subscribe_api.py
 # реально запущен и proxy_pass настроен — см. README → «Деплой на VPS».
 SUBSCRIBE_ENABLED = os.getenv("SUBSIDY_SUBSCRIBE_ENABLED", "0") not in ("0", "false", "False", "")
+
+# Адрес воркера поиска по запросу (worker/index.js), например
+# https://subsidy-search.<аккаунт>.workers.dev/api/search. Пусто — витрина
+# ищет только по маршрутам сборщика, как раньше.
+SEARCH_API_URL = os.getenv("SUBSIDY_SEARCH_API", "").strip()
 
 
 # --------------------------------------------------------------------------
