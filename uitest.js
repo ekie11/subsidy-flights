@@ -75,7 +75,9 @@ function runChecks() {
   check('рейсы отрисованы', rows.length > 0, String(rows.length));
   check('заголовок маршрута заполнен', $('#routeTitle').textContent.includes('→'),
         $('#routeTitle').textContent);
-  const shown = DATA.filter(f => f.o === st.from && f.d === st.to && f.dt === st.date && f.q >= 1);
+  // У каждой льготы свои места: ожидаем рейсы только выбранной льготы.
+  const shown = DATA.filter(f => f.o === st.from && f.d === st.to && f.dt === st.date && f.q >= 1
+                                 && window.matchCategory(f));
   check('показаны только рейсы с местами на выбранную дату',
         rows.length === shown.length, `в DOM ${rows.length}, ожидалось ${shown.length}`);
   check('в демо-режиме кнопка покупки отключена',
@@ -110,7 +112,7 @@ function runChecks() {
   check('календарь отрисован', days.length >= 28, String(days.length));
   const need = st.adults + st.children;
   const byDate = {};
-  DATA.filter(f => f.o === st.from && f.d === st.to)
+  DATA.filter(f => f.o === st.from && f.d === st.to && window.matchCategory(f))
       .forEach(f => {
         if (!byDate[f.dt]) byDate[f.dt] = { q: 0, p: Infinity };
         byDate[f.dt].q += (f.q >= need ? f.q : 0);

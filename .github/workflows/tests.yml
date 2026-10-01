@@ -29,7 +29,9 @@ jobs:
           # поиска), поэтому сперва наполняем БД демо-данными из фикстуры —
           # без этого DATA на странице пустой и большинство проверок ложно
           # не находят, что тестировать.
-          python collector.py --site
+          # Льгота по умолчанию — «Житель ДФО» (aaa), а настоящий ответ по aaa
+          # в фикстурах пустой: подставляем непустой, иначе первый экран пуст.
+          SUBSIDY_FIXTURE_AAA=fixtures/biletdv_mla_KHV-MOW_1510.xml python collector.py --site
           python webapp.py --out /tmp/index.html
           python colorcheck.py /tmp/index.html
           npm install --no-save jsdom

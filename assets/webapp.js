@@ -52,8 +52,10 @@ function init(){
   fillSelect($('#from'),state.from);
   fillSelect($('#to'),state.to);
 
+  // Дату по умолчанию — ту, где места есть по выбранной льготе: у каждой
+  // льготы свои места, и «есть по любой» открывал бы пустой экран.
   const dates=[...new Set(DATA.map(f=>f.dt))].sort();
-  state.date = dates.find(d=>DATA.some(f=>f.dt===d&&f.q>0)) || dates[0] || META.today;
+  state.date = dates.find(d=>DATA.some(f=>f.dt===d&&matches(f)&&f.q>0)) || dates[0] || META.today;
   $('#date').value=state.date;
   // С поиском по запросу дата не ограничена окном сборщика: любой день
   // вперёд партнёр отдаст сам.

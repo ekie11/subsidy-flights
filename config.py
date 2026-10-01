@@ -21,6 +21,11 @@ REPORT_PATH = Path(os.getenv("SUBSIDY_REPORT_PATH", DATA_DIR / "report.html"))
 LOG_PATH = Path(os.getenv("SUBSIDY_LOG_PATH", DATA_DIR / "collector.log"))
 FIXTURE_PATH = Path(os.getenv("SUBSIDY_FIXTURE", BASE_DIR / "fixtures" / "biletdv_mla_KHV-MOW_1510.xml"))
 FIXTURE_EMPTY_PATH = BASE_DIR / "fixtures" / "biletdv_empty.xml"
+# Фикстура для категории aaa (прописка ДФО). По умолчанию пустая — как
+# настоящий ответ партнёра. Тест интерфейса подставляет сюда непустую:
+# льгота по умолчанию на витрине — «Житель ДФО», и с пустой фикстурой
+# первый экран нечем проверять.
+FIXTURE_AAA_PATH = Path(os.getenv("SUBSIDY_FIXTURE_AAA", FIXTURE_EMPTY_PATH))
 
 
 # --------------------------------------------------------------------------
