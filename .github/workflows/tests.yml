@@ -35,6 +35,9 @@ jobs:
           npm install --no-save jsdom
           node uitest.js /tmp/index.html
 
+      - name: Воркер поиска по запросу
+        run: node worker/test.mjs
+
       - name: Макет /design/ на реальных данных
         run: |
           # colorcheck.py заточен под палитру webapp.py и не знает токены

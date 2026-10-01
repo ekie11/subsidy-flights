@@ -55,7 +55,10 @@ function init(){
   const dates=[...new Set(DATA.map(f=>f.dt))].sort();
   state.date = dates.find(d=>DATA.some(f=>f.dt===d&&f.q>0)) || dates[0] || META.today;
   $('#date').value=state.date;
-  if(dates.length){ $('#date').min=dates[0]; $('#date').max=dates[dates.length-1]; }
+  // С поиском по запросу дата не ограничена окном сборщика: любой день
+  // вперёд партнёр отдаст сам.
+  if(META.searchApi){ $('#date').min=META.today; }
+  else if(dates.length){ $('#date').min=dates[0]; $('#date').max=dates[dates.length-1]; }
   state.calMonth=state.date.slice(0,7);
 
   $('#from').onchange=e=>{state.from=e.target.value;search()};
@@ -134,8 +137,41 @@ function renderCats(){
 function onRoute(f){ return f.o===state.from && f.d===state.to; }
 function matches(f){ return onRoute(f) && matchCategory(f); }
 
+/* ---------- поиск по запросу ---------- */
+/* Маршрутов и дат, которых нет в DATA (их не опрашивает сборщик), спрашиваем
+   у воркера (worker/index.js) и докладываем ответ в тот же DATA. Состояние
+   держим по ключу маршрут+дата: 'loading' | 'done' | 'error'. В демо-режиме
+   не ходим — там всё равно фикстура и покупка выключена. */
+const live={};
+const liveKey=()=>state.from+'-'+state.to+'-'+state.date;
+function needLive(){
+  return !!META.searchApi && !META.demo && !live[liveKey()]
+    && state.date>=META.today && !DATA.some(f=>onRoute(f)&&f.dt===state.date);
+}
+async function liveSearch(){
+  const key=liveKey(), {from,to,date}=state;
+  live[key]='loading';
+  try{
+    const u=new URL(META.searchApi);
+    u.search=new URLSearchParams({from,to,date}).toString();
+    const res=await fetch(u);
+    const body=await res.json().catch(()=>({}));
+    if(!res.ok || !body.ok) throw new Error(body.error||res.status);
+    (body.flights||[]).forEach(f=>{
+      // lv — найдено по запросу: в «Направления под мониторингом» не
+      // попадает, это разовая проверка, а не отслеживание.
+      if(f.o===from && f.d===to) DATA.push({...f,lv:1});
+    });
+    live[key]='done';
+  } catch(e){
+    live[key]='error';
+  }
+  if(liveKey()===key) search();
+}
+
 function search(){
   clampPax();
+  if(needLive()) liveSearch();
   const need=seatsNeeded();
   const onDate=DATA.filter(f=>matches(f)&&f.dt===state.date);
   const fit=onDate.filter(f=>f.q>=need);
@@ -160,7 +196,19 @@ function sortFlights(list){
 
 function renderBoard(fit,onDate,need){
   const box=$('#board');
-  if(!DATA.some(onRoute)){
+  const lv=live[liveKey()];
+  if(lv==='loading'){
+    box.innerHTML=`<div class="empty"><div class="big">Ищем места…</div>
+      <div class="sm">Спрашиваем систему бронирования, это несколько секунд.</div></div>`;
+    return;
+  }
+  if(lv==='error' && !onDate.length){
+    box.innerHTML=`<div class="empty"><div class="big">Не получилось проверить места</div>
+      <div class="sm">Система бронирования сейчас не ответила. Попробуйте через минуту.</div>
+      <button class="watch" onclick="retryLive()">Проверить ещё раз</button></div>`;
+    return;
+  }
+  if(!DATA.some(onRoute) && lv!=='done'){
     box.innerHTML=`<div class="empty"><div class="big">Это направление мы пока не отслеживаем</div>
       <div class="sm">Сейчас в мониторинге: ${esc(ROUTES.map(r=>cityName(r.origin)+' → '+cityName(r.destination)).join(', '))}.
       Напишите, какое направление добавить, и мы поставим его на отслеживание.</div>
@@ -215,6 +263,8 @@ function nearestDates(need){
                 -Math.abs(new Date(b.dt)-new Date(state.date))).slice(0,4);
 }
 
+function retryLive(){ delete live[liveKey()]; search(); }
+
 function goDate(dt){ state.date=dt; state.calMonth=dt.slice(0,7); $('#date').value=dt; search(); }
 
 function goRoute(o,d){
@@ -229,6 +279,7 @@ function goRoute(o,d){
 function renderPopular(){
   const agg={};
   DATA.forEach(f=>{
+    if(f.lv) return;
     const k=f.o+'|'+f.d;
     if(!agg[k]) agg[k]={o:f.o,d:f.d,seats:0,min:Infinity,days:new Set()};
     if(!matchCategory(f)) return;      // направление остаётся в списке, но без чужих мест
@@ -395,5 +446,5 @@ document.addEventListener('DOMContentLoaded',init);
 /* Экспорт в window для автотеста uitest.js: объявления const/let в классическом
    скрипте живут в скрипт-скоупе и снаружи не видны. На работу страницы не влияет. */
 Object.assign(window,{DATA,ROUTES,META,AIRPORTS,CATEGORIES,LOW,state,
-  search,renderPax,toggleCat,matchCategory,renderCalendar,renderPopular,goDate,goRoute,nearestDates,
+  search,renderPax,live,liveSearch,toggleCat,matchCategory,renderCalendar,renderPopular,goDate,goRoute,nearestDates,
   openWatch,closeWatch,submitWatch,clampPax});

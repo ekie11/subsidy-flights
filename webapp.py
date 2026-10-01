@@ -89,6 +89,7 @@ def build(out_path: Path | str | None = None, db: Database | None = None) -> Pat
         "demo": is_demo,
         "partner": config.PARTNER_ID,
         "subscribeApi": config.SUBSCRIBE_ENABLED,
+        "searchApi": config.SEARCH_API_URL,
     }
 
     # В демо-режиме страница закрыта от индексации: публичная выдача с

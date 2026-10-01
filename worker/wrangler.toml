@@ -1,0 +1,11 @@
+# Поиск по запросу: см. worker/index.js и README → «Поиск по любому направлению».
+name = "subsidy-search"
+main = "index.js"
+compatibility_date = "2026-09-01"
+
+[vars]
+# Сайты, которым воркер отвечает (CORS). Домен в punycode: билеты1.рф.
+ALLOWED_ORIGINS = "https://xn--1-9sbmlp7byd.xn--p1ai,https://www.xn--1-9sbmlp7byd.xn--p1ai"
+CACHE_TTL = "1200"
+
+# PARTNER_ID — секрет, не сюда:  npx wrangler secret put PARTNER_ID
