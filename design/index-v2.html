@@ -556,10 +556,10 @@ main section:first-child{padding-top:clamp(40px,5vw,64px)}
           <button class="cat" type="button" data-cat="invalid" aria-pressed="false">Инвалидность</button>
         </div>
         <nav class="tiles" aria-label="Быстрые подборки">
-          <a class="tile acc" href="#seychas"><span>Есть места сейчас<small>9 рейсов на неделе</small></span><i class="ph ph-arrow-right" aria-hidden="true"></i></a>
-          <a class="tile" href="#seychas" data-preset="back"><span>Вернулись за сутки<small>3 рейса</small></span><i class="ph ph-arrow-right" aria-hidden="true"></i></a>
-          <a class="tile" href="#napravleniya"><span>Все направления<small>история по месяцам</small></span><i class="ph ph-arrow-right" aria-hidden="true"></i></a>
-          <a class="tile" href="#podpiska"><span>Новый год<small>следим с 1 ноября</small></span><i class="ph ph-arrow-right" aria-hidden="true"></i></a>
+          <a class="tile acc" href="#seychas"><span>Есть места сейчас<small>9 рейсов на неделе</small></span><span aria-hidden="true">→</span></a>
+          <a class="tile" href="#seychas" data-preset="back"><span>Вернулись за сутки<small>3 рейса</small></span><span aria-hidden="true">→</span></a>
+          <a class="tile" href="#napravleniya"><span>Все направления<small>история по месяцам</small></span><span aria-hidden="true">→</span></a>
+          <a class="tile" href="#podpiska"><span>Новый год<small>следим с 1 ноября</small></span><span aria-hidden="true">→</span></a>
         </nav>
       </div>
 
@@ -1397,6 +1397,7 @@ document.addEventListener('DOMContentLoaded', function () {
   var GEN={'Хабаровск':'Хабаровска','Владивосток':'Владивостока','Южно-Сахалинск':'Южно-Сахалинска','Петропавловск-Камчатский':'Петропавловска-Камчатского','Магадан':'Магадана','Якутск':'Якутска','Благовещенск':'Благовещенска'};
   function plural(n){return n%10==1&&n%100!=11?'место':(n%10>=2&&n%10<=4&&(n%100<10||n%100>=20)?'места':'мест')}
   var multi=document.getElementById('multi'),add=document.getElementById('addcity'),ul=document.getElementById('offers');
+  if(multi){
   function chips(){
     [].slice.call(multi.querySelectorAll('.chip')).forEach(function(c){c.remove()});
     FROM.forEach(function(c){
@@ -1421,14 +1422,18 @@ document.addEventListener('DOMContentLoaded', function () {
   add.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();addCity()}if(e.key==='Backspace'&&!add.value&&FROM.length){FROM.pop();render()}});
   var pb=document.querySelector('[data-preset="back"]');if(pb)pb.addEventListener('click',function(){back=true;FROM=[];render()});
   render();
+  }
 
+  var dirsEl=document.getElementById('dirs');
+  if(dirsEl){
   var DIRS=[['Хабаровск → Москва',14,'утром, 6–9 ч'],['Владивосток → Москва',9,'ночью, после 0 ч'],['Хабаровск → Петербург',6,'по вторникам'],
             ['Южно-Сахалинск → Москва',5,'утром'],['Петропавловск-Камчатский → Москва',3,'редко, держатся час'],['Хабаровск → Новосибирск',18,'почти всегда есть']];
   var seed=11;function r(){seed=(seed*9301+49297)%233280;return seed/233280}
-  document.getElementById('dirs').innerHTML=DIRS.map(function(d){
+  dirsEl.innerHTML=DIRS.map(function(d){
     var bars='';for(var i=0;i<25;i++){var v=r(),on=v<d[1]/25;bars+='<i class="'+(on?(v<d[1]/75?'low':'on'):'')+'" style="height:'+(on?35+v*65:18)+'%"></i>'}
     return '<a class="dir" href="#calendar"><h3>'+d[0]+'</h3><div class="mbars" aria-hidden="true">'+bars+'</div><p>Места были <b>'+d[1]+' дн. из 25</b> · обычно возвращаются '+d[2]+'</p></a>';
   }).join('');
+  }
 })();
 </script>
 </body>
