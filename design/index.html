@@ -11,7 +11,7 @@
 <meta name="robots" content="noindex,nofollow">
 <meta property="og:title" content="Есть места: субсидированные авиабилеты">
 <meta property="og:description" content="Сколько мест по субсидии осталось на рейсах с Дальнего Востока.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230d1733'/%3E%3Ccircle cx='16' cy='16' r='6' fill='%23f5a524'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230d1733'/%3E%3Crect x='7' y='19.5' width='18' height='1.5' rx='.75' fill='%23ffffff' fill-opacity='.6'/%3E%3Ccircle cx='16' cy='15' r='4.5' fill='%23f5a524'/%3E%3C/svg%3E">
 <link rel="preload" href="assets/vendor/fonts/Onest-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="assets/vendor/fonts.css">
 <link rel="stylesheet" href="assets/vendor/phosphor.css">
@@ -49,15 +49,18 @@ body{text-rendering:optimizeLegibility}
 .top{display:flex;align-items:center;gap:20px;height:68px;position:relative}
 .logo{display:inline-flex;align-items:center;gap:10px;font-weight:800;font-size:19px;letter-spacing:-.03em;
   color:#fff;text-decoration:none;white-space:nowrap}
-.logo i{width:10px;height:10px;border-radius:50%;background:var(--cta);flex:0 0 auto}
+/* Знак: янтарный огонь на линии горизонта (брендбук, design/brandkit.html). */
+.logo i{position:relative;width:26px;height:26px;border-radius:7px;background:#0d1733;flex:0 0 auto;box-shadow:inset 0 0 0 1px rgba(255,255,255,.16)}
+.logo i::before{content:"";position:absolute;left:5px;right:5px;top:16px;height:1.5px;border-radius:1px;background:rgba(255,255,255,.6)}
+.logo i::after{content:"";position:absolute;left:9px;top:8px;width:8px;height:8px;border-radius:50%;background:#f5a524}
 .topnav{display:flex;gap:4px;margin-left:auto}
 .topnav a,.menu a{color:#c3cbe4;text-decoration:none;font-size:15px;padding:8px 12px;border-radius:999px;
-  transition:color .16s,background-color .16s}
+  transition:color .24s var(--ease),background-color .24s var(--ease)}
 .topnav a:hover,.menu a:hover{color:#fff;background:rgba(255,255,255,.07)}
 .topnav a[aria-current="true"],.menu a[aria-current="true"]{color:#fff;background:rgba(255,255,255,.11)}
 .tg{display:inline-flex;align-items:center;min-height:40px;padding:0 16px;border-radius:999px;
   background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:15px;
-  text-decoration:none;white-space:nowrap;transition:background-color .16s}
+  text-decoration:none;white-space:nowrap;transition:background-color .24s var(--ease)}
 .tg:hover{background:rgba(255,255,255,.16)}
 .menu-btn{display:none;margin-left:auto;align-items:center;gap:8px;min-height:44px;padding:0 14px;
   border-radius:999px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.2);color:#fff;
@@ -88,10 +91,10 @@ body{text-rendering:optimizeLegibility}
   grid-template-columns:minmax(0,1.15fr) minmax(0,1.15fr) minmax(0,.95fr) minmax(0,.85fr) auto;
   background:var(--surface);color:var(--ink);border-radius:var(--r-lg);padding:8px;
   box-shadow:0 18px 44px rgba(4,10,30,.35);--focus:var(--focus-surface)}
-.f{position:relative;min-width:0;padding:12px 18px;border-radius:12px;transition:background-color .16s}
+.f{position:relative;min-width:0;padding:12px 18px;border-radius:12px;transition:background-color .24s var(--ease)}
 .f:hover,.f:focus-within{background:var(--surface-2)}
 .f:focus-within{outline:3px solid var(--focus);outline-offset:-3px}
-.f + .f::before{content:"";position:absolute;left:0;top:14px;bottom:14px;width:1px;background:var(--line);transition:opacity .16s}
+.f + .f::before{content:"";position:absolute;left:0;top:14px;bottom:14px;width:1px;background:var(--line);transition:opacity .24s var(--ease)}
 .f:hover::before,.f:hover + .f::before,.f:focus-within::before,.f:focus-within + .f::before{opacity:0}
 .f .lbl{display:block;font-size:13px;line-height:1.3;color:var(--dim);margin-bottom:3px}
 .f .v{display:flex;align-items:baseline;gap:7px;min-width:0;font-size:17px;font-weight:600;line-height:1.35;white-space:nowrap}
@@ -107,21 +110,21 @@ body{text-rendering:optimizeLegibility}
 .f-to{padding-left:30px}
 .swap{position:absolute;right:-17px;top:50%;translate:0 -50%;z-index:2;width:34px;height:34px;border-radius:50%;
   display:grid;place-items:center;background:var(--surface);border:1px solid var(--line-2);color:var(--brand);
-  font-size:17px;cursor:pointer;transition:border-color .16s,background-color .16s}
+  font-size:17px;cursor:pointer;transition:border-color .24s var(--ease),background-color .24s var(--ease)}
 .swap:hover{border-color:var(--brand);background:var(--brand-soft)}
 /* Круг 34px: он выступает в поле «Куда» на 17px при отступе текста 18px, крупнее —
    наезжает на название города. Зона нажатия всё равно 44px, она невидима. */
 .swap::after{content:"";position:absolute;inset:-5px;border-radius:50%}
 .swap i{display:block}
 .go{border:0;border-radius:12px;background:var(--cta);color:var(--cta-ink);font-weight:700;font-size:17px;
-  padding:0 30px;white-space:nowrap;cursor:pointer;transition:background-color .16s,transform .12s}
+  padding:0 30px;white-space:nowrap;cursor:pointer;transition:background-color .24s var(--ease),transform .14s var(--ease)}
 .go:hover{background:var(--cta-hover)}
 .go:active{transform:scale(.98)}
 .search-err{margin:10px 2px 0;color:#ffb4ab;font-size:14.5px}
 .cats{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
 .cat{min-height:40px;padding:0 15px;border-radius:999px;border:1px solid rgba(255,255,255,.2);
   background:rgba(255,255,255,.08);color:#dbe1f2;font-size:15px;cursor:pointer;
-  transition:background-color .16s,color .16s,border-color .16s}
+  transition:background-color .24s var(--ease),color .24s var(--ease),border-color .24s var(--ease)}
 .cat:hover{background:rgba(255,255,255,.15)}
 .cat[aria-pressed="true"]{background:#fff;border-color:#fff;color:#1e3163;font-weight:600}
 .cat:active{transform:scale(.97)}
@@ -151,7 +154,7 @@ main section:first-child{padding-top:clamp(40px,5vw,64px)}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:0 20px;
   border-radius:var(--r-sm);border:1.5px solid transparent;font-weight:700;font-size:15.5px;line-height:1.2;
   white-space:nowrap;text-decoration:none;cursor:pointer;
-  transition:background-color .16s,border-color .16s,color .16s,transform .12s}
+  transition:background-color .24s var(--ease),border-color .24s var(--ease),color .24s var(--ease),transform .14s var(--ease)}
 .btn:active{transform:scale(.97)}
 .btn.p{background:var(--cta);color:var(--cta-ink)}
 .btn.p:hover{background:var(--cta-hover)}
@@ -165,7 +168,7 @@ main section:first-child{padding-top:clamp(40px,5vw,64px)}
 
 .filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
 .chip{min-height:40px;padding:0 15px;border-radius:999px;border:1px solid var(--line-2);background:var(--surface);
-  color:var(--ink-2);font-size:15px;cursor:pointer;transition:background-color .16s,border-color .16s,color .16s}
+  color:var(--ink-2);font-size:15px;cursor:pointer;transition:background-color .24s var(--ease),border-color .24s var(--ease),color .24s var(--ease)}
 .chip:hover{border-color:var(--brand)}
 .chip[aria-pressed="true"]{background:var(--brand);border-color:var(--brand);color:var(--brand-ink)}
 .chip:active{transform:scale(.97)}
@@ -173,7 +176,7 @@ main section:first-child{padding-top:clamp(40px,5vw,64px)}
 .flights{list-style:none;margin:0;padding:0;display:grid;gap:12px}
 .flight{display:grid;grid-template-columns:minmax(0,1fr) 216px 200px;gap:24px;align-items:center;
   background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px 22px;
-  transition:border-color .18s,box-shadow .18s}
+  transition:border-color .24s var(--ease),box-shadow .24s var(--ease)}
 .flight:hover{border-color:var(--line-2);box-shadow:var(--shadow-card)}
 .fl-main{display:flex;align-items:center;gap:12px 26px;flex-wrap:wrap;min-width:0}
 .leg{display:flex;align-items:center;gap:14px}
@@ -212,7 +215,7 @@ main section:first-child{padding-top:clamp(40px,5vw,64px)}
 .day{appearance:none;-webkit-appearance:none;min-height:60px;padding:8px 2px;
   display:flex;flex-direction:column;align-items:center;justify-content:flex-start;border-radius:var(--r-sm);
   border:1.5px solid transparent;background:var(--surface-2);color:var(--ink-2);text-align:center;cursor:pointer;
-  transition:border-color .16s,background-color .16s}
+  transition:border-color .24s var(--ease),background-color .24s var(--ease)}
 .day .d{display:block;font-size:14px;line-height:1.2}
 .day .s{display:block;font-size:16px;font-weight:700;line-height:1.3;margin-top:3px;min-height:1.3em}
 .day.ok{background:var(--green-bg)}.day.ok .s{color:var(--green)}
@@ -264,11 +267,6 @@ main section:first-child{padding-top:clamp(40px,5vw,64px)}
 .yes{color:var(--green);font-weight:600}
 .nope{color:var(--dim)}
 
-/* Отзыв */
-.quote{margin:0;max-width:60ch}
-.quote blockquote{margin:0 0 20px;font-size:clamp(20px,2.3vw,26px);line-height:1.42;font-weight:500;letter-spacing:-.018em}
-.quote figcaption{font-size:15px;color:var(--dim)}
-.quote figcaption b{display:block;font-size:16px;font-weight:600;color:var(--ink)}
 
 /* Подписка */
 .sub{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:clamp(24px,5vw,56px);align-items:center;
@@ -279,7 +277,7 @@ main section:first-child{padding-top:clamp(40px,5vw,64px)}
 .form .ctx b{color:var(--ink);font-weight:600}
 .form label{display:block;margin-bottom:6px;font-size:14.5px;font-weight:600;color:var(--ink)}
 .form input{width:100%;min-height:50px;padding:0 14px;border-radius:var(--r-sm);border:1.5px solid var(--line-2);
-  background:var(--surface);color:var(--ink);font-size:16px;transition:border-color .16s}
+  background:var(--surface);color:var(--ink);font-size:16px;transition:border-color .24s var(--ease)}
 .form input::placeholder{color:var(--faint)}
 .form input:hover{border-color:var(--dim)}
 .form input:focus-visible{outline:3px solid var(--focus);outline-offset:1px;border-color:var(--brand)}
@@ -300,6 +298,7 @@ main section:first-child{padding-top:clamp(40px,5vw,64px)}
 .foot-grid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) minmax(0,1fr);gap:32px}
 .foot .logo{color:var(--ink)}
 .foot-brand p{margin:12px 0 0;max-width:40ch}
+.foot-brand .motto{margin-top:14px;font-weight:700;color:var(--ink);letter-spacing:-.01em}
 .foot .fh{margin:0 0 12px;font-size:14.5px;font-weight:600;color:var(--ink)}
 .foot ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}
 .foot a{color:var(--ink-2);text-decoration:none}
@@ -417,11 +416,70 @@ main section:first-child{padding-top:clamp(40px,5vw,64px)}
   .night{background:none;color:#000}.menu-btn,.tg,.toast,.skip{display:none!important}
   [style*="opacity"]{opacity:1!important;transform:none!important}
 }
+
+/* ---------------- спокойная редакция ----------------
+   Меньше «рекламного» оформления: светлая шапка без свечения, плоские
+   поверхности с тонкой рамкой, небольшие скругления, заголовки без
+   крика. Ночь осталась только в табло — это настоящий предмет
+   аэропорта, а не декорация. Правила ниже перекрывают исходные. */
+.night{background:var(--surface);color:var(--ink);border-bottom:1px solid var(--line);
+  padding-bottom:clamp(24px,3vw,36px);--focus:var(--focus-surface)}
+.night::after{display:none}
+.night .logo{color:var(--ink)}
+.topnav a,.menu a{color:var(--ink-2)}
+.topnav a:hover,.menu a:hover,.topnav a[aria-current="true"],.menu a[aria-current="true"]{color:var(--ink);background:var(--surface-2)}
+.topnav a,.menu a,.tg,.menu-btn{border-radius:var(--r-sm)}
+.tg,.menu-btn{background:transparent;border:1px solid var(--line-2);color:var(--ink)}
+.tg:hover,.menu-btn:hover{background:var(--surface-2)}
+.menu{background:var(--surface);border-color:var(--line);box-shadow:0 12px 32px rgba(20,32,70,.12)}
+.menu .tg-link{color:var(--ink)}
+.hero{align-items:start;padding-top:clamp(12px,2vw,24px)}
+h1{font-size:clamp(28px,3.2vw,42px);font-weight:700;letter-spacing:-.022em;line-height:1.12}
+h2{font-size:clamp(22px,2.3vw,30px);font-weight:700;letter-spacing:-.018em}
+.stamp{background:none;border:0;padding:0;margin-bottom:12px;color:var(--dim);font-size:14px}
+.lead{color:var(--ink-2);font-size:17px}
+.searchbar{border:1px solid var(--line-2);box-shadow:none;padding:6px;--focus:var(--focus-surface)}
+.searchbar.round{grid-template-columns:minmax(0,1.1fr) minmax(0,1.1fr) minmax(0,.8fr) minmax(0,.8fr) minmax(0,.8fr) auto}
+.f{border-radius:var(--r-sm)}
+.go{border-radius:var(--r-sm);font-size:16px;padding:0 24px}
+.search-err{color:var(--red)}
+.cat{background:var(--surface);border:1px solid var(--line-2);color:var(--ink-2);border-radius:var(--r-sm)}
+.cat:hover{background:var(--surface-2)}
+.cat[aria-pressed="true"]{background:var(--brand);border-color:var(--brand);color:var(--brand-ink);font-weight:500}
+/* Туда / обратно: обычный переключатель из двух вариантов. */
+.trip{display:inline-flex;gap:4px;margin-bottom:12px;padding:3px;border-radius:var(--r-sm);background:var(--surface-2)}
+.trip label{position:relative;cursor:pointer}
+.trip input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+.trip span{display:block;padding:7px 14px;border-radius:calc(var(--r-sm) - 2px);font-size:15px;color:var(--ink-2);
+  transition:background-color .2s var(--ease),color .2s var(--ease)}
+.trip input:checked + span{background:var(--surface);color:var(--ink);font-weight:600;box-shadow:0 1px 2px rgba(20,32,70,.12)}
+.trip input:focus-visible + span{outline:3px solid var(--focus);outline-offset:1px}
+.board{border-radius:var(--r-lg);background:#0d1733;border-color:#0d1733}
+main section{padding-block:clamp(40px,5vw,64px)}
+main section:first-child{padding-top:clamp(28px,4vw,44px)}
+.flight:hover{box-shadow:none}
+.chip{border-radius:var(--r-sm)}
+.sub{background:var(--surface);border-color:var(--line)}
+.cmp .us,.cmp thead .us{background:transparent}
+.cmp thead th{background:var(--surface)}
+.route .mk{border-width:1.5px}
+/* Обратный рейс */
+.back{margin-top:36px;padding-top:28px;border-top:1px solid var(--line)}
+.back-h{font-size:22px;font-weight:700;letter-spacing:-.015em}
+.back-sub{margin:6px 0 16px;color:var(--dim)}
+@media (max-width:1100px){
+  .searchbar.round{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media (max-width:640px){
+  .searchbar.round{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .searchbar.round .f-pax{grid-column:1/-1;border-radius:0}
+  .trip{display:flex}.trip label{flex:1}.trip span{text-align:center}
+}
 </style>
 </head>
 <body>
 <a class="skip" href="#main">К содержимому</a>
-<aside class="demo" aria-label="О макете"><p>Демо-макет: рейсы, места и отзыв вымышленные, покупка и подписка не подключены.</p></aside>
+<aside class="demo" aria-label="О макете"><p>Демо-макет: рейсы и места вымышленные, покупка и подписка не подключены.</p></aside>
 
 <header class="night">
   <div class="wrap">
@@ -432,7 +490,7 @@ main section:first-child{padding-top:clamp(40px,5vw,64px)}
         <a href="#calendar">Календарь</a>
         <a href="#kak">Как это работает</a>
       </nav>
-      <a class="tg" href="#podpiska">Бот в Telegram</a>
+      <a class="tg" href="#podpiska">Сообщить о местах</a>
       <button class="menu-btn" type="button" aria-expanded="false" aria-controls="menu">
         <i class="ph ph-list" aria-hidden="true"></i><span>Меню</span>
       </button>
@@ -441,7 +499,7 @@ main section:first-child{padding-top:clamp(40px,5vw,64px)}
           <li><a href="#rejsy">Рейсы</a></li>
           <li><a href="#calendar">Календарь</a></li>
           <li><a href="#kak">Как это работает</a></li>
-          <li><a class="tg-link" href="#podpiska">Бот в Telegram</a></li>
+          <li><a class="tg-link" href="#podpiska">Сообщить о местах</a></li>
         </ul>
       </nav>
     </div>
@@ -454,6 +512,10 @@ main section:first-child{padding-top:clamp(40px,5vw,64px)}
       </div>
 
       <div class="finder">
+        <div class="trip" role="radiogroup" aria-label="Тип поездки">
+          <label><input type="radio" name="trip" value="one" checked><span>В одну сторону</span></label>
+          <label><input type="radio" name="trip" value="round"><span>Туда и обратно</span></label>
+        </div>
         <form class="searchbar" id="search" role="search" aria-label="Поиск мест по субсидии" novalidate>
           <div class="f f-from">
             <label class="lbl" for="from">Откуда</label>
@@ -471,6 +533,11 @@ main section:first-child{padding-top:clamp(40px,5vw,64px)}
             <div class="v" aria-hidden="true"><span class="t" data-show="date">12 сентября</span></div>
             <input class="ctl" type="date" id="date" name="date" value="2026-09-12" min="2026-09-06" max="2026-09-30">
           </div>
+          <div class="f f-back" hidden>
+            <label class="lbl" for="back">Обратно</label>
+            <div class="v" aria-hidden="true"><span class="t" data-show="back">Выберите дату</span></div>
+            <input class="ctl" type="date" id="back" name="back">
+          </div>
           <div class="f f-pax">
             <label class="lbl" for="pax">Пассажиры</label>
             <div class="v" aria-hidden="true"><span class="t" data-show="pax">1 пассажир</span></div>
@@ -480,10 +547,10 @@ main section:first-child{padding-top:clamp(40px,5vw,64px)}
               <option value="5">5 пассажиров</option><option value="6">6 пассажиров</option>
             </select>
           </div>
-          <button class="go" type="submit">Смотреть места</button>
+          <button class="go" type="submit">Найти места</button>
         </form>
         <p class="search-err" id="search-err" role="alert" hidden></p>
-        <div class="cats" role="group" aria-label="Льготы — можно выбрать несколько">
+        <div class="cats" role="group" aria-label="Льготы, можно выбрать несколько">
           <button class="cat" type="button" data-cat="dfo" aria-pressed="true">Житель ДФО</button>
           <button class="cat" type="button" data-cat="young" aria-pressed="false">До 23 лет</button>
           <button class="cat" type="button" data-cat="pension" aria-pressed="false">Пенсионер</button>
@@ -501,7 +568,7 @@ main section:first-child{padding-top:clamp(40px,5vw,64px)}
           <li class="brow ok"><span class="d">15.09</span><span class="r">Хабаровск →&nbsp;Петербург<span>SU 6284 · вылет 20:10</span></span><span class="seats"><b>11</b><span>мест</span></span></li>
           <li class="brow no"><span class="d">16.09</span><span class="r">Петропавловск-Камчатский →&nbsp;Москва<span>SU 1741 · вылет 19:05</span></span><span class="seats"><b>нет</b></span></li>
         </ul>
-        <p class="board-f">Обновляем каждый час. История наличия хранится с 2 июня.</p>
+        <p class="board-f">Обновляем каждый час.</p>
       </aside>
     </div>
   </div>
@@ -589,6 +656,16 @@ main section:first-child{padding-top:clamp(40px,5vw,64px)}
         <h3>Эту дату мы пока не отслеживаем</h3>
         <p>Мониторинг идёт с 6 по 30 сентября. Выберите другую дату в календаре.</p>
         <div class="acts"><a class="btn s" href="#calendar">Открыть календарь</a></div>
+      </div>
+
+      <div class="back" id="back-block" hidden>
+        <h3 class="back-h" id="back-title">Обратно</h3>
+        <p class="back-sub" id="back-sub"></p>
+        <ul class="flights" id="flights-back"></ul>
+        <div class="empty" id="empty-back" hidden>
+          <h3></h3>
+          <p></p>
+        </div>
       </div>
     </div>
   </section>
@@ -740,14 +817,6 @@ main section:first-child{padding-top:clamp(40px,5vw,64px)}
     </div>
   </section>
 
-  <section aria-label="Отзыв">
-    <div class="wrap">
-      <figure class="quote">
-        <blockquote>«Три недели заходила на сайт по десять раз в день и всё пропускала. Здесь подписалась на дату и поймала место ночью, за пятнадцать минут.»</blockquote>
-        <figcaption><b>Марина Кравченко</b>Хабаровск, летала к дочери в Петербург</figcaption>
-      </figure>
-    </div>
-  </section>
 
   <section id="podpiska" aria-labelledby="sub-title">
     <div class="wrap">
@@ -783,6 +852,7 @@ main section:first-child{padding-top:clamp(40px,5vw,64px)}
     <div class="foot-grid">
       <div class="foot-brand">
         <a class="logo" href="#main"><i aria-hidden="true"></i>Есть места</a>
+        <p class="motto">Ночью следим. Утром летите.</p>
         <p>Сервис информационный: наличие мест показываем мы, билеты продаёт касса-партнёр.</p>
       </div>
       <div>
@@ -801,7 +871,7 @@ main section:first-child{padding-top:clamp(40px,5vw,64px)}
           <li><a href="#rejsy">Рейсы</a></li>
           <li><a href="#calendar">Календарь мест</a></li>
           <li><a href="#kak">Как это работает</a></li>
-          <li><a href="#podpiska">Бот в Telegram</a></li>
+          <li><a href="#podpiska">Сообщить о местах</a></li>
         </ul>
       </div>
     </div>
@@ -1224,6 +1294,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
   renderAll(false);
   showFields();
+
+  /* Туда / обратно: в макете только показ поля; рейсы обратно строит design_app.py. */
+  $$('input[name="trip"]').forEach(function (r) {
+    r.addEventListener('change', function () {
+      var round = r.checked && r.value === 'round';
+      if (!r.checked) return;
+      $('.f-back').hidden = !round;
+      $('#search').classList.toggle('round', round);
+    });
+  });
 
   /* ---------- появление при прокрутке ----------
      Только три места, где порядок что-то значит: рейсы по времени вылета,

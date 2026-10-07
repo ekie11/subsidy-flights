@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#0d1733">
 <meta name="color-scheme" content="light dark">
 <meta name="robots" content="noindex,nofollow">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230d1733'/%3E%3Ccircle cx='16' cy='16' r='6' fill='%23f5a524'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230d1733'/%3E%3Crect x='7' y='19.5' width='18' height='1.5' rx='.75' fill='%23ffffff' fill-opacity='.6'/%3E%3Ccircle cx='16' cy='15' r='4.5' fill='%23f5a524'/%3E%3C/svg%3E">
 <link rel="preload" href="assets/vendor/fonts/Onest-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="assets/vendor/fonts.css">
 <link rel="stylesheet" href="assets/vendor/phosphor.css">
@@ -24,20 +24,21 @@ h1{font-size:clamp(26px,3vw,34px)}
 h2{font-size:20px;letter-spacing:-.018em}
 h3{font-size:17px;letter-spacing:-.01em}
 
-/* Шапка: компактная ночь, шаги оформления */
-.night{--focus:#f5a524;background:linear-gradient(180deg,#0b132c 0%,var(--night) 100%);color:#fff;position:relative}
-.night::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;
-  background:linear-gradient(90deg,rgba(245,165,36,0),rgba(245,165,36,.55) 55%,rgba(245,165,36,0))}
+/* Шапка: светлая, как на витрине, с шагами оформления */
+.night{background:var(--surface);color:var(--ink);border-bottom:1px solid var(--line);position:relative}
 .top{display:flex;align-items:center;gap:20px;min-height:64px;padding-block:10px;flex-wrap:wrap}
-.logo{display:inline-flex;align-items:center;gap:10px;font-weight:800;font-size:18px;letter-spacing:-.03em;color:#fff;text-decoration:none;white-space:nowrap}
-.logo i{width:10px;height:10px;border-radius:50%;background:var(--cta)}
-.steps{display:flex;align-items:center;gap:6px;margin:0 0 0 auto;padding:0;list-style:none;font-size:14.5px;color:#aab5d6}
+.logo{display:inline-flex;align-items:center;gap:10px;font-weight:800;font-size:18px;letter-spacing:-.03em;color:var(--ink);text-decoration:none;white-space:nowrap}
+/* Знак: янтарный огонь на линии горизонта (брендбук, design/brandkit.html). */
+.logo i{position:relative;width:26px;height:26px;border-radius:7px;background:#0d1733;flex:0 0 auto;box-shadow:inset 0 0 0 1px rgba(255,255,255,.16)}
+.logo i::before{content:"";position:absolute;left:5px;right:5px;top:16px;height:1.5px;border-radius:1px;background:rgba(255,255,255,.6)}
+.logo i::after{content:"";position:absolute;left:9px;top:8px;width:8px;height:8px;border-radius:50%;background:#f5a524}
+.steps{display:flex;align-items:center;gap:6px;margin:0 0 0 auto;padding:0;list-style:none;font-size:14.5px;color:var(--dim)}
 .steps li{display:flex;align-items:center;gap:8px;white-space:nowrap}
-.steps li + li::before{content:"";width:22px;height:1px;background:rgba(255,255,255,.25);margin-right:2px}
+.steps li + li::before{content:"";width:22px;height:1px;background:var(--line-2);margin-right:2px}
 .steps .n{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:13px;font-weight:700;
-  border:1.5px solid rgba(255,255,255,.35);color:#cfd7ee}
-.steps .done .n{background:#59d18d;border-color:#59d18d;color:#0b132c}
-.steps [aria-current="step"]{color:#fff;font-weight:600}
+  border:1.5px solid var(--line-2);color:var(--dim)}
+.steps .done .n{background:var(--green);border-color:var(--green);color:#fff}
+.steps [aria-current="step"]{color:var(--ink);font-weight:600}
 .steps [aria-current="step"] .n{background:var(--cta);border-color:var(--cta);color:var(--cta-ink)}
 
 /* Раскладка: форма слева, сводка справа и липкая */

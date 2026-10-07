@@ -220,7 +220,7 @@ function renderBoard(fit,onDate,need){
   if(!fit.length){
     const alt=nearestDates(need);
     const why = onDate.length
-      ? `На ${fmtDate(state.date)} места есть, но меньше ${need} — на всех не хватит.`
+      ? `На ${fmtDate(state.date)} места есть, но меньше ${need}. На всех не хватит.`
       : `На ${fmtDate(state.date)} субсидированных мест нет.`;
     box.innerHTML=`<div class="empty">
       <div class="big">Мест на эту дату нет</div>
@@ -250,10 +250,10 @@ function rowHtml(f){
     : (f.url ? `<a class="buy" href="${esc(f.url)}" target="_blank" rel="noopener nofollow">Выбрать</a>`
              : `<button class="watch" onclick="openWatch()">Следить</button>`);
   return `<tr>
-    <td><div class="time">${esc(f.tm||'—')}${f.ar?`<small>прилёт ${esc(f.ar)}</small>`:''}</div></td>
-    <td class="fl"><b>${esc(f.fn||'—')}</b><span>${esc(airlineName(f.al)||'')}</span></td>
+    <td><div class="time">${esc(f.tm||'-')}${f.ar?`<small>прилёт ${esc(f.ar)}</small>`:''}</div></td>
+    <td class="fl"><b>${esc(f.fn||'-')}</b><span>${esc(airlineName(f.al)||'')}</span></td>
     <td><div class="seats ${cls}">${f.q}<small>${f.q?'мест свободно':'нет мест'}</small></div></td>
-    <td><div class="price">${f.p?nf.format(f.p)+' ₽':'—'}<small>субсидированный</small>${catNote}</div></td>
+    <td><div class="price">${f.p?nf.format(f.p)+' ₽':'-'}<small>субсидированный</small>${catNote}</div></td>
     <td>${btn}</td></tr>`;
 }
 
@@ -294,7 +294,7 @@ function renderPopular(){
     const txt=r.seats===0?'мест сейчас нет'
       :`${r.days.size} ${plural(r.days.size,'дата','даты','дат')} с местами`;
     return `<button class="pop" onclick="goRoute('${r.o}','${r.d}')">
-      <div class="txt"><b>${cityName(r.o)} — ${cityName(r.d)}</b>
+      <div class="txt"><b>${cityName(r.o)} → ${cityName(r.d)}</b>
       <span class="p"> ${r.min<Infinity?'от '+nf.format(r.min)+' ₽':'цена уточняется'}</span>
       <div class="q ${cls}">${txt}</div></div><span class="ch">${ICON_NEXT}</span></button>`;
   }).join('');
@@ -328,7 +328,7 @@ function renderCalendar(){
       :(q?`${q} ${plural(q,'место','места','мест')}`+(cell.p<Infinity?`, от ${nf.format(cell.p)} ₽`:''):'мест нет'));
     cells+=`<button class="day ${cls}${sel}" aria-label="${label}"${sel?' aria-current="date"':''} ${known?`onclick="goDate('${iso}')"`:'disabled'}>
       <span class="n">${d}</span>
-      <span class="q">${known?(q?q:'—'):'·'}</span>${priceHtml}</button>`;
+      <span class="q">${known?(q?q:'-'):'·'}</span>${priceHtml}</button>`;
   }
   $('#calGrid').innerHTML=cells;
   $('#calPrev').onclick=()=>shiftMonth(-1);
@@ -371,7 +371,7 @@ function renderNote(){
   const blocks=cs.map(c=>`<b>${esc(c.title)}.</b> Что попросят показать при посадке:
     <ul>${c.requirements.map(r=>`<li>${esc(r)}</li>`).join('')}</ul>`).join('');
   const tail = cs.length>1
-    ? `Выбрано несколько льгот — показываем рейсы, подходящие хотя бы под одну.
+    ? `Выбрано несколько льгот, поэтому показываем рейсы, подходящие хотя бы под одну.
        Оформить билет можно по любой из них: документы нужны только для той, по которой покупаете.`
     : `Наличие мест одинаково для всех льготных категорий: субсидированная квота на рейсе общая.
        Если подходите под несколько льгот, выберите их все.`;
@@ -431,7 +431,7 @@ async function submitWatch(){
     });
     const body=await res.json().catch(()=>({}));
     if(res.ok && body.ok){
-      msg.textContent='Готово — напишем, как только места появятся.';
+      msg.textContent='Готово. Напишем, как только места появятся.';
       input.value='';
     } else {
       msg.textContent=body.error || 'Не получилось отправить, попробуйте позже.';

@@ -1,315 +1,365 @@
-/* ПАЛИТРА
-   Построена по трём правилам, а не на вкус:
+/* ПАЛИТРА — дизайн-система «Ночной рейс» (DESIGN.md, design/assets/tokens.css).
 
-   1. 60-30-10. 60% площади — светлый нейтральный фон, 30% — глубокая
-      индиговая подложка (шапка, герой, плашки), 10% — янтарный акцент
-      только на действиях. Ограниченная палитра читается спокойнее.
-   2. Насыщенный цвет не занимает больших площадей. Индиго тёмный и
-      умеренно насыщенный: заливка в пол-экрана из яркого тона утомляет глаз.
-   3. Нейтральные не серые, а подкрашенные тоном бренда (низкая насыщенность
-      того же синего). Чистый серый выглядит безжизненно и «спорит» с цветом.
+   1. 60-30-10. 60% площади — светлый подкрашенный фон, 30% — ночной индиго
+      шапки, 10% — янтарь только на действиях (The Runway Lights Rule).
+   2. Нейтральные не серые, а подкрашенные синим бренда (The Tinted Neutral Rule).
+   3. Зелёный, янтарный и красный означают только наличие мест.
 
-   Синий выбран не только эстетически: в исследованиях доверия к сервисам
-   бронирования именно тёмно-синее окружение повышало намерение забронировать
-   через рост доверия. Янтарь — тёплый комплемент к синему, поэтому кнопка
-   действия видна и на светлом фоне, и на тёмном герое.
-
-   Все цвета проверены на контраст WCAG AA (см. вывод selftest-контраста).
-   Меняются здесь и больше нигде. */
+   Первый блок :root читают colorcheck.py и uitest.js — здесь только светлая
+   тема и только #hex. Тёмная тема переопределяет те же роли ниже.
+   Все пары проверены на контраст WCAG AA. Меняются здесь и больше нигде. */
 :root{
-  --brand:#1e3163;--brand-dk:#16244a;--brand-soft:#eef1fa;
-  --cta:#f5a524;--cta-dk:#e0930f;--cta-ink:#3a2600;
-  /* --faint — самый светлый текст (дни недели, коды аэропортов). Раньше был
-     #98a0b0 и давал 2.5:1; теперь держит 4.5:1 и на белом, и на --grey. */
-  --ink:#141a29;--ink-2:#3f4a60;--dim:#5b6577;--faint:#667085;
-  --line:#e5e8f0;--grey:#f5f7fb;--grey-2:#e9edf5;--bg:#fff;
-  /* Светофор наличия мест. Затемнён до 4.5:1 на белом — эти же цвета идут
-     в мелкие подписи, где послабление для крупного текста не действует. */
+  --brand:#1e3163;--brand-dk:#16244a;--brand-soft:#eaeefa;--brand-line:#c9d3f0;
+  --cta:#f5a524;--cta-dk:#e8980f;--cta-ink:#3a2600;
+  --ink:#141a29;--ink-2:#3f4a60;--dim:#5b6577;--faint:#616a7e;
+  --line:#e2e6ef;--line-2:#cdd4e6;
+  --grey:#eef1f7;--grey-2:#e2e7f1;--bg:#ffffff;--page:#f6f7fb;
   --green:#12784a;--amber:#96600a;--red:#be3229;
-  /* Подложки ячеек календаря и образцы в легенде — одни и те же токены. */
   --ok-bg:#e7f3ec;--low-bg:#fdf3e2;
-  --r:12px;
+  --night:#0d1733;--night-2:#16234c;--night-text:#c3cbe4;
+  --focus:#1e3163;
+  --r-sm:10px;--r-md:14px;--r-lg:20px;
+  --shadow-hover:0 1px 2px rgba(20,32,70,.05),0 10px 28px rgba(20,32,70,.07);
+  --ease:cubic-bezier(.16,1,.3,1);
+}
+/* Тёмная тема: ночь продолжается на всю страницу. */
+@media (prefers-color-scheme:dark){
+  :root{
+    --brand:#b9c6f0;--brand-dk:#d3dcf7;--brand-soft:#1d2a52;--brand-line:#2c3c6e;
+    --cta-dk:#ffb53d;
+    --ink:#eef1fa;--ink-2:#c9d0e4;--dim:#a3adc6;--faint:#8e9ac0;
+    --line:#22305a;--line-2:#2f3f70;
+    --grey:#18244a;--grey-2:#1f2d58;--bg:#131d3d;--page:#0c1430;
+    --green:#5fd49a;--amber:#f2b453;--red:#ff8a80;
+    --ok-bg:#163a33;--low-bg:#3a2f1a;
+    --focus:#f5a524;
+    --shadow-hover:0 1px 2px rgba(0,0,0,.2),0 10px 28px rgba(0,0,0,.25);
+  }
 }
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);
-  font:16px/1.45 ui-sans-serif,-apple-system,"Segoe UI",Roboto,Helvetica,sans-serif;
+body{margin:0;background:var(--page);color:var(--ink);
+  font:17px/1.5 Onest,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   -webkit-font-smoothing:antialiased;accent-color:var(--brand)}
 ::selection{background:var(--brand-soft);color:var(--ink)}
-.wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+.wrap{max-width:1180px;margin:0 auto;
+  padding:0 max(clamp(16px,4vw,28px),env(safe-area-inset-left))}
 button{font:inherit;cursor:pointer;color:inherit}
 input,select{font:inherit;color:inherit}
-h1,h2,h3{letter-spacing:-.02em}
+h1,h2,h3{letter-spacing:-.025em;text-wrap:balance}
 .ico{width:1em;height:1em;flex:none;vertical-align:-.125em;fill:none;stroke:currentColor;
   stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
   clip:rect(0 0 0 0);white-space:nowrap;border:0}
 
-/* Фокус с клавиатуры виден везде. На синем экране кольцо белое, на белом —
-   цвета бренда. Поля поиска подсвечивают весь сегмент (см. .field). */
-:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
-.blue :focus-visible{outline-color:#fff}
-.search :focus-visible{outline-color:var(--brand)}
+/* Фокус 3px: индиго на светлом, янтарь на ночи. */
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.blue :focus-visible{outline-color:var(--cta)}
+.search :focus-visible{outline-color:var(--focus)}
 
-/* ---------- синий экран ---------- */
-/* Едва заметный вертикальный переход: плоская заливка такой площади выглядит
-   картонной, а сильный градиент — крикливым. Разница между концами ~6% света. */
-.blue{background:linear-gradient(180deg,#223770 0%,#1a2b56 100%);color:#fff}
-.topbar{display:flex;align-items:center;gap:16px;height:64px}
+/* Нажатие — короткое физическое «вдавливание». */
+.btn-find,.buy,.watch,.cat,.pop,.jump button,.modal-actions button,.step{
+  transition:background-color .2s var(--ease),border-color .2s var(--ease),
+    box-shadow .2s var(--ease),transform .15s var(--ease)}
+.btn-find:active,.buy:active,.watch:active,.cat:active,.pop:active,
+.jump button:active,.modal-actions button:active{transform:scale(.97)}
+
+/* ---------- ночная шапка ---------- */
+/* Глубокий индиго с рассеянным светом в правом верхнем углу; снизу —
+   янтарная линия горизонта, граница ночи и утра. */
+.blue{color:#fff;position:relative;
+  background:radial-gradient(900px 420px at 92% -10%,rgba(58,82,156,.5),transparent 60%),
+    linear-gradient(180deg,#0b132c 0%,var(--night) 45%,#101c40 100%);
+  border-bottom:2px solid var(--cta)}
+.topbar{display:flex;align-items:center;gap:16px;height:68px}
 .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px;
   letter-spacing:-.02em}
-.logo .mark{width:32px;height:32px;border-radius:9px;background:#fff;color:var(--brand);
+.logo .mark{width:32px;height:32px;border-radius:var(--r-sm);background:#fff;color:#1e3163;
   display:grid;place-items:center;font-size:18px}
-.topnav{margin-left:auto;display:flex;gap:26px;font-size:15px;font-weight:600}
-.topnav a{color:#fff;text-decoration:none;opacity:.92;padding:10px 0}
-.topnav a:hover{opacity:1;text-decoration:underline;text-underline-offset:5px}
+.topnav{margin-left:auto;display:flex;gap:4px;font-size:15px;font-weight:500}
+.topnav a{color:var(--night-text);text-decoration:none;padding:9px 14px;border-radius:999px;
+  transition:background-color .2s var(--ease),color .2s var(--ease)}
+.topnav a:hover{color:#fff;background:rgba(255,255,255,.07)}
 
-.hero{padding:46px 0 30px;text-align:center}
-.hero h1{margin:0 auto 26px;font-size:clamp(28px,4vw,46px);line-height:1.08;
-  font-weight:800;max-width:16em}
+/* Заголовок слева: экран отвечает на вопрос, а не позирует по центру. */
+.hero{padding:44px 0 26px;max-width:760px}
+.hero h1{margin:0 0 22px;font-size:clamp(32px,3.9vw,54px);line-height:1.04;
+  font-weight:800;letter-spacing:-.034em;max-width:14em}
 
 /* пилюли-категории */
-.cats{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-bottom:26px}
-.cat{border:0;background:rgba(255,255,255,.16);color:#fff;border-radius:var(--r);
-  padding:13px 20px;font-size:15px;font-weight:600;line-height:1.2}
-.cat:hover{background:rgba(255,255,255,.26)}
-.cat.on{background:#fff;color:var(--ink)}
-.cat-hint{margin:-12px 0 24px;font-size:15px;opacity:.92}
-.cat-hint a{color:#fff;text-underline-offset:4px}
+.cats{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px}
+.cat{border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);color:#fff;
+  border-radius:999px;height:40px;padding:0 16px;font-size:15px;font-weight:500;line-height:1}
+.cat:hover{background:rgba(255,255,255,.13);border-color:rgba(255,255,255,.3)}
+.cat.on{background:#fff;border-color:#fff;color:#1e3163;font-weight:600}
+.cat-hint{margin:-8px 0 22px;font-size:15px}
+.cat-hint a{color:var(--night-text);text-underline-offset:4px}
+.cat-hint a:hover{color:#fff}
 
 /* строка поиска
-   color здесь обязателен: строка лежит внутри синего блока, где текст белый,
-   а фон у неё белый — без явного цвета значения полей наследуют белый
-   и полностью исчезают. */
-.search{background:#fff;color:var(--ink);border-radius:10px;display:grid;
-  grid-template-columns:1fr 1fr 1fr 1fr auto;align-items:stretch;
-  box-shadow:0 2px 10px rgba(0,0,0,.10);text-align:left}
-.field{position:relative;min-width:0;padding:12px 18px;border-right:1px solid var(--line);
-  display:flex;flex-direction:column;justify-content:center;min-height:70px}
-.field:hover{background:#fafbfc}
-/* Сегмент с фокусом обводится целиком: у самих полей рамки нет, а голое
-   outline:none без замены оставляло клавиатуру без ориентира. */
-.field:focus-within{background:#fafbfc;box-shadow:inset 0 0 0 2px var(--brand)}
-.field:first-child{border-radius:10px 0 0 10px}
+   color здесь обязателен: строка лежит внутри ночного блока, где текст белый,
+   а фон у неё светлый — без явного цвета значения полей наследуют белый
+   и полностью исчезают. Тень — потому что это настоящий слой над ночью. */
+.search{background:var(--bg);color:var(--ink);border-radius:var(--r-lg);display:grid;
+  grid-template-columns:1fr 1fr 1fr 1fr auto;align-items:stretch;padding:8px;gap:0;
+  box-shadow:0 18px 44px rgba(4,10,30,.35)}
+.field{position:relative;min-width:0;padding:10px 16px;border-right:1px solid var(--line);
+  display:flex;flex-direction:column;justify-content:center;min-height:64px;
+  border-radius:var(--r-sm);transition:background-color .2s var(--ease)}
+.field:nth-child(4){border-right:0}
+.field:hover{background:var(--grey)}
+/* Сегмент с фокусом обводится целиком: у самих полей рамки нет. */
+.field:focus-within{background:var(--grey);box-shadow:inset 0 0 0 2px var(--focus)}
 .field .lab{font-size:13px;color:var(--dim);margin-bottom:1px;cursor:pointer}
 .control{width:100%;height:26px;border:0;background:transparent;color:var(--ink);
   outline:none;padding:0;font-size:17px;font-weight:700;letter-spacing:-.01em;
-  appearance:none;cursor:pointer;border-radius:0;text-overflow:ellipsis}
+  appearance:none;cursor:pointer;border-radius:0;text-overflow:ellipsis;
+  font-variant-numeric:tabular-nums}
+.control option,.control optgroup{color:#141a29;background:#fff}
 /* Код аэропорта прижат вправо, а длинное название города обрезается, не заезжая
    под него. В поле «Откуда» отступ больше: там же сидит кнопка обмена. */
-.code{position:absolute;right:18px;top:50%;transform:translateY(-4px);font-size:13px;
-  color:var(--faint);font-weight:600;pointer-events:none;text-transform:uppercase}
+.code{position:absolute;right:16px;top:50%;transform:translateY(-4px);font-size:13px;
+  color:var(--faint);font-weight:600;pointer-events:none;text-transform:uppercase;
+  font-variant-numeric:tabular-nums}
 #from{padding-right:84px}
 #to{padding-right:48px}
 .field:first-child .code{right:52px}
 .swap{position:absolute;right:-18px;top:50%;transform:translateY(-50%);z-index:4;
-  width:36px;height:36px;border:1px solid var(--line);border-radius:50%;background:#fff;
+  width:36px;height:36px;border:1.5px solid var(--line-2);border-radius:50%;background:var(--bg);
   color:var(--brand);font-size:16px;line-height:1;padding:0;display:grid;place-items:center;
-  box-shadow:0 1px 3px rgba(0,0,0,.10)}
+  transition:background-color .2s var(--ease)}
 /* Зона нажатия 44px при видимом круге 36px. */
 .swap::after{content:"";position:absolute;inset:-4px;border-radius:50%}
 .swap:hover{background:var(--brand-soft)}
-/* Текст на золотой заливке — тёмный: белый по золоту не проходит по контрасту. */
-.btn-find{border:0;background:var(--cta);color:var(--cta-ink);font-weight:800;font-size:18px;
-  padding:0 40px;border-radius:0 10px 10px 0;letter-spacing:-.01em;white-space:nowrap}
+/* Текст на янтаре — тёмно-коричневый: белый по янтарю не проходит по контрасту. */
+.btn-find{border:0;background:var(--cta);color:var(--cta-ink);font-weight:700;font-size:17px;
+  padding:0 32px;border-radius:var(--r-md);white-space:nowrap}
 .btn-find:hover{background:var(--cta-dk)}
 
 /* пассажиры */
 .pax-btn{text-align:left}
 .pax-sub{font-size:13px;color:var(--dim);margin-top:1px}
-/* Окно прижато к правому краю поля: поле «Пассажиры» стоит в правой колонке
-   и на десктопе, и на телефоне, а при left:0 окно уезжало за экран. */
-.pax-pop{position:absolute;top:calc(100% + 8px);right:0;width:min(310px,calc(100vw - 40px));
-  background:#fff;
-  border-radius:var(--r);box-shadow:0 6px 24px rgba(0,0,0,.16);padding:8px 18px 14px;
+/* Окно прижато к правому краю поля: при left:0 оно уезжало за экран. */
+.pax-pop{position:absolute;top:calc(100% + 12px);right:0;width:min(320px,calc(100vw - 40px));
+  background:var(--bg);border:1px solid var(--line);
+  border-radius:var(--r-md);box-shadow:0 18px 44px rgba(4,10,30,.25);padding:6px 18px 14px;
   display:none;z-index:20;color:var(--ink)}
 .pax-pop.open{display:block}
-.pax-row{display:flex;align-items:center;gap:12px;padding:12px 0;
-  border-bottom:1px solid var(--line)}
-.pax-row:last-of-type{border-bottom:0}
+.pax-row{display:flex;align-items:center;gap:12px;padding:12px 0}
+.pax-row + .pax-row{border-top:1px solid var(--line)}
 .pax-row .t{flex:1}
 .pax-row .t b{display:block;font-size:15px;font-weight:600}
 .pax-row .t span{font-size:13px;color:var(--dim)}
-.step{width:40px;height:40px;border:0;border-radius:50%;background:var(--grey);
+.step{width:40px;height:40px;border:1.5px solid var(--line-2);border-radius:50%;background:var(--bg);
   color:var(--brand);font-size:18px;line-height:1;font-weight:700;display:grid;place-items:center}
-.step:hover:not(:disabled){background:var(--grey-2)}
-.step:disabled{color:var(--faint);cursor:not-allowed}
-.step-val{width:20px;text-align:center;font-weight:700}
+.step:hover:not(:disabled){border-color:var(--brand);background:var(--brand-soft)}
+.step:disabled{color:var(--faint);cursor:not-allowed;opacity:.6}
+.step-val{width:20px;text-align:center;font-weight:700;font-variant-numeric:tabular-nums}
 .pax-hint{font-size:13px;color:var(--dim);padding-top:12px;border-top:1px solid var(--line)}
 
-.underbar{display:flex;flex-wrap:wrap;gap:14px;align-items:center;
-  padding:14px 0 34px;font-size:15px;font-weight:600}
-.underbar .right{margin-left:auto;font-weight:400;opacity:.85}
+.underbar{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;
+  padding:14px 0 28px;font-size:14px;color:var(--night-text)}
+.underbar .right{margin-left:auto}
+.underbar time{color:#fff;font-variant-numeric:tabular-nums}
 
-/* ---------- белая страница ---------- */
-.strip{background:#fff;border-radius:var(--r);box-shadow:0 1px 4px rgba(0,0,0,.07);
-  display:flex;align-items:center;gap:14px;padding:18px 24px;margin:-22px auto 0;
-  max-width:760px;position:relative;z-index:2;font-size:16px}
-.strip .ic{width:22px;height:22px;color:var(--green);flex:none}
-.strip a{margin-left:auto;color:var(--brand);font-weight:700;text-decoration:none;
-  white-space:nowrap}
-/* Только верхний отступ: сокращённое padding:44px 0 0 затирало боковые поля
-   .wrap, и на экранах уже 1160px контент прилипал к краю. */
-.page{padding-top:44px}
-.sec{margin-bottom:44px}
-.sec-h{display:flex;align-items:baseline;flex-wrap:wrap;gap:12px;margin-bottom:16px}
-.sec-h h2{margin:0;font-size:24px;font-weight:800}
-.sec-h .sub{color:var(--dim);font-size:15px}
+/* ---------- светлая страница ---------- */
+/* Только верхний отступ: сокращённое padding затирало боковые поля .wrap. */
+.page{padding-top:clamp(36px,5vw,56px)}
+.sec{margin-bottom:clamp(52px,7vw,80px)}
+.sec-h{display:flex;flex-wrap:wrap;align-items:flex-end;gap:6px 16px;margin-bottom:20px}
+.sec-h h2{margin:0;font-size:clamp(26px,3vw,38px);font-weight:800;line-height:1.08;
+  flex-basis:100%}
+.sec-h .sub{color:var(--dim);font-size:16px;max-width:58ch}
 .sec-h .right{margin-left:auto}
+#results .sec-h h2{flex-basis:auto}
+#results .sec-h .sub{order:3;flex-basis:100%}
 
-.note{background:var(--grey);border-radius:var(--r);padding:18px 22px;font-size:15px;
-  color:var(--ink-2)}
+.note{background:var(--brand-soft);border:1px solid var(--brand-line);border-radius:var(--r-md);
+  padding:18px 22px;font-size:16px;color:var(--ink-2);max-width:820px}
 .note b{color:var(--ink)}
 .note ul{margin:8px 0 0;padding-left:20px}
-.note li{margin:3px 0}
+.note li{margin:4px 0}
 
 /* ---------- результаты ---------- */
-.sortsel{border:0;background:var(--grey);border-radius:999px;padding:12px 16px;
-  font-size:14px;font-weight:600;color:var(--ink-2)}
-.flights{width:100%;border-collapse:separate;border-spacing:0 10px}
+.sortsel{border:1.5px solid var(--line-2);background:var(--bg);border-radius:999px;
+  height:40px;padding:0 16px;font-size:15px;font-weight:500;color:var(--ink-2)}
+.sortsel:hover{border-color:var(--brand)}
+.flights{width:100%;border-collapse:separate;border-spacing:0 10px;margin-top:-10px}
 .flights thead{display:none}
-.flights td{background:#fff;padding:16px 18px;vertical-align:middle;
-  border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.flights td{background:var(--bg);padding:18px 20px;vertical-align:middle;
+  border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+  transition:border-color .2s var(--ease),box-shadow .2s var(--ease)}
 .flights td:first-child{border-left:1px solid var(--line);
-  border-radius:var(--r) 0 0 var(--r);padding-left:22px}
+  border-radius:var(--r-md) 0 0 var(--r-md);padding-left:22px}
 .flights td:last-child{border-right:1px solid var(--line);
-  border-radius:0 var(--r) var(--r) 0;text-align:right;padding-right:22px}
-.flights tr:hover td{background:#fafbfc}
+  border-radius:0 var(--r-md) var(--r-md) 0;text-align:right;padding-right:22px}
+.flights tr:hover td{border-color:var(--line-2)}
+.flights tr:hover td:first-child{box-shadow:var(--shadow-hover)}
 .time,.seats,.price,.day{font-variant-numeric:tabular-nums}
-.time{font-size:23px;font-weight:800;letter-spacing:-.02em}
+.time{font-size:22px;font-weight:700;letter-spacing:-.02em}
 .time small{display:block;font-size:13px;font-weight:400;color:var(--dim);
   letter-spacing:0;margin-top:2px}
-.fl b{font-weight:700;font-size:16px}
+.fl b{font-weight:600;font-size:16px}
 .fl span{display:block;font-size:13px;color:var(--dim);margin-top:2px}
-.seats{font-size:23px;font-weight:800;letter-spacing:-.02em}
+/* The Number First Rule: число мест — самое крупное на карточке. */
+.seats{font-size:30px;font-weight:800;letter-spacing:-.03em;line-height:1.05}
 .seats.ok{color:var(--green)}.seats.low{color:var(--amber)}.seats.no{color:var(--red)}
-.seats small{display:block;font-size:12px;font-weight:500;color:var(--dim);margin-top:2px}
-.price{font-size:23px;font-weight:800;white-space:nowrap;letter-spacing:-.02em}
-.price small{display:block;font-size:12px;font-weight:400;color:var(--dim);margin-top:2px}
-.buy{display:inline-block;background:var(--cta);color:var(--cta-ink);border:0;border-radius:10px;
-  padding:13px 26px;font-weight:800;font-size:16px;text-decoration:none;white-space:nowrap}
+.seats small{display:block;font-size:13px;font-weight:500;color:var(--dim);margin-top:4px;
+  letter-spacing:0}
+.price{font-size:18px;font-weight:700;white-space:nowrap;letter-spacing:-.01em}
+.price small{display:block;font-size:13px;font-weight:400;color:var(--dim);margin-top:2px;
+  letter-spacing:0}
+.buy{display:inline-flex;align-items:center;justify-content:center;height:46px;
+  background:var(--cta);color:var(--cta-ink);border:0;border-radius:var(--r-sm);
+  padding:0 22px;font-weight:700;font-size:15.5px;text-decoration:none;white-space:nowrap}
 .buy:hover{background:var(--cta-dk)}
-.buy.off{background:var(--grey);color:var(--faint);cursor:default;font-weight:600}
-.watch{background:var(--brand);border:0;border-radius:10px;padding:13px 24px;color:#fff;
-  font-weight:800;font-size:16px;white-space:nowrap}
-.watch:hover{background:var(--brand-dk)}
-a.watch{display:inline-block;text-decoration:none}
+.buy.off{background:var(--grey);color:var(--dim);cursor:default;font-weight:600}
+.buy.off:active{transform:none}
+.watch{display:inline-flex;align-items:center;justify-content:center;height:46px;
+  background:var(--bg);border:1.5px solid var(--brand);border-radius:var(--r-sm);
+  padding:0 20px;color:var(--brand);font-weight:700;font-size:15.5px;white-space:nowrap}
+.watch:hover{background:var(--brand-soft)}
+a.watch{text-decoration:none}
 
-.empty{background:var(--grey);border-radius:var(--r);padding:44px 28px;text-align:center}
-.empty .big{font-size:22px;font-weight:800;margin-bottom:8px}
-.empty .sm{color:var(--dim);max-width:38em;margin:0 auto 22px;font-size:15px}
-.jump{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-bottom:22px}
-.jump button{background:#fff;border:0;border-radius:10px;padding:12px 20px;text-align:left}
-.jump button:hover{box-shadow:0 2px 8px rgba(0,0,0,.10)}
+/* Пунктир означает только «нет данных». */
+.empty{background:var(--bg);border:1.5px dashed var(--line-2);border-radius:var(--r-md);
+  padding:40px 28px}
+.empty .big{font-size:19px;font-weight:800;margin-bottom:8px;letter-spacing:-.015em}
+.empty .sm{color:var(--dim);max-width:52ch;margin:0 0 22px;font-size:16px}
+.jump{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:22px}
+.jump button{background:var(--ok-bg);border:1.5px solid transparent;border-radius:var(--r-sm);
+  padding:10px 18px;text-align:left}
+.jump button:hover{border-color:var(--green)}
 .jump b{display:block;font-size:16px;font-weight:700}
 .jump span{font-size:13px;color:var(--green);font-weight:700}
 
 /* ---------- направления ---------- */
-.pops{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-.pop{background:var(--grey);border:0;border-radius:var(--r);padding:16px 20px;
-  text-align:left;display:flex;align-items:center;gap:14px}
-.pop:hover{background:var(--grey-2)}
+.pops{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.pop{background:var(--bg);border:1px solid var(--line);border-radius:var(--r-md);
+  padding:18px 20px;text-align:left;display:flex;align-items:center;gap:14px}
+.pop:hover{border-color:var(--line-2);box-shadow:var(--shadow-hover)}
 .pop .txt{flex:1;min-width:0}
-.pop b{font-size:16px;font-weight:700}
-.pop .p{color:var(--dim);font-weight:400}
-.pop .q{font-size:13px;font-weight:700;margin-top:3px}
+.pop b{font-size:17px;font-weight:700;letter-spacing:-.01em}
+.pop .p{display:block;color:var(--dim);font-weight:400;font-size:14px;margin-top:2px}
+.pop .q{font-size:14px;font-weight:600;margin-top:4px}
 .pop .q.ok{color:var(--green)}.pop .q.low{color:var(--amber)}.pop .q.no{color:var(--dim)}
-.pop .ch{color:var(--faint);font-size:16px}
+.pop .ch{color:var(--faint);font-size:18px;transition:transform .2s var(--ease)}
+.pop:hover .ch{transform:translateX(3px);color:var(--brand)}
 
 /* ---------- календарь ---------- */
-.cal{background:var(--grey);border-radius:var(--r);padding:20px 22px 22px}
-.cal-top{display:flex;align-items:center;gap:12px;margin-bottom:14px}
-.cal-top h3{margin:0;font-size:18px;font-weight:700}
+.cal{background:var(--bg);border:1px solid var(--line);border-radius:var(--r-lg);
+  padding:clamp(14px,2.4vw,26px)}
+.cal-top{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.cal-top h3{margin:0;font-size:19px;font-weight:800;letter-spacing:-.015em}
 .cal-top .nav{margin-left:auto;display:flex;gap:8px}
-.cal-top .nav button{width:44px;height:44px;border:0;border-radius:50%;background:#fff;
-  color:var(--ink-2);display:grid;place-items:center;font-size:18px}
-.cal-top .nav button:hover{color:var(--brand)}
+.cal-top .nav button{width:44px;height:44px;border:1.5px solid var(--line-2);border-radius:50%;
+  background:var(--bg);color:var(--ink-2);display:grid;place-items:center;font-size:18px;
+  transition:border-color .2s var(--ease),color .2s var(--ease)}
+.cal-top .nav button:hover{color:var(--brand);border-color:var(--brand)}
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
-.dow{font-size:12px;color:var(--faint);text-align:center;padding-bottom:2px}
-.day{border:0;border-radius:10px;background:#fff;padding:9px 4px;min-height:72px;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
-.day .n{font-size:14px;color:var(--dim)}
-.day .q{font-size:15px;font-weight:800}
+.dow{font-size:13px;color:var(--faint);text-align:center;padding-bottom:4px}
+.day{border:1.5px solid var(--line);border-radius:var(--r-sm);background:var(--bg);
+  padding:8px 4px;min-height:68px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}
+.day .n{font-size:13px;color:var(--dim)}
+.day .q{font-size:16px;font-weight:700}
 .day .p{font-size:11px;font-weight:600;color:var(--dim)}
-.day.void,.day.unknown{background:transparent;cursor:default}
+.day.void{background:transparent;border-color:transparent;cursor:default}
+.day.unknown{background:transparent;border-style:dashed;border-color:var(--line-2);cursor:default}
 .day.unknown .q{color:var(--faint);font-weight:400}
 .day.none .q{color:var(--faint);font-weight:400}
-.day.has{background:var(--ok-bg)}.day.has .q{color:var(--green)}
-.day.has .p{color:var(--green)}
-.day.low{background:var(--low-bg)}.day.low .q{color:var(--amber)}
-.day.low .p{color:var(--amber)}
-.day.sel{box-shadow:inset 0 0 0 2px var(--brand)}
-.day:not(.void):not(:disabled):hover{filter:brightness(.97)}
-.legend{display:flex;flex-wrap:wrap;gap:18px;margin-top:14px;font-size:13px;color:var(--dim)}
-/* Образцы крупнее и с рамкой: светлые подложки на сером фоне без неё
-   сливались. */
+.day.has{background:var(--ok-bg);border-color:transparent}
+.day.has .q,.day.has .p{color:var(--green)}
+.day.low{background:var(--low-bg);border-color:transparent}
+.day.low .q,.day.low .p{color:var(--amber)}
+.day.sel{border-color:var(--brand);box-shadow:inset 0 0 0 1px var(--brand)}
+.day:not(.void):not(:disabled):hover{border-color:var(--line-2)}
+.day.sel:hover{border-color:var(--brand)!important}
+.legend{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:16px;font-size:13px;color:var(--dim)}
 .legend i{display:inline-block;width:16px;height:16px;border-radius:5px;margin-right:7px;
-  vertical-align:-3px;box-shadow:inset 0 0 0 1px rgba(20,26,41,.14)}
+  vertical-align:-3px;border:1px solid var(--line-2)}
 .legend .l-has{background:var(--ok-bg)}.legend .l-low{background:var(--low-bg)}
-.legend .l-none{background:#fff}.legend .l-unknown{background:transparent}
+.legend .l-none{background:var(--bg)}.legend .l-unknown{background:transparent;border-style:dashed}
 
 /* ---------- подвал ---------- */
-.demo-bar{background:#fff8e6;border-bottom:1px solid #ffe3a3;color:#7a5200;
-  font-size:14px;padding:11px 0}
-.demo-bar b{color:#5c3d00}
-.how{background:var(--grey);border-radius:var(--r);padding:22px 24px;font-size:15px;
-  color:var(--ink-2)}
+.demo-bar{background:#fdf3e2;border-bottom:1px solid #f1d9a8;color:#6e4700;
+  font-size:14px;padding:10px 0}
+.demo-bar b{color:#4f3300}
+.how{background:var(--bg);border:1px solid var(--line);border-radius:var(--r-md);
+  padding:22px 24px;font-size:16px;color:var(--ink-2);max-width:820px}
 .how b{color:var(--ink)}
-footer{border-top:1px solid var(--line);margin-top:20px;padding:28px 0 40px;
+footer{border-top:1px solid var(--line);margin-top:8px;padding:36px 0 44px;
   color:var(--dim);font-size:14px}
-.fcols{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;margin-bottom:24px}
+.fcols{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;margin-bottom:28px}
 .fcols h4{margin:0 0 10px;font-size:15px;font-weight:700;color:var(--ink)}
-.fcols div p{margin:5px 0}
+.fcols div p{margin:6px 0}
 .fcols a{color:var(--dim);text-decoration:none}
 .fcols a:hover{color:var(--brand);text-decoration:underline;text-underline-offset:3px}
 
 /* ---------- модалка ---------- */
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;place-items:center;
+.modal{position:fixed;inset:0;background:rgba(6,12,30,.55);display:none;place-items:center;
   padding:20px;z-index:50}
 .modal.open{display:grid}
-.modal-box{background:#fff;border-radius:16px;max-width:420px;width:100%;padding:26px}
+.modal-box{background:var(--bg);color:var(--ink);border-radius:var(--r-lg);max-width:440px;
+  width:100%;padding:26px;box-shadow:0 18px 44px rgba(4,10,30,.35)}
 .modal-box h3{margin:0 0 8px;font-size:21px;font-weight:800}
 .modal-box p{margin:0 0 18px;color:var(--dim);font-size:15px}
-.modal-box label{display:block;font-size:14px;font-weight:600;margin-bottom:6px}
-.modal-box input{width:100%;height:50px;border:0;background:var(--grey);border-radius:10px;
-  padding:0 14px;margin-bottom:8px}
-.modal-box input:focus-visible{outline-offset:0}
+.modal-box label{display:block;font-size:14px;font-weight:600;margin-bottom:8px}
+.modal-box input{width:100%;height:50px;border:1.5px solid var(--line-2);background:var(--bg);
+  border-radius:var(--r-sm);padding:0 14px;margin-bottom:8px;font-size:16px}
+.modal-box input::placeholder{color:var(--faint)}
+.modal-box input:hover{border-color:var(--dim)}
+.modal-box input:focus-visible{outline-offset:1px;border-color:var(--brand)}
 .watch-msg{font-size:14px;color:var(--red);min-height:20px}
 .modal-actions{display:flex;gap:8px;margin-top:12px}
-.modal-actions button{flex:1;height:50px;border:0;border-radius:10px;background:var(--grey);
-  font-weight:700}
-.modal-actions .primary{background:var(--cta);color:var(--cta-ink)}
-.modal-actions .primary:hover{background:var(--cta-dk)}
+.modal-actions button{flex:1;height:50px;border:1.5px solid var(--line-2);
+  border-radius:var(--r-sm);background:var(--bg);font-weight:700}
+.modal-actions button:hover{background:var(--grey)}
+.modal-actions .primary{background:var(--cta);border-color:var(--cta);color:var(--cta-ink)}
+.modal-actions .primary:hover{background:var(--cta-dk);border-color:var(--cta-dk)}
+
+@media (max-width:1100px){
+  .search{grid-template-columns:1fr 1fr 1fr 1fr}
+  .btn-find{grid-column:1/-1;height:52px;margin-top:6px}
+}
 
 @media (max-width:900px){
-  .hero{padding:26px 0 22px}
+  .hero{padding:26px 0 20px}
   .search{grid-template-columns:1fr 1fr}
-  .field{border-right:0;border-bottom:1px solid var(--line)}
+  .field{border-right:0;border-bottom:1px solid var(--line);border-radius:0}
+  .field:nth-child(3),.field:nth-child(4){border-bottom:0}
   .swap{right:-15px}
-  .btn-find{grid-column:1/-1;border-radius:0 0 10px 10px;padding:18px 0}
-  .pops{grid-template-columns:1fr}
   .fcols{grid-template-columns:1fr 1fr}
   /* Строка рейса становится карточкой: таблица, tbody и tr переводятся
      в блоки, иначе рамка строки-«table-row» рисуется обрезанной. */
   .flights,.flights tbody,.flights tr{display:block}
-  .flights tr{border:1px solid var(--line);border-radius:var(--r);margin-bottom:10px;
-    display:grid;grid-template-columns:1fr 1fr;align-items:end;overflow:hidden}
+  .flights{margin-top:0}
+  .flights tr{background:var(--bg);border:1px solid var(--line);border-radius:var(--r-md);
+    margin-bottom:10px;display:grid;grid-template-columns:1fr 1fr;align-items:end;overflow:hidden}
   .flights td,.flights td:first-child,.flights td:last-child{display:block;border:0;
-    border-radius:0;padding:14px 18px 0}
+    border-radius:0;padding:14px 16px 0;box-shadow:none!important}
   .flights td:nth-child(2){display:none}
-  .flights td:last-child{grid-column:1/-1;text-align:left;padding:14px 18px 16px}
-  .buy,.watch{display:block;width:100%;text-align:center}
+  .flights td:last-child{grid-column:1/-1;text-align:left;padding:14px 16px 16px}
+  .buy,.watch{display:flex;width:100%}
 }
 
 /* Телефон: меню переносится под логотип, «Откуда» и «Куда» занимают всю
    ширину — в половине строки название города обрезалось до «Хаб…». */
 @media (max-width:640px){
   .topbar{flex-wrap:wrap;height:auto;padding:12px 0 4px;row-gap:2px}
-  .topnav{margin-left:0;width:100%;gap:20px;font-size:14px}
+  .topnav{margin-left:-14px;width:calc(100% + 14px);gap:0;font-size:14px}
   .field:nth-child(1),.field:nth-child(2){grid-column:1/-1}
-  .field:first-child{border-radius:10px 10px 0 0}
-  .field:first-child .code{right:18px}
+  .field:nth-child(3),.field:nth-child(4){border-bottom:0}
+  .field:first-child .code{right:16px}
   #from,#to{padding-right:48px}
   /* Кнопка обмена садится на границу между «Откуда» и «Куда». */
   .field:first-child .swap{right:auto;left:50%;top:100%;transform:translate(-50%,-50%)}
   .underbar .right{margin-left:0}
+  .day{min-height:56px}
+}
+
+/* Меньше движения — никакого движения. */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{transition:none!important;animation:none!important}
+  .btn-find:active,.buy:active,.watch:active,.cat:active,.pop:active,
+  .jump button:active,.modal-actions button:active{transform:none}
 }
