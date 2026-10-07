@@ -6,11 +6,10 @@
 как JSON, поиск и фильтрация работают на клиенте. Бэкенда нет — страницу
 раздаёт любой nginx, хостинг стоит копейки, а падать в рантайме нечему.
 
-Раскладка повторяет привычную схему большого метапоиска: сплошной синий
-экран сверху, крупный заголовок по центру, ряд пилюль-переключателей,
-белая строка поиска из сегментов и контрастная кнопка действия. Ниже —
-белая страница с серыми карточками. Пользователь такую страницу читает
-без обучения, и это экономит ему усилия.
+Раскладка повторяет привычную схему большого метапоиска: ночная шапка
+с заголовком, ряд пилюль-переключателей, строка поиска из сегментов
+и контрастная кнопка действия. Ниже — светлая страница с карточками.
+Оформление следует DESIGN.md («Ночной рейс»).
 
     python webapp.py                      # data/index.html
     python webapp.py --out /var/www/html/index.html
@@ -25,6 +24,7 @@
 from __future__ import annotations
 
 import argparse
+import base64
 import html
 from datetime import datetime, timezone
 from pathlib import Path
@@ -51,6 +51,34 @@ def _read_asset(name: str) -> str:
 CSS = _read_asset("webapp.css")
 JS = _read_asset("webapp.js")
 
+# Onest из дизайн-системы (design/assets/vendor, OFL). Витрина — один файл
+# без внешних запросов, поэтому шрифт вшивается в страницу. Файлы
+# вариативные: один на все начертания, берём только кириллицу и латиницу.
+FONTS_DIR = Path(__file__).parent / "design" / "assets" / "vendor" / "fonts"
+_FONT_RANGES = {
+    "cyrillic": "U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116",
+    "latin": ("U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,"
+              "U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+20BD,U+2122,U+2191,"
+              "U+2193,U+2212,U+2215,U+FEFF,U+FFFD"),
+}
+
+
+def _font_face() -> str:
+    faces = []
+    for subset, rng in _FONT_RANGES.items():
+        path = FONTS_DIR / f"Onest-{subset}.woff2"
+        if not path.exists():
+            continue
+        b64 = base64.b64encode(path.read_bytes()).decode("ascii")
+        faces.append("@font-face{font-family:Onest;font-style:normal;"
+                     "font-weight:400 800;font-display:swap;"
+                     f"src:url(data:font/woff2;base64,{b64}) format('woff2');"
+                     f"unicode-range:{rng}}}")
+    return "".join(faces)
+
+
+FONT_CSS = _font_face()
+
 # Иконки — инлайновые SVG с одной толщиной штриха (класс .ico в webapp.css),
 # а не символы шрифта: ✈ и ⇄ в разных системах рисуются по-разному.
 def _icon(paths: str, cls: str = "ico") -> str:
@@ -65,7 +93,6 @@ ICON_SWAP = _icon('<path d="M7 4 3 8l4 4"/><path d="M3 8h14"/><path d="m17 20 4-
                   '<path d="M21 16H7"/>')
 ICON_PREV = _icon('<path d="m15 18-6-6 6-6"/>')
 ICON_NEXT = _icon('<path d="m9 18 6-6-6-6"/>')
-ICON_PULSE = _icon('<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>', "ico ic")
 
 
 # ==========================================================================
@@ -99,10 +126,11 @@ def build(out_path: Path | str | None = None, db: Database | None = None) -> Pat
 
     head = f"""<!DOCTYPE html><html lang="ru"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Субсидированные авиабилеты с Дальнего Востока — есть ли места</title>
+<title>Субсидированные авиабилеты с Дальнего Востока: есть ли места</title>
 <meta name="description" content="Показываем, есть ли свободные места по субсидированным
 тарифам на рейсах с Дальнего Востока. Обновляется автоматически каждый час.">
-{robots}<style>{CSS}</style></head><body>"""
+{robots}<meta name="color-scheme" content="light dark">
+<style>{FONT_CSS}{CSS}</style></head><body>"""
 
     demo_bar = ("<div class='demo-bar'><div class='wrap'><b>Демо-режим.</b> "
                 "Данные из тестовой фикстуры, а не от партнёрского API: рейсы, места "
@@ -121,7 +149,7 @@ def build(out_path: Path | str | None = None, db: Database | None = None) -> Pat
     foot_cats = "".join(f"<p>{html.escape(c['title'])}</p>" for c in cities.CATEGORIES)
     foot_routes = "".join(
         f"<p><a href='#results' data-o='{r.origin}' data-d='{r.destination}'>"
-        f"{html.escape(r.label or r.origin + ' — ' + r.destination)}</a></p>"
+        f"{html.escape((r.label or r.origin + ' — ' + r.destination).replace(' — ', ' → '))}</a></p>"
         for r in config.ROUTES
     )
 
@@ -132,7 +160,7 @@ def build(out_path: Path | str | None = None, db: Database | None = None) -> Pat
         <button class="step" data-k="{key}" data-d="1" aria-label="Больше: {title.lower()}">+</button></div>"""
         for key, title, hint in (
             ("adults", "Взрослые", "от 12 лет"),
-            ("children", "Дети", "2–11 лет, отдельное место"),
+            ("children", "Дети", "2-11 лет, отдельное место"),
             ("infants", "Младенцы", "до 2 лет, на руках"),
         )
     )
@@ -151,7 +179,7 @@ def build(out_path: Path | str | None = None, db: Database | None = None) -> Pat
 
     <div class="hero">
       <h1>Тут видно, есть ли места по субсидии</h1>
-      <div class="cats" role="group" aria-label="Льготы — можно выбрать несколько">{cats_html}</div>
+      <div class="cats" role="group" aria-label="Льготы, можно выбрать несколько">{cats_html}</div>
       <p class="cat-hint"><a href="#docs" id="catHint">Что взять с собой по льготе «Житель ДФО»</a></p>
     </div>
 
@@ -178,32 +206,24 @@ def build(out_path: Path | str | None = None, db: Database | None = None) -> Pat
           aria-controls="paxPop"><span id="paxLabel">1 пассажир</span></button>
         <span class="pax-sub">субсидированный тариф</span>
         <div class="pax-pop" id="paxPop" role="group" aria-label="Состав пассажиров">{pax_rows}
-          <div class="pax-hint">Младенцу на руках отдельное место не нужно —
-            в поиске мест он не учитывается.</div>
+          <div class="pax-hint">Младенцу на руках отдельное место не нужно,
+            поэтому в поиске мест он не учитывается.</div>
         </div>
       </div>
       <button class="btn-find" id="find">Найти места</button>
     </div>
 
     <div class="underbar">
-      <span>Квота тает за часы — мы проверяем наличие каждый час</span>
+      <span>Проверяем наличие мест каждый час</span>
       <span class="right">обновлено <time id="updated" datetime="{meta['generated']}">{meta['generated'][:16].replace('T', ' ')} UTC</time></span>
     </div>
-  </div>
-</div>
-
-<div class="wrap">
-  <div class="strip">
-    {ICON_PULSE}
-    <span>Показываем живое наличие мест, а не тариф, которого уже нет</span>
-    <a href="#how">Узнать больше</a>
   </div>
 </div>
 
 <div class="wrap page">
   <div class="sec" id="results">
     <div class="sec-h">
-      <h2 id="routeTitle">—</h2><div class="sub" id="routeSub"></div>
+      <h2 id="routeTitle">Рейсы</h2><div class="sub" id="routeSub"></div>
       <div class="right"><select class="sortsel" id="sort" aria-label="Сортировка рейсов">
         <option value="time">по времени вылета</option>
         <option value="seats">где больше мест</option>
@@ -216,22 +236,22 @@ def build(out_path: Path | str | None = None, db: Database | None = None) -> Pat
 
   <div class="sec" id="docs">
     <div class="sec-h"><h2>Кому положена субсидия</h2>
-      <div class="sub">выберите категорию в синем блоке выше</div></div>
+      <div class="sub">Выберите льготу в шапке страницы, и здесь появится список документов.</div></div>
     <div class="note" id="note"></div>
   </div>
 
   <div class="sec">
     <div class="sec-h"><h2>Направления под мониторингом</h2>
-      <div class="sub">нажмите, чтобы открыть ближайшую дату с местами</div></div>
+      <div class="sub">Нажмите на направление, чтобы открыть ближайшую дату с местами.</div></div>
     <div class="pops" id="pops"></div>
   </div>
 
   <div class="sec" id="cal">
     <div class="sec-h"><h2>Календарь мест</h2>
-      <div class="sub">сколько мест и почём по дням на выбранном направлении</div></div>
+      <div class="sub">Сколько мест и по какой цене в каждый день на выбранном направлении.</div></div>
     <div class="cal">
       <div class="cal-top">
-        <h3 id="calTitle">—</h3>
+        <h3 id="calTitle">Календарь</h3>
         <div class="nav"><button id="calPrev" type="button" aria-label="Предыдущий месяц">{ICON_PREV}</button><button
           id="calNext" type="button" aria-label="Следующий месяц">{ICON_NEXT}</button></div>
       </div>
@@ -248,7 +268,7 @@ def build(out_path: Path | str | None = None, db: Database | None = None) -> Pat
   <div class="sec how" id="how">
     <b>Как это работает.</b> Мы не продаём билеты и не берём с вас денег.
     Каждый час опрашиваем систему бронирования, храним историю наличия мест
-    и показываем её здесь. Покупка — на сайте авиакассы-партнёра по нашей ссылке.
+    и показываем её здесь. Билет вы покупаете на сайте авиакассы-партнёра по нашей ссылке.
   </div>
 </div>
 
