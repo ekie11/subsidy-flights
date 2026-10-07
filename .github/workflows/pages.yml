@@ -32,6 +32,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Тёмная редакция /design/ (по образцу заказчика) живёт в отдельной
+      # ветке и публикуется по адресу /dark/. Если ветки нет — основной
+      # сайт всё равно собирается, /dark/ просто не появится.
+      - name: Взять тёмную редакцию
+        uses: actions/checkout@v4
+        continue-on-error: true
+        with:
+          ref: claude/design-night-reference
+          path: night
+
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -78,6 +88,9 @@ jobs:
           python colorcheck.py data/index.html
 
       - name: Подготовить артефакт
+        env:
+          BILETDV_PARTNER_ID: ${{ secrets.BILETDV_PARTNER_ID }}
+          SUBSIDY_SEARCH_API: ${{ vars.SUBSIDY_SEARCH_API }}
         run: |
           mkdir -p _site
           cp data/index.html _site/index.html
@@ -95,6 +108,16 @@ jobs:
             # Брендбук: доска фирменного стиля, открывается по /design/brandkit.html.
             cp design/brandkit.html _site/design/brandkit.html
             if [ -d design/assets ]; then cp -r design/assets _site/design/assets; fi
+          fi
+          # Тёмная редакция по адресу /dark/: та же база наблюдений, что у
+          # основной витрины (SUBSIDY_DB_PATH), сборка — design_app.py из ветки.
+          if [ -f night/design_app.py ]; then
+            mkdir -p _site/dark
+            SUBSIDY_DB_PATH="$PWD/data/subsidy.sqlite3" SUBSIDY_DATA_DIR="$PWD/night-data" \
+              python night/design_app.py --out _site/dark/index.html
+            test -s _site/dark/index.html || { echo "тёмная витрина пустая"; exit 1; }
+            cp night/design/checkout.html _site/dark/checkout.html
+            cp -r night/design/assets _site/dark/assets
           fi
           # .nojekyll: без него Pages прогоняет содержимое через Jekyll
           # и молча выбрасывает файлы, начинающиеся с подчёркивания.
