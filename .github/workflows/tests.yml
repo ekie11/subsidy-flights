@@ -34,7 +34,9 @@ jobs:
           SUBSIDY_FIXTURE_AAA=fixtures/biletdv_mla_KHV-MOW_1510.xml python collector.py --site
           python webapp.py --out /tmp/index.html
           python colorcheck.py /tmp/index.html
-          npm install --no-save jsdom
+          # Версия закреплена: без неё npm тянет свежие зависимости jsdom, и
+          # проверка падает, когда в реестре нет нужной версии (tldts-core).
+          npm install --no-save jsdom@24.1.3
           node uitest.js /tmp/index.html
 
       - name: Воркер поиска по запросу
