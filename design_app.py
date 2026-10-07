@@ -89,7 +89,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function cityName(c) { return (AIRPORTS[c] || {}).city || c; }
   function airlineName(c) { return AIRLINES[c] || c; }
-  function fmtPrice(p) { return p ? nf.format(p) + ' ₽' : '—'; }
+  function fmtPrice(p) { return p ? nf.format(p) + ' ₽' : '-'; }
   // Для узкой клетки календаря: 10 800 → «10,8к», 9 500 → «9,5к».
   function shortPrice(p) { return (Math.round(p / 100) / 10).toLocaleString('ru-RU') + 'к'; }
   function fmtDate(iso) { var d = new Date(iso + 'T00:00:00'); return d.getDate() + ' ' + MONTHS[d.getMonth()]; }
@@ -251,10 +251,10 @@ document.addEventListener('DOMContentLoaded', function () {
       : (fit.length < state.cats.length ? 'По льготе: ' + fit.map(function (c) { return c.short; }).join(', ') : '');
     return '<li class="flight" data-state="' + st + '" data-seats="' + f.q + '" data-dep="' + timeToMin(f.tm) + '">' +
       '<div class="fl-main"><div class="leg">' +
-      '<div class="pt"><b class="num">' + esc(f.tm || '—') + '</b><span data-code="from">' + esc(f.o) + '</span></div>' +
+      '<div class="pt"><b class="num">' + esc(f.tm || '-') + '</b><span data-code="from">' + esc(f.o) + '</span></div>' +
       '<div class="path"><i aria-hidden="true"></i></div>' +
-      '<div class="pt"><b class="num">' + esc(f.ar || '—') + '</b><span data-code="to">' + esc(f.d) + '</span></div>' +
-      '</div><div class="carrier"><b>' + esc(airlineName(f.al)) + '</b>' + esc(f.fn || '—') + '</div></div>' +
+      '<div class="pt"><b class="num">' + esc(f.ar || '-') + '</b><span data-code="to">' + esc(f.d) + '</span></div>' +
+      '</div><div class="carrier"><b>' + esc(airlineName(f.al)) + '</b>' + esc(f.fn || '-') + '</div></div>' +
       '<div class="count" aria-live="off">' + seatsHtml + (trend ? '<span class="trend" data-trend>' + trend + '</span>' : '') + '</div>' +
       '<div class="act">' +
       '<button class="btn p" type="button" data-buy' + (canBuy ? '' : ' hidden') + '>Купить у партнёра</button>' +
@@ -459,12 +459,12 @@ document.addEventListener('DOMContentLoaded', function () {
       var recs = DATA.filter(function (f) { return f.o === r.origin && f.d === r.destination && matchCategory(f); });
       var best = recs.length ? recs.reduce(function (a, b) { return b.q > a.q ? b : a; }) : null;
       if (!best || best.q === 0) {
-        return '<li class="brow no"><span class="d">—</span><span class="r">' + esc(cityName(r.origin)) + ' →&nbsp;' + esc(cityName(r.destination)) + '</span><span class="seats"><b>нет</b></span></li>';
+        return '<li class="brow no"><span class="d">-</span><span class="r">' + esc(cityName(r.origin)) + ' →&nbsp;' + esc(cityName(r.destination)) + '</span><span class="seats"><b>нет</b></span></li>';
       }
       var cls = best.q <= LOW ? 'low' : 'ok';
       var dd = best.dt.slice(8, 10) + '.' + best.dt.slice(5, 7);
       return '<li class="brow ' + cls + '"><span class="d">' + dd + '</span><span class="r">' + esc(cityName(r.origin)) + ' →&nbsp;' + esc(cityName(r.destination)) +
-        '<span>' + esc(best.fn || '') + ' · вылет ' + esc(best.tm || '—') + '</span></span>' +
+        '<span>' + esc(best.fn || '') + ' · вылет ' + esc(best.tm || '-') + '</span></span>' +
         '<span class="seats"><b>' + best.q + '</b><span>' + plural(best.q, SEAT_FORMS) + '</span></span></li>';
     }).join('');
   }

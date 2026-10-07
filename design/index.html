@@ -264,11 +264,6 @@ main section:first-child{padding-top:clamp(40px,5vw,64px)}
 .yes{color:var(--green);font-weight:600}
 .nope{color:var(--dim)}
 
-/* Отзыв */
-.quote{margin:0;max-width:60ch}
-.quote blockquote{margin:0 0 20px;font-size:clamp(20px,2.3vw,26px);line-height:1.42;font-weight:500;letter-spacing:-.018em}
-.quote figcaption{font-size:15px;color:var(--dim)}
-.quote figcaption b{display:block;font-size:16px;font-weight:600;color:var(--ink)}
 
 /* Подписка */
 .sub{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:clamp(24px,5vw,56px);align-items:center;
@@ -421,7 +416,7 @@ main section:first-child{padding-top:clamp(40px,5vw,64px)}
 </head>
 <body>
 <a class="skip" href="#main">К содержимому</a>
-<aside class="demo" aria-label="О макете"><p>Демо-макет: рейсы, места и отзыв вымышленные, покупка и подписка не подключены.</p></aside>
+<aside class="demo" aria-label="О макете"><p>Демо-макет: рейсы и места вымышленные, покупка и подписка не подключены.</p></aside>
 
 <header class="night">
   <div class="wrap">
@@ -432,7 +427,7 @@ main section:first-child{padding-top:clamp(40px,5vw,64px)}
         <a href="#calendar">Календарь</a>
         <a href="#kak">Как это работает</a>
       </nav>
-      <a class="tg" href="#podpiska">Бот в Telegram</a>
+      <a class="tg" href="#podpiska">Сообщить о местах</a>
       <button class="menu-btn" type="button" aria-expanded="false" aria-controls="menu">
         <i class="ph ph-list" aria-hidden="true"></i><span>Меню</span>
       </button>
@@ -441,7 +436,7 @@ main section:first-child{padding-top:clamp(40px,5vw,64px)}
           <li><a href="#rejsy">Рейсы</a></li>
           <li><a href="#calendar">Календарь</a></li>
           <li><a href="#kak">Как это работает</a></li>
-          <li><a class="tg-link" href="#podpiska">Бот в Telegram</a></li>
+          <li><a class="tg-link" href="#podpiska">Сообщить о местах</a></li>
         </ul>
       </nav>
     </div>
@@ -483,7 +478,7 @@ main section:first-child{padding-top:clamp(40px,5vw,64px)}
           <button class="go" type="submit">Смотреть места</button>
         </form>
         <p class="search-err" id="search-err" role="alert" hidden></p>
-        <div class="cats" role="group" aria-label="Льготы — можно выбрать несколько">
+        <div class="cats" role="group" aria-label="Льготы, можно выбрать несколько">
           <button class="cat" type="button" data-cat="dfo" aria-pressed="true">Житель ДФО</button>
           <button class="cat" type="button" data-cat="young" aria-pressed="false">До 23 лет</button>
           <button class="cat" type="button" data-cat="pension" aria-pressed="false">Пенсионер</button>
@@ -501,7 +496,7 @@ main section:first-child{padding-top:clamp(40px,5vw,64px)}
           <li class="brow ok"><span class="d">15.09</span><span class="r">Хабаровск →&nbsp;Петербург<span>SU 6284 · вылет 20:10</span></span><span class="seats"><b>11</b><span>мест</span></span></li>
           <li class="brow no"><span class="d">16.09</span><span class="r">Петропавловск-Камчатский →&nbsp;Москва<span>SU 1741 · вылет 19:05</span></span><span class="seats"><b>нет</b></span></li>
         </ul>
-        <p class="board-f">Обновляем каждый час. История наличия хранится с 2 июня.</p>
+        <p class="board-f">Обновляем каждый час.</p>
       </aside>
     </div>
   </div>
@@ -740,14 +735,6 @@ main section:first-child{padding-top:clamp(40px,5vw,64px)}
     </div>
   </section>
 
-  <section aria-label="Отзыв">
-    <div class="wrap">
-      <figure class="quote">
-        <blockquote>«Три недели заходила на сайт по десять раз в день и всё пропускала. Здесь подписалась на дату и поймала место ночью, за пятнадцать минут.»</blockquote>
-        <figcaption><b>Марина Кравченко</b>Хабаровск, летала к дочери в Петербург</figcaption>
-      </figure>
-    </div>
-  </section>
 
   <section id="podpiska" aria-labelledby="sub-title">
     <div class="wrap">
@@ -801,7 +788,7 @@ main section:first-child{padding-top:clamp(40px,5vw,64px)}
           <li><a href="#rejsy">Рейсы</a></li>
           <li><a href="#calendar">Календарь мест</a></li>
           <li><a href="#kak">Как это работает</a></li>
-          <li><a href="#podpiska">Бот в Telegram</a></li>
+          <li><a href="#podpiska">Сообщить о местах</a></li>
         </ul>
       </div>
     </div>
