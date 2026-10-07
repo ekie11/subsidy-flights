@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="utf-8">
+<link rel="stylesheet" href="assets/vendor/fonts.css">
+<style>
+:root{--night:#0d1733;--night2:#16234c;--night3:#22315f;--amber:#f5a524;--amber-ink:#3a2600;
+  --morning:#f6f7fb;--ink:#141a29;--dim:#5b6577;--green:#12784a;--line:#e2e6ef;
+  --bg:#11131a;--panel-line:rgba(255,255,255,.08)}
+*{box-sizing:border-box;margin:0}
+body{background:var(--bg);font-family:Onest,sans-serif;color:#fff;-webkit-font-smoothing:antialiased}
+.board{width:1920px;height:1200px;padding:56px;display:grid;
+  grid-template-columns:1.2fr 1fr 1fr;grid-template-rows:1fr 1fr 1fr;gap:20px}
+.p{position:relative;border-radius:18px;overflow:hidden;background:var(--night)}
+.n{position:absolute;right:18px;bottom:14px;font:500 12px/1 "JetBrains Mono",monospace;
+  color:rgba(255,255,255,.35);letter-spacing:.04em}
+.p.light .n{color:rgba(20,26,41,.35)}
+.lbl{position:absolute;left:22px;top:18px;font:500 12px/1 "JetBrains Mono",monospace;
+  color:rgba(255,255,255,.42);letter-spacing:.06em}
+.p.light .lbl{color:rgba(20,26,41,.42)}
+
+/* знак */
+.mark{--s:120px;width:var(--s);height:var(--s);border-radius:calc(var(--s)*.24);background:var(--night);
+  position:relative;flex:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
+.mark::before{content:"";position:absolute;left:16%;right:16%;top:62%;height:calc(var(--s)*.03);
+  min-height:1.5px;background:rgba(255,255,255,.55);border-radius:2px}
+.mark::after{content:"";position:absolute;width:30%;height:30%;left:35%;top:calc(62% - 30%);
+  border-radius:50%;background:var(--amber)}
+
+/* 01 обложка */
+.cover{display:flex;flex-direction:column;justify-content:center;padding:0 48px;
+  background:radial-gradient(900px 500px at 90% -10%,rgba(58,82,156,.55),transparent 60%),
+  linear-gradient(180deg,#0b132c,var(--night) 55%,#101c40)}
+.cover::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;
+  background:linear-gradient(90deg,transparent,rgba(245,165,36,.7) 55%,transparent)}
+.lockup{display:flex;align-items:center;gap:22px}
+.lockup .mark{--s:88px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.16)}
+.word{white-space:nowrap;font-weight:800;font-size:76px;letter-spacing:-.045em;line-height:.95}
+.cover p{margin-top:22px;font-size:17px;color:#c3cbe4;max-width:40ch;line-height:1.45}
+
+/* 02 построение */
+.cons{background:var(--morning);display:grid;place-items:center}
+.cons svg{width:260px;height:260px}
+
+/* 03 цифровое */
+.dig{background:linear-gradient(180deg,var(--night2),var(--night));display:flex;
+  align-items:flex-end;padding-top:48px;justify-content:center}
+.phone{width:300px;height:300px;margin-top:56px;align-self:flex-end;background:var(--morning);border-radius:34px 34px 0 0;
+  border:8px solid #050914;border-bottom:0;padding:22px 18px;color:var(--ink)}
+.phone .bar{display:flex;align-items:center;gap:9px;font-weight:800;font-size:15px;
+  letter-spacing:-.02em;margin-bottom:16px}
+.phone .bar .mark{--s:26px}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px}
+.card .row{display:flex;justify-content:space-between;align-items:flex-start}
+.card .t{font-weight:700;font-size:22px;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.card .t small{display:block;font-size:12px;font-weight:400;color:var(--dim);letter-spacing:0}
+.card .q{text-align:right;font-weight:800;font-size:40px;line-height:1;color:var(--green);letter-spacing:-.03em}
+.card .q small{display:block;font-size:12px;font-weight:400;color:var(--dim);letter-spacing:0;margin-top:4px}
+.btn{margin-top:14px;height:42px;border-radius:10px;background:var(--amber);color:var(--amber-ink);
+  display:grid;place-items:center;font-weight:700;font-size:15px}
+
+/* 04 слоган */
+.tag{background:var(--night);display:flex;align-items:center;padding:0 48px}
+.tag h2{font-weight:800;font-size:64px;letter-spacing:-.04em;line-height:1}
+.tag h2 span{color:var(--amber)}
+
+/* 05 цвета */
+.colors{display:grid;grid-template-columns:2fr 1.3fr 1fr 1fr .8fr;background:var(--night)}
+.sw{position:relative;display:flex;align-items:flex-end;padding:0 14px 40px;
+  font:500 12px/1.5 "JetBrains Mono",monospace}
+.sw b{display:block;font:700 14px/1.3 Onest,sans-serif;margin-bottom:2px}
+
+/* 06 шрифт */
+.type{background:var(--morning);color:var(--ink);padding:44px 26px 26px;display:flex;flex-direction:column;
+  justify-content:space-between}
+.type .big{font-weight:800;font-size:150px;letter-spacing:-.05em;line-height:.8}
+.type .nums{font-weight:700;font-size:30px;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+.type .mono{font:500 16px/1 "JetBrains Mono",monospace;color:var(--dim);margin-top:8px}
+.type .meta{position:absolute;right:26px;top:48px;text-align:right;font-size:14px;color:var(--dim);line-height:1.5}
+.type .meta b{color:var(--ink);font-size:18px}
+
+/* 07 физическое */
+.phys{background:#1a1d27;display:flex;align-items:center;justify-content:center;gap:28px}
+.pass{width:300px;height:150px;background:var(--morning);border-radius:14px;color:var(--ink);
+  display:grid;grid-template-columns:1fr 84px;overflow:hidden;transform:rotate(-4deg);
+  box-shadow:0 20px 40px rgba(0,0,0,.4)}
+.pass .l{padding:16px 18px;display:flex;flex-direction:column;justify-content:space-between}
+.pass .r{background:var(--night);display:grid;place-items:center;border-left:2px dashed #c9d3f0}
+.pass .r .mark{--s:44px;box-shadow:none}
+.pass .route{font:500 26px/1 "JetBrains Mono",monospace;letter-spacing:-.02em}
+.pass .route span{color:var(--amber)}
+.pass .h{display:flex;align-items:center;gap:8px;font-weight:800;font-size:14px;letter-spacing:-.02em}
+.pass .h .mark{--s:20px;box-shadow:none}
+.pass .seat{font-size:12px;color:var(--dim)}
+.pass .seat b{color:var(--green);font-size:20px;margin-right:4px}
+.pin{width:120px;height:120px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#2a3a70,var(--night) 70%);
+  box-shadow:0 0 0 6px #c9a46a,0 0 0 8px #8a6a35,0 16px 30px rgba(0,0,0,.5);display:grid;place-items:center}
+.pin .mark{--s:70px;background:transparent;box-shadow:none}
+
+/* 08 образ */
+.img{background:linear-gradient(180deg,#070b1c 0%,#0d1733 52%,#2a2f52 74%,#5a4a52 82%,#0a0f22 82.5%,#05080f 100%)}
+.img .lights{position:absolute;inset:0 0 0 0;height:36%;top:auto}
+.img i{position:absolute;bottom:0;width:6px;height:6px;border-radius:50%;background:var(--amber);
+  box-shadow:0 0 14px 4px rgba(245,165,36,.6)}
+.img .grain{position:absolute;inset:0;opacity:.18;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E")}
+.img .cap{position:absolute;left:22px;top:22px;font-weight:700;font-size:20px;letter-spacing:-.02em}
+
+/* 09 табло */
+.boardp{background:#060c1e;padding:46px 22px 0}
+.brow{display:grid;grid-template-columns:62px 1fr auto;gap:12px;align-items:center;padding:9px 2px;
+  border-bottom:1px solid rgba(255,255,255,.08)}
+.brow:last-child{border-bottom:0}
+.brow .d{font:500 15px/1 "JetBrains Mono",monospace;color:#8e9ac0}
+.brow .r{font-size:16px;font-weight:500}
+.brow .r span{display:block;font-size:12px;color:#8e9ac0;margin-top:2px}
+.brow b{font-size:28px;font-weight:800;letter-spacing:-.03em}
+.ok b{color:#7ee2a8}.low b{color:#ffc266}.no b{color:#ff8e85;font-size:17px;font-weight:600}
+</style></head><body>
+<div class="board">
+  <section class="p cover">
+    <div class="lockup"><div class="mark"></div><div class="word">Есть места</div></div>
+    <p>Следим за субсидированными местами на рейсах с Дальнего Востока и говорим, когда они вернулись.</p>
+    <span class="n">01</span>
+  </section>
+
+  <section class="p cons light">
+    <span class="lbl">Построение знака</span>
+    <svg viewBox="0 0 120 120" fill="none">
+      <g stroke="#c9d3f0" stroke-width=".4">
+        <path d="M0 20H120M0 40H120M0 60H120M0 80H120M0 100H120M20 0V120M40 0V120M60 0V120M80 0V120M100 0V120"/>
+      </g>
+      <rect x="10" y="10" width="100" height="100" rx="24" fill="#0d1733"/>
+      <line x1="26" y1="72" x2="94" y2="72" stroke="#ffffff" stroke-opacity=".6" stroke-width="2.5" stroke-linecap="round"/>
+      <circle cx="60" cy="57" r="15" fill="#f5a524"/>
+      <g stroke="#f5a524" stroke-width=".6" stroke-dasharray="2 2">
+        <circle cx="60" cy="57" r="22"/><path d="M60 30V92M14 57H106"/>
+      </g>
+      <g fill="#5b6577" font-family="JetBrains Mono" font-size="4.5">
+        <text x="98" y="70">h</text><text x="62" y="27">r = 0.15</text>
+      </g>
+    </svg>
+    <span class="n">02</span>
+  </section>
+
+  <section class="p dig">
+    <span class="lbl">Приложение</span>
+    <div class="phone">
+      <div class="bar"><div class="mark"></div>Есть места</div>
+      <div class="card">
+        <div class="row">
+          <div class="t">23:55<small>Хабаровск → Москва</small></div>
+          <div class="q">7<small>мест по субсидии</small></div>
+        </div>
+        <div class="btn">Купить у партнёра</div>
+      </div>
+    </div>
+    <span class="n">03</span>
+  </section>
+
+  <section class="p tag">
+    <h2>Места<br><span>вернулись.</span></h2>
+    <span class="n">04</span>
+  </section>
+
+  <section class="p colors">
+    <div class="sw" style="background:#0d1733"><div><b>Ночное небо</b>#0D1733</div></div>
+    <div class="sw" style="background:#f6f7fb;color:#141a29"><div><b>Утро</b>#F6F7FB</div></div>
+    <div class="sw" style="background:#16234c"><div><b>Индиго</b>#16234C</div></div>
+    <div class="sw" style="background:#f5a524;color:#3a2600"><div><b>Огни</b>#F5A524</div></div>
+    <div class="sw" style="background:#12784a"><div><b>Места</b>#12784A</div></div>
+    <span class="n">05</span>
+  </section>
+
+  <section class="p type light">
+    <span class="lbl">Шрифт</span>
+    <div class="big">Аа</div>
+    <div class="meta"><b>Onest</b><br>400 · 800<br>JetBrains Mono</div>
+    <div><div class="nums">0123456789</div><div class="mono">12.09  13.09  14.09</div></div>
+    <span class="n">06</span>
+  </section>
+
+  <section class="p phys">
+    <div class="pass">
+      <div class="l">
+        <div class="h"><div class="mark"></div>Есть места</div>
+        <div class="route">KHV <span>→</span> MOW</div>
+        <div class="seat"><b>7</b>мест на 12.09</div>
+      </div>
+      <div class="r"><div class="mark"></div></div>
+    </div>
+    <div class="pin"><div class="mark"></div></div>
+    <span class="n">07</span>
+  </section>
+
+  <section class="p img">
+    <div class="lights"><i style="left:calc(50% + -48.0%);bottom:6.0%;transform:scale(1.70)"></i><i style="left:calc(50% + 48.0%);bottom:6.0%;transform:scale(1.70)"></i><i style="left:calc(50% + -42.2%);bottom:13.2%;transform:scale(1.52)"></i><i style="left:calc(50% + 42.2%);bottom:13.2%;transform:scale(1.52)"></i><i style="left:calc(50% + -36.5%);bottom:20.5%;transform:scale(1.35)"></i><i style="left:calc(50% + 36.5%);bottom:20.5%;transform:scale(1.35)"></i><i style="left:calc(50% + -30.8%);bottom:27.8%;transform:scale(1.18)"></i><i style="left:calc(50% + 30.8%);bottom:27.8%;transform:scale(1.18)"></i><i style="left:calc(50% + -25.0%);bottom:35.0%;transform:scale(1.00)"></i><i style="left:calc(50% + 25.0%);bottom:35.0%;transform:scale(1.00)"></i><i style="left:calc(50% + -19.2%);bottom:42.2%;transform:scale(0.82)"></i><i style="left:calc(50% + 19.2%);bottom:42.2%;transform:scale(0.82)"></i><i style="left:calc(50% + -13.5%);bottom:49.5%;transform:scale(0.65)"></i><i style="left:calc(50% + 13.5%);bottom:49.5%;transform:scale(0.65)"></i><i style="left:calc(50% + -7.8%);bottom:56.8%;transform:scale(0.48)"></i><i style="left:calc(50% + 7.8%);bottom:56.8%;transform:scale(0.48)"></i><i style="left:calc(50% + -2.0%);bottom:64.0%;transform:scale(0.30)"></i><i style="left:calc(50% + 2.0%);bottom:64.0%;transform:scale(0.30)"></i></div>
+    <div class="grain"></div>
+    <div class="cap">Ночью следим. Утром летите.</div>
+    <span class="n">08</span>
+  </section>
+
+  <section class="p boardp">
+    <span class="lbl">Табло</span>
+    <div class="brow ok"><span class="d">12.09</span><span class="r">Хабаровск → Москва<span>SU 1711 · 23:55</span></span><b>7</b></div>
+    <div class="brow low"><span class="d">13.09</span><span class="r">Владивосток → Москва<span>SU 1701 · 22:20</span></span><b>2</b></div>
+    <div class="brow no"><span class="d">14.09</span><span class="r">Южно-Сахалинск → Москва<span>SU 1731 · 21:40</span></span><b>нет</b></div>
+    <span class="n">09</span>
+  </section>
+</div>
+</body></html>

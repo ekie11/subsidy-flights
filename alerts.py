@@ -307,7 +307,7 @@ class AlertManager:
 def _subscriber_letter(items: Sequence[Alert]) -> tuple[str, str]:
     """Тема и текст письма подписчику — без служебных меток серьёзности."""
     routes = sorted({f"{a.origin}—{a.destination}" for a in items})
-    subject = "Появились субсидированные места: " + ", ".join(routes)
+    subject = "Места вернулись: " + ", ".join(routes)
     lines = ["Здравствуйте! По вашей подписке появились места по субсидированному тарифу.", ""]
     for a in items[:SUBSCRIBER_MAX_ITEMS]:
         lines.append(a.title.split(": ", 1)[-1])
