@@ -55,12 +55,12 @@ body{text-rendering:optimizeLegibility}
 .logo i::after{content:"";position:absolute;left:9px;top:8px;width:8px;height:8px;border-radius:50%;background:#f5a524}
 .topnav{display:flex;gap:4px;margin-left:auto}
 .topnav a,.menu a{color:#c3cbe4;text-decoration:none;font-size:15px;padding:8px 12px;border-radius:999px;
-  transition:color .16s,background-color .16s}
+  transition:color .24s var(--ease),background-color .24s var(--ease)}
 .topnav a:hover,.menu a:hover{color:#fff;background:rgba(255,255,255,.07)}
 .topnav a[aria-current="true"],.menu a[aria-current="true"]{color:#fff;background:rgba(255,255,255,.11)}
 .tg{display:inline-flex;align-items:center;min-height:40px;padding:0 16px;border-radius:999px;
   background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:15px;
-  text-decoration:none;white-space:nowrap;transition:background-color .16s}
+  text-decoration:none;white-space:nowrap;transition:background-color .24s var(--ease)}
 .tg:hover{background:rgba(255,255,255,.16)}
 .menu-btn{display:none;margin-left:auto;align-items:center;gap:8px;min-height:44px;padding:0 14px;
   border-radius:999px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.2);color:#fff;
@@ -91,10 +91,10 @@ body{text-rendering:optimizeLegibility}
   grid-template-columns:minmax(0,1.15fr) minmax(0,1.15fr) minmax(0,.95fr) minmax(0,.85fr) auto;
   background:var(--surface);color:var(--ink);border-radius:var(--r-lg);padding:8px;
   box-shadow:0 18px 44px rgba(4,10,30,.35);--focus:var(--focus-surface)}
-.f{position:relative;min-width:0;padding:12px 18px;border-radius:12px;transition:background-color .16s}
+.f{position:relative;min-width:0;padding:12px 18px;border-radius:12px;transition:background-color .24s var(--ease)}
 .f:hover,.f:focus-within{background:var(--surface-2)}
 .f:focus-within{outline:3px solid var(--focus);outline-offset:-3px}
-.f + .f::before{content:"";position:absolute;left:0;top:14px;bottom:14px;width:1px;background:var(--line);transition:opacity .16s}
+.f + .f::before{content:"";position:absolute;left:0;top:14px;bottom:14px;width:1px;background:var(--line);transition:opacity .24s var(--ease)}
 .f:hover::before,.f:hover + .f::before,.f:focus-within::before,.f:focus-within + .f::before{opacity:0}
 .f .lbl{display:block;font-size:13px;line-height:1.3;color:var(--dim);margin-bottom:3px}
 .f .v{display:flex;align-items:baseline;gap:7px;min-width:0;font-size:17px;font-weight:600;line-height:1.35;white-space:nowrap}
@@ -110,21 +110,21 @@ body{text-rendering:optimizeLegibility}
 .f-to{padding-left:30px}
 .swap{position:absolute;right:-17px;top:50%;translate:0 -50%;z-index:2;width:34px;height:34px;border-radius:50%;
   display:grid;place-items:center;background:var(--surface);border:1px solid var(--line-2);color:var(--brand);
-  font-size:17px;cursor:pointer;transition:border-color .16s,background-color .16s}
+  font-size:17px;cursor:pointer;transition:border-color .24s var(--ease),background-color .24s var(--ease)}
 .swap:hover{border-color:var(--brand);background:var(--brand-soft)}
 /* Круг 34px: он выступает в поле «Куда» на 17px при отступе текста 18px, крупнее —
    наезжает на название города. Зона нажатия всё равно 44px, она невидима. */
 .swap::after{content:"";position:absolute;inset:-5px;border-radius:50%}
 .swap i{display:block}
 .go{border:0;border-radius:12px;background:var(--cta);color:var(--cta-ink);font-weight:700;font-size:17px;
-  padding:0 30px;white-space:nowrap;cursor:pointer;transition:background-color .16s,transform .12s}
+  padding:0 30px;white-space:nowrap;cursor:pointer;transition:background-color .24s var(--ease),transform .14s var(--ease)}
 .go:hover{background:var(--cta-hover)}
 .go:active{transform:scale(.98)}
 .search-err{margin:10px 2px 0;color:#ffb4ab;font-size:14.5px}
 .cats{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
 .cat{min-height:40px;padding:0 15px;border-radius:999px;border:1px solid rgba(255,255,255,.2);
   background:rgba(255,255,255,.08);color:#dbe1f2;font-size:15px;cursor:pointer;
-  transition:background-color .16s,color .16s,border-color .16s}
+  transition:background-color .24s var(--ease),color .24s var(--ease),border-color .24s var(--ease)}
 .cat:hover{background:rgba(255,255,255,.15)}
 .cat[aria-pressed="true"]{background:#fff;border-color:#fff;color:#1e3163;font-weight:600}
 .cat:active{transform:scale(.97)}
@@ -154,7 +154,7 @@ main section:first-child{padding-top:clamp(40px,5vw,64px)}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:0 20px;
   border-radius:var(--r-sm);border:1.5px solid transparent;font-weight:700;font-size:15.5px;line-height:1.2;
   white-space:nowrap;text-decoration:none;cursor:pointer;
-  transition:background-color .16s,border-color .16s,color .16s,transform .12s}
+  transition:background-color .24s var(--ease),border-color .24s var(--ease),color .24s var(--ease),transform .14s var(--ease)}
 .btn:active{transform:scale(.97)}
 .btn.p{background:var(--cta);color:var(--cta-ink)}
 .btn.p:hover{background:var(--cta-hover)}
@@ -168,7 +168,7 @@ main section:first-child{padding-top:clamp(40px,5vw,64px)}
 
 .filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
 .chip{min-height:40px;padding:0 15px;border-radius:999px;border:1px solid var(--line-2);background:var(--surface);
-  color:var(--ink-2);font-size:15px;cursor:pointer;transition:background-color .16s,border-color .16s,color .16s}
+  color:var(--ink-2);font-size:15px;cursor:pointer;transition:background-color .24s var(--ease),border-color .24s var(--ease),color .24s var(--ease)}
 .chip:hover{border-color:var(--brand)}
 .chip[aria-pressed="true"]{background:var(--brand);border-color:var(--brand);color:var(--brand-ink)}
 .chip:active{transform:scale(.97)}
@@ -176,7 +176,7 @@ main section:first-child{padding-top:clamp(40px,5vw,64px)}
 .flights{list-style:none;margin:0;padding:0;display:grid;gap:12px}
 .flight{display:grid;grid-template-columns:minmax(0,1fr) 216px 200px;gap:24px;align-items:center;
   background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px 22px;
-  transition:border-color .18s,box-shadow .18s}
+  transition:border-color .24s var(--ease),box-shadow .24s var(--ease)}
 .flight:hover{border-color:var(--line-2);box-shadow:var(--shadow-card)}
 .fl-main{display:flex;align-items:center;gap:12px 26px;flex-wrap:wrap;min-width:0}
 .leg{display:flex;align-items:center;gap:14px}
@@ -215,7 +215,7 @@ main section:first-child{padding-top:clamp(40px,5vw,64px)}
 .day{appearance:none;-webkit-appearance:none;min-height:60px;padding:8px 2px;
   display:flex;flex-direction:column;align-items:center;justify-content:flex-start;border-radius:var(--r-sm);
   border:1.5px solid transparent;background:var(--surface-2);color:var(--ink-2);text-align:center;cursor:pointer;
-  transition:border-color .16s,background-color .16s}
+  transition:border-color .24s var(--ease),background-color .24s var(--ease)}
 .day .d{display:block;font-size:14px;line-height:1.2}
 .day .s{display:block;font-size:16px;font-weight:700;line-height:1.3;margin-top:3px;min-height:1.3em}
 .day.ok{background:var(--green-bg)}.day.ok .s{color:var(--green)}
@@ -277,7 +277,7 @@ main section:first-child{padding-top:clamp(40px,5vw,64px)}
 .form .ctx b{color:var(--ink);font-weight:600}
 .form label{display:block;margin-bottom:6px;font-size:14.5px;font-weight:600;color:var(--ink)}
 .form input{width:100%;min-height:50px;padding:0 14px;border-radius:var(--r-sm);border:1.5px solid var(--line-2);
-  background:var(--surface);color:var(--ink);font-size:16px;transition:border-color .16s}
+  background:var(--surface);color:var(--ink);font-size:16px;transition:border-color .24s var(--ease)}
 .form input::placeholder{color:var(--faint)}
 .form input:hover{border-color:var(--dim)}
 .form input:focus-visible{outline:3px solid var(--focus);outline-offset:1px;border-color:var(--brand)}
@@ -416,6 +416,33 @@ main section:first-child{padding-top:clamp(40px,5vw,64px)}
   .night{background:none;color:#000}.menu-btn,.tg,.toast,.skip{display:none!important}
   [style*="opacity"]{opacity:1!important;transform:none!important}
 }
+
+/* ---------------- тактильный слой (soft-skill, gpt-taste) ---------------- */
+/* Двойная рамка: поверхность лежит в тонком «лотке» — внешнее кольцо
+   с собственным просветом, радиусы концентричны. Без лишних обёрток. */
+.searchbar{box-shadow:0 0 0 6px rgba(255,255,255,.06),0 0 0 7px rgba(255,255,255,.12),0 18px 44px rgba(4,10,30,.35)}
+.cal,.form,.cmp{box-shadow:0 0 0 6px var(--surface-2),0 0 0 7px var(--line)}
+/* Кнопка в кнопке: стрелка в своём круге, при наведении сдвигается вперёд. */
+.go{display:inline-flex;align-items:center;justify-content:center;gap:12px;padding:0 10px 0 26px}
+.go .gi{width:34px;height:34px;border-radius:50%;background:rgba(58,38,0,.12);display:grid;place-items:center;
+  font-size:16px;transition:transform .35s var(--ease)}
+.go:hover .gi{transform:translateX(3px) scale(1.05)}
+/* Меню: две линии складываются в крестик, а не подменяются значком. */
+.menu-btn i{position:relative;width:18px;height:12px;font-size:0}
+.menu-btn i::before,.menu-btn i::after{content:"";position:absolute;left:0;right:0;height:1.5px;border-radius:1px;
+  background:currentColor;transition:transform .35s var(--ease),top .35s var(--ease)}
+.menu-btn i::before{top:2px}.menu-btn i::after{top:9px}
+.menu-btn[aria-expanded="true"] i::before{top:5.5px;transform:rotate(45deg)}
+.menu-btn[aria-expanded="true"] i::after{top:5.5px;transform:rotate(-45deg)}
+/* Слова абзаца проявляются по мере прокрутки (CSS scroll-driven, без слушателя
+   прокрутки). Где браузер не умеет — текст просто виден. */
+@supports (animation-timeline:view()){
+  @media (prefers-reduced-motion:no-preference){
+    .scrub .w{opacity:.14;animation:wordIn linear both;animation-timeline:view();
+      animation-range:entry calc(var(--i) * 2% + 10%) cover calc(var(--i) * 2% + 30%)}
+  }
+}
+@keyframes wordIn{to{opacity:1}}
 </style>
 </head>
 <body>
@@ -479,7 +506,7 @@ main section:first-child{padding-top:clamp(40px,5vw,64px)}
               <option value="5">5 пассажиров</option><option value="6">6 пассажиров</option>
             </select>
           </div>
-          <button class="go" type="submit">Смотреть места</button>
+          <button class="go" type="submit">Смотреть места<span class="gi" aria-hidden="true"><i class="ph ph-caret-right"></i></span></button>
         </form>
         <p class="search-err" id="search-err" role="alert" hidden></p>
         <div class="cats" role="group" aria-label="Льготы, можно выбрать несколько">
@@ -689,7 +716,7 @@ main section:first-child{padding-top:clamp(40px,5vw,64px)}
       <div class="sec-h">
         <div>
           <h2 id="cmp-title">Зачем это, если есть агрегаторы</h2>
-          <p>Места по субсидии выбирают не по цене, а по наличию. Обычные сервисы отвечают на вопрос «сколько стоит», а здесь важно «есть ли вообще».</p>
+          <p class="scrub">Места по субсидии выбирают не по цене, а по наличию. Обычные сервисы отвечают на вопрос «сколько стоит», а здесь важно «есть ли вообще».</p>
         </div>
       </div>
       <div class="cmp">
@@ -1217,9 +1244,22 @@ document.addEventListener('DOMContentLoaded', function () {
   renderAll(false);
   showFields();
 
+  /* Абзац с проявлением по словам: делим на <span>, номер слова задаёт
+     момент проявления в CSS (.scrub .w). Экранный диктор читает исходный текст. */
+  $$('.scrub').forEach(function (el) {
+    var text = el.textContent.trim();
+    el.setAttribute('aria-label', text);
+    el.textContent = '';
+    text.split(/\s+/).forEach(function (w, i) {
+      var sp = document.createElement('span');
+      sp.className = 'w'; sp.setAttribute('aria-hidden', 'true'); sp.style.setProperty('--i', i);
+      sp.textContent = w; el.appendChild(sp); el.appendChild(document.createTextNode(' '));
+    });
+  });
+
   /* ---------- появление при прокрутке ----------
-     Только три места, где порядок что-то значит: рейсы по времени вылета,
-     дни месяца, шаги маршрута. Всё, что уже на экране при загрузке, не прячем. */
+     Заголовки разделов и три места, где порядок что-то значит: рейсы по времени
+     вылета, дни месяца, шаги маршрута. Всё, что уже на экране при загрузке, не прячем. */
   (function reveals() {
     var m = M(); if (!m) return;
     var vh = window.innerHeight;
@@ -1227,6 +1267,12 @@ document.addEventListener('DOMContentLoaded', function () {
     function once(root, fn) {
       var stop = m.inView(root, function () { fn(); if (stop) stop(); }, { amount: 0.2 });
     }
+    /* Заголовки разделов мягко поднимаются при появлении. */
+    $$('main section .sec-h').forEach(function (h) {
+      if (!below(h)) return;
+      m.animate(h, { opacity: 0, y: 24 }, { duration: 0 });
+      once(h, function () { m.animate(h, { opacity: 1, y: 0 }, { duration: 0.8, ease: EASE }); });
+    });
     // Табло: цифры мест «перещёлкиваются», как на табло в аэропорту.
     m.animate('.brow .seats', { opacity: [0, 1], y: [-8, 0] }, { duration: 0.45, ease: EASE, delay: m.stagger(0.07, { startDelay: 0.15 }) });
 

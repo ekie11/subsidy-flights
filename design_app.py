@@ -603,6 +603,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
   init();
 
+  /* Абзац с проявлением по словам: делим на <span>, номер слова задаёт
+     момент проявления в CSS (.scrub .w). Экранный диктор читает исходный текст. */
+  $$('.scrub').forEach(function (el) {
+    var text = el.textContent.trim();
+    el.setAttribute('aria-label', text);
+    el.innerHTML = text.split(/\s+/).map(function (w, i) {
+      return '<span class="w" aria-hidden="true" style="--i:' + i + '">' + esc(w) + '</span>';
+    }).join(' ');
+  });
+
   /* ---------- появление при прокрутке ---------- */
   (function reveals() {
     var m = M(); if (!m) return;
@@ -611,6 +621,12 @@ document.addEventListener('DOMContentLoaded', function () {
     function once(root, fn) {
       var stop = m.inView(root, function () { fn(); if (stop) stop(); }, { amount: 0.2 });
     }
+    /* Заголовки разделов мягко поднимаются при появлении. */
+    $$('main section .sec-h').forEach(function (h) {
+      if (!below(h)) return;
+      m.animate(h, { opacity: 0, y: 24 }, { duration: 0 });
+      once(h, function () { m.animate(h, { opacity: 1, y: 0 }, { duration: 0.8, ease: EASE }); });
+    });
     m.animate('.brow .seats', { opacity: [0, 1], y: [-8, 0] }, { duration: 0.45, ease: EASE, delay: m.stagger(0.07, { startDelay: 0.15 }) });
 
     var list = $('#flights');
