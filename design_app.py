@@ -107,7 +107,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  var state = { from: '', to: '', date: '', pax: 1, cats: ['dfo'], filters: { avail: false, evening: false } };
+  var state = { trip: 'one', back: '', from: '', to: '', date: '', pax: 1, cats: ['dfo'], filters: { avail: false, evening: false } };
   function routeText() { return cityName(state.from) + ' →\u00a0' + cityName(state.to); }
   function dateText(iso) { return fmtDate(iso); }
   function seatsNeeded() { return state.pax; }
@@ -126,7 +126,7 @@ document.addEventListener('DOMContentLoaded', function () {
   function matches(f) { return matchesRoute(f) && matchCategory(f); }
 
   /* ---------- поля поиска ---------- */
-  var fFrom = $('#from'), fTo = $('#to'), fDate = $('#date'), fPax = $('#pax');
+  var fFrom = $('#from'), fTo = $('#to'), fDate = $('#date'), fPax = $('#pax'), fBack = $('#back');
 
   function originsList() {
     var seen = {}, out = [];
@@ -148,6 +148,8 @@ document.addEventListener('DOMContentLoaded', function () {
     $('[data-show="to"]').textContent = cityName(fTo.value);
     $('[data-show="to-code"]').textContent = fTo.value;
     $('[data-show="date"]').textContent = fDate.value ? dateText(fDate.value) : 'Выберите дату';
+    $('[data-show="back"]').textContent = fBack.value ? dateText(fBack.value) : 'Выберите дату';
+    if (fDate.value) fBack.min = fDate.value;
     var p = parseInt(fPax.value, 10);
     $('[data-show="pax"]').textContent = p + ' ' + plural(p, ['пассажир', 'пассажира', 'пассажиров']);
   }
@@ -161,6 +163,26 @@ document.addEventListener('DOMContentLoaded', function () {
   fDate.addEventListener('input', showFields);
   fDate.addEventListener('change', showFields);
   fDate.addEventListener('click', function () { try { fDate.showPicker(); } catch (e) {} });
+  fBack.addEventListener('input', showFields);
+  fBack.addEventListener('change', showFields);
+  fBack.addEventListener('click', function () { try { fBack.showPicker(); } catch (e) {} });
+
+  /* ---------- туда / обратно ---------- */
+  function addDays(iso, n) {
+    var d = new Date(iso + 'T00:00:00'); d.setDate(d.getDate() + n);
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  }
+  function setTrip(trip) {
+    state.trip = trip;
+    var round = trip === 'round';
+    $('.f-back').hidden = !round;
+    $('#search').classList.toggle('round', round);
+    if (round && !fBack.value && fDate.value) fBack.value = addDays(fDate.value, 7);
+    showFields();
+  }
+  $$('input[name="trip"]').forEach(function (r) {
+    r.addEventListener('change', function () { if (r.checked) setTrip(r.value); });
+  });
 
   var toast = $('#toast'), toastTimer = null;
   function showToast(msg) {
@@ -197,8 +219,13 @@ document.addEventListener('DOMContentLoaded', function () {
     if (fDate.value < META.date_from || fDate.value > META.date_to) {
       return setSearchError('Мониторим даты с ' + dateText(META.date_from) + ' по ' + dateText(META.date_to) + '.');
     }
+    if (state.trip === 'round') {
+      if (!fBack.value) return setSearchError('Выберите дату обратного рейса.');
+      if (fBack.value < fDate.value) return setSearchError('Обратный рейс не может быть раньше вылета.');
+    }
     setSearchError('');
     state.from = fFrom.value; state.to = fTo.value; state.date = fDate.value; state.pax = parseInt(fPax.value, 10);
+    state.back = state.trip === 'round' ? fBack.value : '';
     renderAll(true);
     goTo($('#rejsy'), $('#res-title'));
   });
@@ -265,9 +292,9 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!f || !f.url) return;
     var next = (f.ar && f.tm && f.ar < f.tm) ? '1' : '0';
     var q = new URLSearchParams({
-      from: cityName(state.from), to: cityName(state.to),
-      fromAp: state.from, toAp: state.to,
-      date: state.date, dep: f.tm || '', arr: f.ar || '', next: next,
+      from: cityName(f.o), to: cityName(f.d),
+      fromAp: f.o, toAp: f.d,
+      date: f.dt, dep: f.tm || '', arr: f.ar || '', next: next,
       carrier: airlineName(f.al), num: f.fn || '',
       seats: f.q, pax: state.pax, cat: catsFor(f)[0].id,
       cats: catsFor(f).map(function (c) { return c.id; }).join(','), price: Math.round(f.p || 0)
@@ -293,6 +320,62 @@ document.addEventListener('DOMContentLoaded', function () {
     $$('[data-buy]', flightsBox).forEach(function (b, i) { b.addEventListener('click', function () { onBuy(currentFlights[i]); }); });
     $$('[data-notify]', flightsBox).forEach(function (b, i) { b.addEventListener('click', function () { onNotify(currentFlights[i]); }); });
     updateResultsIntro();
+  }
+
+  /* ---------- обратный рейс ----------
+     Обратные направления сборщик не опрашивает (config.ROUTES — только с
+     Дальнего Востока). Если их нет в DATA, спрашиваем воркер поиска по
+     запросу; без воркера или в демо честно говорим, что не отслеживаем. */
+  var backBox = $('#flights-back'), emptyBack = $('#empty-back'), backFlights = [];
+  var live = {};
+  function backRoute() { return { o: state.to, d: state.from }; }
+  function backTracked() { var b = backRoute(); return ROUTES.some(function (r) { return r.origin === b.o && r.destination === b.d; }); }
+  function backForDate() {
+    var b = backRoute();
+    return DATA.filter(function (f) { return f.o === b.o && f.d === b.d && f.dt === state.back && matchCategory(f); })
+      .sort(function (a, c) { return (a.tm || '').localeCompare(c.tm || ''); });
+  }
+  function liveBack() {
+    var b = backRoute(), key = b.o + '-' + b.d + '-' + state.back;
+    if (live[key]) return live[key];
+    live[key] = 'loading';
+    var u = new URL(META.searchApi);
+    u.search = new URLSearchParams({ from: b.o, to: b.d, date: state.back }).toString();
+    fetch(u).then(function (r) { return r.json().then(function (body) { return { ok: r.ok, body: body }; }); })
+      .then(function (res) {
+        if (!res.ok || !res.body.ok) throw new Error('search');
+        (res.body.flights || []).forEach(function (f) { if (f.o === b.o && f.d === b.d) { f.lv = 1; DATA.push(f); } });
+        live[key] = 'done';
+      })
+      .catch(function () { live[key] = 'error'; })
+      .then(function () { if (state.back) renderBack(); });
+    return 'loading';
+  }
+  function setEmptyBack(title, text) {
+    $('h3', emptyBack).textContent = title; $('p', emptyBack).textContent = text; emptyBack.hidden = false;
+  }
+  function renderBack() {
+    var block = $('#back-block');
+    block.hidden = !state.back;
+    if (!state.back) return;
+    var b = backRoute();
+    $('#back-title').textContent = 'Обратно: ' + cityName(b.o) + ' →\u00a0' + cityName(b.d) + ', ' + dateText(state.back);
+    backFlights = backForDate();
+    emptyBack.hidden = true;
+    var sub = $('#back-sub');
+    if (!backFlights.length && !backTracked() && META.searchApi && !META.demo && liveBack() === 'loading') {
+      backBox.innerHTML = ''; sub.textContent = 'Проверяем места у партнёра…'; return;
+    }
+    sub.textContent = backFlights.length
+      ? backFlights.length + ' ' + plural(backFlights.length, ['рейс', 'рейса', 'рейсов']) + '. Билет обратно покупается отдельно.'
+      : '';
+    backBox.innerHTML = backFlights.map(cardHtml).join('');
+    $$('[data-buy]', backBox).forEach(function (btn, i) { btn.addEventListener('click', function () { onBuy(backFlights[i]); }); });
+    $$('[data-notify]', backBox).forEach(function (btn, i) { btn.addEventListener('click', function () { onNotify(backFlights[i]); }); });
+    if (backFlights.length) return;
+    if (backTracked()) setEmptyBack('Мест на эту дату нет', 'Посмотрите соседние даты или подпишитесь на уведомление.');
+    else setEmptyBack('Обратное направление пока не отслеживаем',
+      'Мы следим за рейсами с Дальнего Востока. Места на ' + cityName(b.o) + ' → ' + cityName(b.d) + ' можно проверить у партнёра при покупке.');
   }
 
   /* ---------- фильтры (FLIP) ---------- */
@@ -523,12 +606,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
   /* ---------- общие ---------- */
   function renderAll(animate) {
-    $('#res-title').textContent = routeText() + ', ' + dateText(state.date);
+    $('#res-title').textContent = (state.back ? 'Туда: ' : '') + routeText() + ', ' + dateText(state.date);
     ctxFlight = '';
     syncContext();
     renderFlights();
     applyFilters(animate);
     renderCalendar();
+    renderBack();
     if (animate) {
       var m = M();
       var counts = $$('.flight:not([hidden]) .count', flightsBox);
@@ -603,16 +687,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
   init();
 
-  /* Абзац с проявлением по словам: делим на <span>, номер слова задаёт
-     момент проявления в CSS (.scrub .w). Экранный диктор читает исходный текст. */
-  $$('.scrub').forEach(function (el) {
-    var text = el.textContent.trim();
-    el.setAttribute('aria-label', text);
-    el.innerHTML = text.split(/\s+/).map(function (w, i) {
-      return '<span class="w" aria-hidden="true" style="--i:' + i + '">' + esc(w) + '</span>';
-    }).join(' ');
-  });
-
   /* ---------- появление при прокрутке ---------- */
   (function reveals() {
     var m = M(); if (!m) return;
@@ -621,12 +695,6 @@ document.addEventListener('DOMContentLoaded', function () {
     function once(root, fn) {
       var stop = m.inView(root, function () { fn(); if (stop) stop(); }, { amount: 0.2 });
     }
-    /* Заголовки разделов мягко поднимаются при появлении. */
-    $$('main section .sec-h').forEach(function (h) {
-      if (!below(h)) return;
-      m.animate(h, { opacity: 0, y: 24 }, { duration: 0 });
-      once(h, function () { m.animate(h, { opacity: 1, y: 0 }, { duration: 0.8, ease: EASE }); });
-    });
     m.animate('.brow .seats', { opacity: [0, 1], y: [-8, 0] }, { duration: 0.45, ease: EASE, delay: m.stagger(0.07, { startDelay: 0.15 }) });
 
     var list = $('#flights');
@@ -678,6 +746,7 @@ def build(out_path: Path | str | None = None, db: Database | None = None) -> Pat
         "date_to": config.DATE_TO.isoformat(),
         "demo": is_demo,
         "partner": config.PARTNER_ID,
+        "searchApi": config.SEARCH_API_URL,
     }
     if last_run and last_run["finished_at"]:
         meta["generated"] = last_run["finished_at"]

@@ -417,32 +417,64 @@ main section:first-child{padding-top:clamp(40px,5vw,64px)}
   [style*="opacity"]{opacity:1!important;transform:none!important}
 }
 
-/* ---------------- тактильный слой (soft-skill, gpt-taste) ---------------- */
-/* Двойная рамка: поверхность лежит в тонком «лотке» — внешнее кольцо
-   с собственным просветом, радиусы концентричны. Без лишних обёрток. */
-.searchbar{box-shadow:0 0 0 6px rgba(255,255,255,.06),0 0 0 7px rgba(255,255,255,.12),0 18px 44px rgba(4,10,30,.35)}
-.cal,.form,.cmp{box-shadow:0 0 0 6px var(--surface-2),0 0 0 7px var(--line)}
-/* Кнопка в кнопке: стрелка в своём круге, при наведении сдвигается вперёд. */
-.go{display:inline-flex;align-items:center;justify-content:center;gap:12px;padding:0 10px 0 26px}
-.go .gi{width:34px;height:34px;border-radius:50%;background:rgba(58,38,0,.12);display:grid;place-items:center;
-  font-size:16px;transition:transform .35s var(--ease)}
-.go:hover .gi{transform:translateX(3px) scale(1.05)}
-/* Меню: две линии складываются в крестик, а не подменяются значком. */
-.menu-btn i{position:relative;width:18px;height:12px;font-size:0}
-.menu-btn i::before,.menu-btn i::after{content:"";position:absolute;left:0;right:0;height:1.5px;border-radius:1px;
-  background:currentColor;transition:transform .35s var(--ease),top .35s var(--ease)}
-.menu-btn i::before{top:2px}.menu-btn i::after{top:9px}
-.menu-btn[aria-expanded="true"] i::before{top:5.5px;transform:rotate(45deg)}
-.menu-btn[aria-expanded="true"] i::after{top:5.5px;transform:rotate(-45deg)}
-/* Слова абзаца проявляются по мере прокрутки (CSS scroll-driven, без слушателя
-   прокрутки). Где браузер не умеет — текст просто виден. */
-@supports (animation-timeline:view()){
-  @media (prefers-reduced-motion:no-preference){
-    .scrub .w{opacity:.14;animation:wordIn linear both;animation-timeline:view();
-      animation-range:entry calc(var(--i) * 2% + 10%) cover calc(var(--i) * 2% + 30%)}
-  }
+/* ---------------- спокойная редакция ----------------
+   Меньше «рекламного» оформления: светлая шапка без свечения, плоские
+   поверхности с тонкой рамкой, небольшие скругления, заголовки без
+   крика. Ночь осталась только в табло — это настоящий предмет
+   аэропорта, а не декорация. Правила ниже перекрывают исходные. */
+.night{background:var(--surface);color:var(--ink);border-bottom:1px solid var(--line);
+  padding-bottom:clamp(24px,3vw,36px);--focus:var(--focus-surface)}
+.night::after{display:none}
+.night .logo{color:var(--ink)}
+.topnav a,.menu a{color:var(--ink-2)}
+.topnav a:hover,.menu a:hover,.topnav a[aria-current="true"],.menu a[aria-current="true"]{color:var(--ink);background:var(--surface-2)}
+.topnav a,.menu a,.tg,.menu-btn{border-radius:var(--r-sm)}
+.tg,.menu-btn{background:transparent;border:1px solid var(--line-2);color:var(--ink)}
+.tg:hover,.menu-btn:hover{background:var(--surface-2)}
+.menu{background:var(--surface);border-color:var(--line);box-shadow:0 12px 32px rgba(20,32,70,.12)}
+.menu .tg-link{color:var(--ink)}
+.hero{align-items:start;padding-top:clamp(12px,2vw,24px)}
+h1{font-size:clamp(28px,3.2vw,42px);font-weight:700;letter-spacing:-.022em;line-height:1.12}
+h2{font-size:clamp(22px,2.3vw,30px);font-weight:700;letter-spacing:-.018em}
+.stamp{background:none;border:0;padding:0;margin-bottom:12px;color:var(--dim);font-size:14px}
+.lead{color:var(--ink-2);font-size:17px}
+.searchbar{border:1px solid var(--line-2);box-shadow:none;padding:6px;--focus:var(--focus-surface)}
+.searchbar.round{grid-template-columns:minmax(0,1.1fr) minmax(0,1.1fr) minmax(0,.8fr) minmax(0,.8fr) minmax(0,.8fr) auto}
+.f{border-radius:var(--r-sm)}
+.go{border-radius:var(--r-sm);font-size:16px;padding:0 24px}
+.search-err{color:var(--red)}
+.cat{background:var(--surface);border:1px solid var(--line-2);color:var(--ink-2);border-radius:var(--r-sm)}
+.cat:hover{background:var(--surface-2)}
+.cat[aria-pressed="true"]{background:var(--brand);border-color:var(--brand);color:var(--brand-ink);font-weight:500}
+/* Туда / обратно: обычный переключатель из двух вариантов. */
+.trip{display:inline-flex;gap:4px;margin-bottom:12px;padding:3px;border-radius:var(--r-sm);background:var(--surface-2)}
+.trip label{position:relative;cursor:pointer}
+.trip input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+.trip span{display:block;padding:7px 14px;border-radius:calc(var(--r-sm) - 2px);font-size:15px;color:var(--ink-2);
+  transition:background-color .2s var(--ease),color .2s var(--ease)}
+.trip input:checked + span{background:var(--surface);color:var(--ink);font-weight:600;box-shadow:0 1px 2px rgba(20,32,70,.12)}
+.trip input:focus-visible + span{outline:3px solid var(--focus);outline-offset:1px}
+.board{border-radius:var(--r-lg);background:#0d1733;border-color:#0d1733}
+main section{padding-block:clamp(40px,5vw,64px)}
+main section:first-child{padding-top:clamp(28px,4vw,44px)}
+.flight:hover{box-shadow:none}
+.chip{border-radius:var(--r-sm)}
+.sub{background:var(--surface);border-color:var(--line)}
+.cmp .us,.cmp thead .us{background:transparent}
+.cmp thead th{background:var(--surface)}
+.route .mk{border-width:1.5px}
+/* Обратный рейс */
+.back{margin-top:36px;padding-top:28px;border-top:1px solid var(--line)}
+.back-h{font-size:22px;font-weight:700;letter-spacing:-.015em}
+.back-sub{margin:6px 0 16px;color:var(--dim)}
+@media (max-width:1100px){
+  .searchbar.round{grid-template-columns:repeat(3,minmax(0,1fr))}
 }
-@keyframes wordIn{to{opacity:1}}
+@media (max-width:640px){
+  .searchbar.round{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .searchbar.round .f-pax{grid-column:1/-1;border-radius:0}
+  .trip{display:flex}.trip label{flex:1}.trip span{text-align:center}
+}
 </style>
 </head>
 <body>
@@ -480,6 +512,10 @@ main section:first-child{padding-top:clamp(40px,5vw,64px)}
       </div>
 
       <div class="finder">
+        <div class="trip" role="radiogroup" aria-label="Тип поездки">
+          <label><input type="radio" name="trip" value="one" checked><span>В одну сторону</span></label>
+          <label><input type="radio" name="trip" value="round"><span>Туда и обратно</span></label>
+        </div>
         <form class="searchbar" id="search" role="search" aria-label="Поиск мест по субсидии" novalidate>
           <div class="f f-from">
             <label class="lbl" for="from">Откуда</label>
@@ -497,6 +533,11 @@ main section:first-child{padding-top:clamp(40px,5vw,64px)}
             <div class="v" aria-hidden="true"><span class="t" data-show="date">12 сентября</span></div>
             <input class="ctl" type="date" id="date" name="date" value="2026-09-12" min="2026-09-06" max="2026-09-30">
           </div>
+          <div class="f f-back" hidden>
+            <label class="lbl" for="back">Обратно</label>
+            <div class="v" aria-hidden="true"><span class="t" data-show="back">Выберите дату</span></div>
+            <input class="ctl" type="date" id="back" name="back">
+          </div>
           <div class="f f-pax">
             <label class="lbl" for="pax">Пассажиры</label>
             <div class="v" aria-hidden="true"><span class="t" data-show="pax">1 пассажир</span></div>
@@ -506,7 +547,7 @@ main section:first-child{padding-top:clamp(40px,5vw,64px)}
               <option value="5">5 пассажиров</option><option value="6">6 пассажиров</option>
             </select>
           </div>
-          <button class="go" type="submit">Смотреть места<span class="gi" aria-hidden="true"><i class="ph ph-caret-right"></i></span></button>
+          <button class="go" type="submit">Найти места</button>
         </form>
         <p class="search-err" id="search-err" role="alert" hidden></p>
         <div class="cats" role="group" aria-label="Льготы, можно выбрать несколько">
@@ -616,6 +657,16 @@ main section:first-child{padding-top:clamp(40px,5vw,64px)}
         <p>Мониторинг идёт с 6 по 30 сентября. Выберите другую дату в календаре.</p>
         <div class="acts"><a class="btn s" href="#calendar">Открыть календарь</a></div>
       </div>
+
+      <div class="back" id="back-block" hidden>
+        <h3 class="back-h" id="back-title">Обратно</h3>
+        <p class="back-sub" id="back-sub"></p>
+        <ul class="flights" id="flights-back"></ul>
+        <div class="empty" id="empty-back" hidden>
+          <h3></h3>
+          <p></p>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -716,7 +767,7 @@ main section:first-child{padding-top:clamp(40px,5vw,64px)}
       <div class="sec-h">
         <div>
           <h2 id="cmp-title">Зачем это, если есть агрегаторы</h2>
-          <p class="scrub">Места по субсидии выбирают не по цене, а по наличию. Обычные сервисы отвечают на вопрос «сколько стоит», а здесь важно «есть ли вообще».</p>
+          <p>Места по субсидии выбирают не по цене, а по наличию. Обычные сервисы отвечают на вопрос «сколько стоит», а здесь важно «есть ли вообще».</p>
         </div>
       </div>
       <div class="cmp">
@@ -1244,22 +1295,19 @@ document.addEventListener('DOMContentLoaded', function () {
   renderAll(false);
   showFields();
 
-  /* Абзац с проявлением по словам: делим на <span>, номер слова задаёт
-     момент проявления в CSS (.scrub .w). Экранный диктор читает исходный текст. */
-  $$('.scrub').forEach(function (el) {
-    var text = el.textContent.trim();
-    el.setAttribute('aria-label', text);
-    el.textContent = '';
-    text.split(/\s+/).forEach(function (w, i) {
-      var sp = document.createElement('span');
-      sp.className = 'w'; sp.setAttribute('aria-hidden', 'true'); sp.style.setProperty('--i', i);
-      sp.textContent = w; el.appendChild(sp); el.appendChild(document.createTextNode(' '));
+  /* Туда / обратно: в макете только показ поля; рейсы обратно строит design_app.py. */
+  $$('input[name="trip"]').forEach(function (r) {
+    r.addEventListener('change', function () {
+      var round = r.checked && r.value === 'round';
+      if (!r.checked) return;
+      $('.f-back').hidden = !round;
+      $('#search').classList.toggle('round', round);
     });
   });
 
   /* ---------- появление при прокрутке ----------
-     Заголовки разделов и три места, где порядок что-то значит: рейсы по времени
-     вылета, дни месяца, шаги маршрута. Всё, что уже на экране при загрузке, не прячем. */
+     Только три места, где порядок что-то значит: рейсы по времени вылета,
+     дни месяца, шаги маршрута. Всё, что уже на экране при загрузке, не прячем. */
   (function reveals() {
     var m = M(); if (!m) return;
     var vh = window.innerHeight;
@@ -1267,12 +1315,6 @@ document.addEventListener('DOMContentLoaded', function () {
     function once(root, fn) {
       var stop = m.inView(root, function () { fn(); if (stop) stop(); }, { amount: 0.2 });
     }
-    /* Заголовки разделов мягко поднимаются при появлении. */
-    $$('main section .sec-h').forEach(function (h) {
-      if (!below(h)) return;
-      m.animate(h, { opacity: 0, y: 24 }, { duration: 0 });
-      once(h, function () { m.animate(h, { opacity: 1, y: 0 }, { duration: 0.8, ease: EASE }); });
-    });
     // Табло: цифры мест «перещёлкиваются», как на табло в аэропорту.
     m.animate('.brow .seats', { opacity: [0, 1], y: [-8, 0] }, { duration: 0.45, ease: EASE, delay: m.stagger(0.07, { startDelay: 0.15 }) });
 
