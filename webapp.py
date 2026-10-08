@@ -79,6 +79,19 @@ def _font_face() -> str:
 
 FONT_CSS = _font_face()
 
+# Альтернативные редакции оформления: та же разметка и тот же скрипт,
+# другой слой стилей. «hallmark» — редакция «Ведомость» (assets/hallmark.css),
+# шрифты PT Serif / IBM Plex берёт с Google Fonts.
+STYLES = {
+    "default": lambda: (FONT_CSS + CSS, ""),
+    "hallmark": lambda: (_read_asset("hallmark.css"),
+        '<link rel="preconnect" href="https://fonts.googleapis.com">'
+        '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
+        '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?'
+        'family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&'
+        'family=PT+Serif:wght@400;700&display=swap&subset=cyrillic">\n'),
+}
+
 # Иконки — инлайновые SVG с одной толщиной штриха (класс .ico в webapp.css),
 # а не символы шрифта: ✈ и ⇄ в разных системах рисуются по-разному.
 def _icon(paths: str, cls: str = "ico") -> str:
@@ -99,7 +112,8 @@ ICON_NEXT = _icon('<path d="m9 18 6-6-6-6"/>')
 # Сборка страницы
 # ==========================================================================
 
-def build(out_path: Path | str | None = None, db: Database | None = None) -> Path:
+def build(out_path: Path | str | None = None, db: Database | None = None,
+          style: str = "default") -> Path:
     db = db or Database()
     rows = db.current_state()
     runs = db.last_runs(limit=1)
@@ -124,13 +138,14 @@ def build(out_path: Path | str | None = None, db: Database | None = None) -> Pat
     robots = ('<meta name="robots" content="noindex,nofollow">\n'
               if is_demo else "")
 
+    style_css, style_link = STYLES[style]()
     head = f"""<!DOCTYPE html><html lang="ru"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Субсидированные авиабилеты с Дальнего Востока: есть ли места</title>
 <meta name="description" content="Показываем, есть ли свободные места по субсидированным
 тарифам на рейсах с Дальнего Востока. Обновляется автоматически каждый час.">
 {robots}<meta name="color-scheme" content="light dark">
-<style>{FONT_CSS}{CSS}</style></head><body>"""
+{style_link}<style>{style_css}</style></head><body>"""
 
     demo_bar = ("<div class='demo-bar'><div class='wrap'><b>Демо-режим.</b> "
                 "Данные из тестовой фикстуры, а не от партнёрского API: рейсы, места "
@@ -318,8 +333,10 @@ const LOW={config.ALERTS.low_seats_threshold};
 def main() -> int:
     ap = argparse.ArgumentParser(description="Сборка витрины поиска")
     ap.add_argument("--out", default=None)
+    ap.add_argument("--style", choices=sorted(STYLES), default="default",
+                    help="редакция оформления (hallmark — «Ведомость»)")
     args = ap.parse_args()
-    path = build(args.out)
+    path = build(args.out, style=args.style)
     print(f"витрина готова: {path}")
     return 0
 
