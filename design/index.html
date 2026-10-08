@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <!-- impeccable-disable cramped-padding: у ячеек таблицы сравнения и дней календаря собственные отступы; детектор видит только обёртку -->
-<html lang="ru">
+<html lang="ru" data-theme="light">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Есть места: субсидированные авиабилеты с Дальнего Востока</title>
 <meta name="description" content="Показываем, сколько мест по субсидированному тарифу осталось на рейсах с Дальнего Востока, и пишем, когда места возвращаются в продажу.">
-<meta name="theme-color" content="#0d1733">
+<meta name="theme-color" content="#F7F6F3">
 <meta name="color-scheme" content="light dark">
 <meta name="robots" content="noindex,nofollow">
 <meta property="og:title" content="Есть места: субсидированные авиабилеты">
@@ -475,6 +475,70 @@ main section:first-child{padding-top:clamp(28px,4vw,44px)}
   .searchbar.round .f-pax{grid-column:1/-1;border-radius:0}
   .trip{display:flex}.trip label{flex:1}.trip span{text-align:center}
 }
+
+/* ---------------- минималистичная редакция (minimalist-skill) ----------------
+   Тёплый монохром: костяной фон, графитовый текст, рамки 1px #EAEAEA,
+   серифные заголовки PT Serif, чёрные кнопки действия, статусы мест —
+   приглушённые пастельные плашки. Без градиентов и теней; скругления 6–12px. */
+:root[data-theme="light"]{
+  --bg:#F7F6F3; --surface:#FFFFFF; --surface-2:#F1F0EC;
+  --ink:#111111; --ink-2:#2F3437; --dim:#6b6a66; --faint:#6b6a66;
+  --line:#EAEAEA; --line-2:#DDDCD8;
+  --brand:#111111; --brand-ink:#FFFFFF; --brand-soft:#F1F0EC; --brand-line:#E3E2DE;
+  --green:#346538; --green-bg:#EDF3EC;
+  --amber:#956400; --amber-bg:#FBF3DB;
+  --red:#9F2F2D; --red-bg:#FDEBEC;
+  --cta:#111111; --cta-hover:#333333; --cta-ink:#FFFFFF;
+  --focus-surface:#111111;
+  --r-sm:6px; --r:8px; --r-lg:12px;
+}
+body{line-height:1.6}
+.night{background:var(--bg);border-bottom:1px solid var(--line)}
+h1,h2,.back-h,#kak .route h3,.cal h3{font-family:"PT Serif",Georgia,serif;font-weight:400;letter-spacing:-.02em;line-height:1.1}
+h1{font-size:clamp(34px,4.4vw,60px)}
+h1 em{font-style:italic}
+h2{font-size:clamp(26px,2.8vw,38px)}
+.logo{font-weight:700;letter-spacing:-.02em}
+.lead,.sec-h p{color:var(--dim)}
+.stamp,.board-h,.board-f,.brow .d,.brow .r span,.f .lbl,.dow,.legend,.cmp thead th{
+  font-family:"JetBrains Mono",ui-monospace,monospace;font-size:12px;letter-spacing:.04em;text-transform:uppercase}
+.stamp .live{background:var(--green)}
+/* Кнопки: чёрные прямоугольники, без теней, лёгкое нажатие. */
+.go,.btn.p{background:#111;color:#fff;border-radius:6px}
+.go:hover,.btn.p:hover{background:#333}
+.go:active,.btn:active{transform:scale(.98)}
+.btn.s{background:var(--surface);border:1px solid var(--line-2);color:var(--ink);border-radius:6px}
+.btn.s:hover{background:var(--surface-2)}
+.tg,.menu-btn{border:1px solid var(--line-2);border-radius:6px;background:var(--surface)}
+/* Льготы и фильтры — маленькие пилюли-теги. */
+.cat,.chip{border-radius:999px;font-size:14px;border-color:var(--line)}
+.cat[aria-pressed="true"],.chip[aria-pressed="true"]{background:#111;border-color:#111;color:#fff}
+.trip{background:var(--surface-2)}
+.trip input:checked + span{background:var(--surface);box-shadow:0 0 0 1px var(--line)}
+/* Поверхности */
+.searchbar,.flight,.cal,.cmp,.form,.empty,.docnote{border:1px solid var(--line);box-shadow:none}
+.searchbar{border-radius:12px}
+.flight{border-radius:10px;transition:box-shadow .2s cubic-bezier(.16,1,.3,1)}
+.flight:hover{box-shadow:0 2px 8px rgba(0,0,0,.04);border-color:var(--line)}
+.count b{font-family:"PT Serif",Georgia,serif;font-weight:700}
+.docnote{background:var(--surface)}
+.docnote i{color:var(--ink)}
+.sub{background:var(--surface);border:1px solid var(--line)}
+/* Табло становится светлой карточкой с моноширинными строками. */
+.board{background:var(--surface);border:1px solid var(--line);color:var(--ink)}
+.board-h{color:var(--dim);border-bottom-color:var(--line)}
+.brow{border-bottom-color:var(--line)}
+.brow .r{color:var(--ink)}
+.brow .d,.brow .r span,.seats span,.board-f{color:var(--dim)}
+.board-f{border-top-color:var(--line)}
+.brow.ok b{color:var(--green)}.brow.low b{color:var(--amber)}.brow.no b{color:var(--red)}
+/* Календарь: пастельные клетки, выбранный день — чёрная рамка. */
+.day{border-radius:6px}
+.day[aria-pressed="true"]{border-color:#111;box-shadow:inset 0 0 0 1px #111}
+/* Мягкий тёплый свет за первым экраном. */
+.night::before{content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(60% 80% at 85% 0%,rgba(205,170,120,.10),transparent 70%)}
+#kak .route .mk{border-color:var(--line-2);color:var(--ink);font-family:"JetBrains Mono",monospace;font-size:13px}
 </style>
 </head>
 <body>
