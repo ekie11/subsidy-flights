@@ -503,7 +503,8 @@ main section:first-child{padding-top:clamp(28px,4vw,44px)}
 .tg,.menu-btn{background:#FFC72C;color:#111;border:0;border-radius:6px;font-weight:700}
 .night :focus-visible{outline-color:#FFC72C}
 /* Щит: жёлтая плашка, чёрная стрелка, заголовок в две строки. */
-.hero{padding-top:clamp(28px,4vw,56px);align-items:start;grid-template-columns:minmax(0,1.45fr) minmax(0,.85fr)}
+.hero{padding-top:clamp(28px,4vw,56px);align-items:start}
+@media (min-width:901px){.hero{grid-template-columns:minmax(0,1.45fr) minmax(0,.85fr)}}
 .hero-text h1{position:relative;background:#FFC72C;color:#111;border-radius:14px;
   padding:clamp(20px,2.4vw,28px) clamp(20px,2.6vw,32px) clamp(20px,2.4vw,28px) calc(clamp(20px,2.6vw,32px) + clamp(56px,6vw,84px) + 22px);
   font-size:clamp(28px,3.2vw,46px);font-weight:800;letter-spacing:-.04em;line-height:1.02}
@@ -511,6 +512,11 @@ main section:first-child{padding-top:clamp(28px,4vw,44px)}
   width:clamp(56px,6vw,84px);aspect-ratio:1;border-radius:10px;background:#111;color:#FFC72C;
   display:grid;place-items:center;font-size:clamp(34px,4vw,58px);font-weight:800}
 .lead{color:var(--ink-2);margin-top:16px}
+/* Телефон: щит компактнее — меньше стрелка и отступы, заголовок в 2–3 строки. */
+@media (max-width:640px){
+  .hero-text h1{font-size:clamp(24px,7vw,30px);padding:16px 16px 16px 76px}
+  .hero-text h1::before{left:14px;width:48px;font-size:30px;border-radius:8px}
+}
 .stamp{color:var(--ink-2)}
 /* Строка поиска: чёрная рамка-лоток, белые поля, жёлтая кнопка. */
 .searchbar{background:#111;border:0;border-radius:14px;padding:10px;gap:8px;box-shadow:none}
