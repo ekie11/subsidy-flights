@@ -533,6 +533,31 @@ h2{font-size:clamp(26px,3vw,40px);font-weight:800;letter-spacing:-.03em}
   .hero-art{width:100%;opacity:.55}
   #kak .wrap{grid-template-columns:minmax(0,1fr)}
   #kak .route li:nth-child(2){margin-left:0}
+
+/* ---------------- телефон: вкладки ---------------- */
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:25;display:grid;grid-template-columns:repeat(4,1fr);
+  background:var(--surface);border-top:1px solid var(--line);padding:4px 4px calc(4px + env(safe-area-inset-bottom))}
+.tabbar[hidden]{display:none}
+.tabbar button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:52px;
+  border:0;background:none;color:var(--dim);font-size:12px;cursor:pointer;border-radius:var(--r-sm)}
+.tabbar button i{font-size:20px}
+.tabbar button[aria-current="page"]{color:var(--ink);font-weight:600;background:var(--surface-2)}
+body.tabs{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
+body.tabs .menu-btn,body.tabs .topnav,body.tabs .top > .tg{display:none!important}
+body.tabs:not([data-tab="rejsy"]) .hero,
+body.tabs:not([data-tab="rejsy"]) #rejsy,
+body.tabs:not([data-tab="calendar"]) #calendar,
+body.tabs:not([data-tab="podpiska"]) #podpiska,
+body.tabs:not([data-tab="kak"]) #kak,
+body.tabs:not([data-tab="kak"]) .foot{display:none}
+body.tabs:not([data-tab="rejsy"]) .night{padding-bottom:0}
+body.tabs .toast{bottom:calc(76px + env(safe-area-inset-bottom))}
+/* «Инфо» — отдельный экран, места хватает: тексты шагов и сравнение возвращаются. */
+@media (max-width:640px){
+  body.tabs[data-tab="kak"] #kak .route p,body.tabs[data-tab="kak"] #kak .sec-h p{display:block!important}
+  body.tabs[data-tab="kak"] #zachem{display:block!important}
+  body.tabs:not([data-tab="kak"]) #zachem{display:none!important}
+}
 /* ---------------- телефон: только главное ----------------
    На узком экране остаются поиск, рейсы, календарь и подписка. Всё, что
    повторяет их или поясняет для любопытных, прячется: описание под
@@ -968,6 +993,12 @@ h2{font-size:clamp(26px,3vw,40px);font-weight:800;letter-spacing:-.03em}
   </div>
 </footer>
 
+<nav class="tabbar" id="tabbar" aria-label="Разделы" hidden>
+  <button type="button" data-tab="rejsy" aria-current="page"><i class="ph ph-list" aria-hidden="true"></i><span>Рейсы</span></button>
+  <button type="button" data-tab="calendar"><i class="ph ph-calendar-x" aria-hidden="true"></i><span>Календарь</span></button>
+  <button type="button" data-tab="podpiska"><i class="ph ph-user-plus" aria-hidden="true"></i><span>Подписка</span></button>
+  <button type="button" data-tab="kak"><i class="ph ph-identification-card" aria-hidden="true"></i><span>Инфо</span></button>
+</nav>
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
 <script>
@@ -1435,6 +1466,57 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   })();
 });
+</script>
+<script>
+/* Вкладки на телефоне: вместо одной длинной ленты — четыре экрана
+   (рейсы с поиском, календарь, подписка, инфо) и панель внизу. Работает
+   только до 640px; шире страница прежняя. Переходы основного скрипта
+   (клик по дню календаря, «Сообщить о местах», ссылки меню) переключают
+   вкладку сами: scrollIntoView раздела и ссылки #раздел перехвачены. */
+(function () {
+  var mq = window.matchMedia('(max-width: 640px)');
+  var bar = document.getElementById('tabbar');
+  var TABS = { rejsy: ['rejsy'], calendar: ['calendar'], podpiska: ['podpiska'], kak: ['kak', 'zachem'] };
+  var OWNER = {}; Object.keys(TABS).forEach(function (t) { TABS[t].forEach(function (id) { OWNER[id] = t; }); });
+  var current = 'rejsy';
+  function show(tab, scroll) {
+    if (!TABS[tab]) return;
+    current = tab;
+    document.body.setAttribute('data-tab', tab);
+    [].forEach.call(bar.querySelectorAll('button'), function (b) {
+      if (b.dataset.tab === tab) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
+    });
+    if (scroll !== false) window.scrollTo(0, 0);
+  }
+  function apply() {
+    var on = mq.matches;
+    bar.hidden = !on;
+    document.body.classList.toggle('tabs', on);
+    if (on) show(current, false); else document.body.removeAttribute('data-tab');
+  }
+  bar.addEventListener('click', function (e) {
+    var b = e.target.closest('button[data-tab]'); if (b) show(b.dataset.tab);
+  });
+  // Ссылки вида #calendar ведут во вкладку раздела.
+  document.addEventListener('click', function (e) {
+    if (!mq.matches) return;
+    var a = e.target.closest('a[href^="#"]'); if (!a) return;
+    var id = a.getAttribute('href').slice(1), tab = OWNER[id] || (id === 'main' ? 'rejsy' : null);
+    if (!tab) return;
+    e.preventDefault(); show(tab);
+  });
+  // Программные переходы основного скрипта: section.scrollIntoView().
+  Object.keys(OWNER).forEach(function (id) {
+    var el = document.getElementById(id); if (!el) return;
+    var native = el.scrollIntoView;
+    el.scrollIntoView = function () {
+      if (mq.matches) { show(OWNER[id]); return; }
+      return native.apply(this, arguments);
+    };
+  });
+  mq.addEventListener('change', apply);
+  apply();
+})();
 </script>
 </body>
 </html>
