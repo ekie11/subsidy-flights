@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <!-- impeccable-disable cramped-padding: у ячеек таблицы сравнения и дней календаря собственные отступы; детектор видит только обёртку -->
-<html lang="ru">
+<html lang="ru" data-theme="dark">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Есть места: субсидированные авиабилеты с Дальнего Востока</title>
 <meta name="description" content="Показываем, сколько мест по субсидированному тарифу осталось на рейсах с Дальнего Востока, и пишем, когда места возвращаются в продажу.">
-<meta name="theme-color" content="#0d1733">
+<meta name="theme-color" content="#0A100E">
 <meta name="color-scheme" content="light dark">
 <meta name="robots" content="noindex,nofollow">
 <meta property="og:title" content="Есть места: субсидированные авиабилеты">
@@ -477,6 +477,67 @@ main section:first-child{padding-top:clamp(28px,4vw,44px)}
 }
 
 
+/* ---------------- кинематографичная редакция (gpt-tasteskill) ----------------
+   Внимание → интерес → желание → действие. Первый экран по центру и во всю
+   ширину: заголовок в две строки (контейнер шире, шрифт меньше, а не узкая
+   колонка в шесть строк), посреди фразы — «таблетка» с огнями полосы.
+   Глубокий зелёно-чёрный фон с тёплым радиальным светом и зерном, огромные
+   паузы между разделами, плитки без пустых клеток (grid-auto-flow: dense). */
+:root[data-theme="dark"]{
+  --bg:#0A100E; --surface:#111916; --surface-2:#18221E;
+  --ink:#F1F0EA; --ink-2:#CFCFC6; --dim:#9EA39B; --faint:#8D938B;
+  --line:#1E2925; --line-2:#2C3A34;
+  --brand:#F1F0EA; --brand-ink:#0A100E; --brand-soft:#141D1A; --brand-line:#25322D;
+  --green:#7BE0A6; --green-bg:#11291F; --amber:#F2B453; --amber-bg:#2B2413; --red:#FF8A80; --red-bg:#2C1717;
+  --focus-surface:#f5a524;
+  --r-sm:999px; --r:22px; --r-lg:26px;
+}
+body{background:
+  radial-gradient(900px 520px at 50% -8%,rgba(245,165,36,.16),transparent 65%),
+  radial-gradient(700px 500px at 100% 40%,rgba(123,224,166,.05),transparent 70%),var(--bg)}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;opacity:.05;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E")}
+.night{background:transparent;border-bottom:0}
+.night .logo,.topnav a{color:var(--ink)}
+.tg,.menu-btn{background:#F1F0EA;color:#0A100E;border:0;border-radius:999px;font-weight:600}
+/* Первый экран — по центру, табло уходит под поиск. */
+.hero{grid-template-columns:minmax(0,1fr);grid-template-areas:"text" "finder" "board";justify-items:center;text-align:center;
+  padding-top:clamp(40px,7vw,96px);row-gap:32px}
+.hero-text{max-width:72rem}
+h1{font-size:clamp(40px,5.6vw,92px);font-weight:800;letter-spacing:-.05em;line-height:1.02;max-width:none}
+h1 .pill{display:inline-block;width:1.9em;height:.82em;vertical-align:.02em;margin:0 .14em;border-radius:999px;
+  background:radial-gradient(circle at 18% 70%,#f5a524 0 3px,transparent 4px),radial-gradient(circle at 38% 60%,#f5a524 0 3px,transparent 4px),
+    radial-gradient(circle at 58% 50%,#f5a524 0 2.5px,transparent 3.5px),radial-gradient(circle at 78% 42%,#f5a524 0 2px,transparent 3px),
+    linear-gradient(180deg,#0d1733,#1b1a24 70%,#3a2e2a);box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
+.lead{margin-inline:auto;color:var(--dim);font-size:clamp(16px,1.3vw,19px)}
+.stamp{margin-inline:auto}
+.finder{width:100%;max-width:1040px}
+.cats,.trip{justify-content:center}
+.trip{display:flex;width:max-content;margin-inline:auto;background:var(--surface);border-radius:999px}
+.trip span{border-radius:999px}
+.trip input:checked + span{background:#F1F0EA;color:#0A100E}
+.board{width:100%;max-width:1040px;text-align:left;background:var(--surface);border-color:var(--line)}
+.searchbar{border-radius:28px;border:1px solid var(--line-2);background:var(--surface)}
+.f{border-radius:20px}
+.go,.btn,.cat,.chip{border-radius:999px}
+.cat[aria-pressed="true"],.chip[aria-pressed="true"]{background:#F1F0EA;color:#0A100E;border-color:#F1F0EA}
+/* Главы с огромными паузами. */
+main section{padding-block:clamp(80px,12vw,180px)}
+.sec-h{flex-direction:column;align-items:center;text-align:center}
+.sec-h p{margin-inline:auto}
+h2{font-size:clamp(32px,4.4vw,68px);font-weight:800;letter-spacing:-.045em}
+/* Рейсы — плитки без пустых клеток: первая на всю ширину, остальные парами. */
+.flights{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-flow:dense;gap:16px}
+.flights .flight{grid-template-columns:minmax(0,1fr) auto;border-radius:22px;background:var(--surface);border-color:var(--line)}
+.flights .flight:first-child,.flights .flight:nth-child(3n+1):last-child{grid-column:1/-1}
+.flight .act{grid-column:1/-1}
+.flight .act .btn{width:100%}
+.flight{transition:transform .6s cubic-bezier(.16,1,.3,1),border-color .4s}
+.flight:hover{transform:translateY(-4px);border-color:var(--line-2)}
+.cal,.cmp,.form,.docnote{background:var(--surface);border-color:var(--line);border-radius:26px}
+.sub{background:var(--surface);border:1px solid var(--line);border-radius:32px;text-align:left}
+@media (max-width:900px){.flights{grid-template-columns:minmax(0,1fr)}.flights .flight{grid-column:auto!important}}
+
 /* ---------------- телефон: вкладки ---------------- */
 .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:25;display:grid;grid-template-columns:repeat(4,1fr);
   background:var(--surface);border-top:1px solid var(--line);padding:4px 4px calc(4px + env(safe-area-inset-bottom))}
@@ -560,7 +621,7 @@ body.tabs .toast{bottom:calc(76px + env(safe-area-inset-bottom))}
     <div class="hero">
       <div class="hero-text">
         <p class="stamp"><span class="live" aria-hidden="true"></span>Проверено 4 минуты назад</p>
-        <h1>Места по субсидии кончаются за часы</h1>
+        <h1>Места по субсидии<span class="pill" aria-hidden="true"></span>кончаются за часы</h1>
         <p class="lead">Следим за квотой круглосуточно и пишем, как только места возвращаются в продажу. Цена та же, что в кассе.</p>
       </div>
 
