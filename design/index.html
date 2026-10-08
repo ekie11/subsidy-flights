@@ -554,6 +554,33 @@ h2{font-size:clamp(30px,4.2vw,64px)}
 .cmp .us{background:#111!important;color:#F4F4F0!important}
 .docnote i{color:#C41212}
 .foot{background:var(--bg);border-top:6px solid #111}
+/* ---------------- телефон: только главное ----------------
+   На узком экране остаются поиск, рейсы, календарь и подписка. Всё, что
+   повторяет их или поясняет для любопытных, прячется: описание под
+   заголовком, табло популярных направлений (дублирует рейсы), пояснения
+   под заголовками разделов, таблица сравнения, тексты шагов, списки
+   в подвале. Льготы и фильтры — одной строкой с прокруткой пальцем. */
+@media (max-width:640px){
+  .lead,.board,#zachem,.sec-h p,#rejsy .sec-h > .btn,#kak .route p,.foot-grid > div:not(.foot-brand),.legend{display:none!important}
+  h1{font-size:clamp(28px,8.4vw,36px)}
+  h2{font-size:clamp(22px,6.4vw,28px)}
+  main section{padding-block:28px}
+  main section:first-child{padding-top:20px}
+  .hero{row-gap:14px}
+  .stamp{margin-bottom:8px}
+  .cats,.filters{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;
+    margin-inline:calc(-1 * var(--gutter));padding-inline:var(--gutter);scroll-padding-inline:var(--gutter)}
+  .cats::-webkit-scrollbar,.filters::-webkit-scrollbar{display:none}
+  .cat,.chip{flex:0 0 auto;white-space:nowrap}
+  .docnote{font-size:14.5px;padding:12px 14px}
+  .docnote [data-doc]{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+  .sec-h{margin-bottom:14px}
+  #kak .route{gap:16px}
+  #kak .route h3{margin:4px 0 0;font-size:17px}
+  .foot{padding-top:28px}
+  .foot-note{margin-top:16px}
+  .logo{min-height:44px}
+}
 </style>
 </head>
 <body>

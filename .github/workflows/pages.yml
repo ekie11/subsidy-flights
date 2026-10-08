@@ -32,15 +32,30 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Тёмная редакция /design/ (по образцу заказчика) живёт в отдельной
-      # ветке и публикуется по адресу /dark/. Если ветки нет — основной
-      # сайт всё равно собирается, /dark/ просто не появится.
+      # Альтернативные редакции /design/ живут в отдельных ветках и
+      # публикуются рядом с основной: /dark/, /minimal/, /brutal/. Если
+      # какой-то ветки нет, основной сайт всё равно собирается, просто без
+      # этого адреса.
       - name: Взять тёмную редакцию
         uses: actions/checkout@v4
         continue-on-error: true
         with:
           ref: claude/design-night-reference
-          path: night
+          path: variants/dark
+
+      - name: Взять минималистичную редакцию
+        uses: actions/checkout@v4
+        continue-on-error: true
+        with:
+          ref: claude/design-minimal
+          path: variants/minimal
+
+      - name: Взять бруталистскую редакцию
+        uses: actions/checkout@v4
+        continue-on-error: true
+        with:
+          ref: claude/design-brutalist
+          path: variants/brutal
 
       - uses: actions/setup-python@v5
         with:
@@ -109,16 +124,19 @@ jobs:
             cp design/brandkit.html _site/design/brandkit.html
             if [ -d design/assets ]; then cp -r design/assets _site/design/assets; fi
           fi
-          # Тёмная редакция по адресу /dark/: та же база наблюдений, что у
-          # основной витрины (SUBSIDY_DB_PATH), сборка — design_app.py из ветки.
-          if [ -f night/design_app.py ]; then
-            mkdir -p _site/dark
-            SUBSIDY_DB_PATH="$PWD/data/subsidy.sqlite3" SUBSIDY_DATA_DIR="$PWD/night-data" \
-              python night/design_app.py --out _site/dark/index.html
-            test -s _site/dark/index.html || { echo "тёмная витрина пустая"; exit 1; }
-            cp night/design/checkout.html _site/dark/checkout.html
-            cp -r night/design/assets _site/dark/assets
-          fi
+          # Альтернативные редакции: каждая собирается своим design_app.py из
+          # ветки, но из той же базы наблюдений, что и основная витрина
+          # (SUBSIDY_DB_PATH), и кладётся в /<имя>/.
+          for v in variants/*/; do
+            name=$(basename "$v")
+            [ -f "$v/design_app.py" ] || continue
+            mkdir -p "_site/$name"
+            SUBSIDY_DB_PATH="$PWD/data/subsidy.sqlite3" SUBSIDY_DATA_DIR="$PWD/variants-data/$name" \
+              python "$v/design_app.py" --out "_site/$name/index.html"
+            test -s "_site/$name/index.html" || { echo "витрина $name пустая"; exit 1; }
+            cp "$v/design/checkout.html" "_site/$name/checkout.html"
+            cp -r "$v/design/assets" "_site/$name/assets"
+          done
           # .nojekyll: без него Pages прогоняет содержимое через Jekyll
           # и молча выбрасывает файлы, начинающиеся с подчёркивания.
           touch _site/.nojekyll
