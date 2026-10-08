@@ -363,3 +363,18 @@ footer{border-top:1px solid var(--line);margin-top:8px;padding:36px 0 44px;
   .btn-find:active,.buy:active,.watch:active,.cat:active,.pop:active,
   .jump button:active,.modal-actions button:active{transform:none}
 }
+
+/* Телефон: календарь из 7 колонок не должен распирать страницу на 320–360px,
+   поля поиска — цель нажатия не меньше 40px, подвал — без длинных списков. */
+@media (max-width:640px){
+  .cal{padding:14px 10px}
+  .cal-grid{grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+  .day{min-width:0;padding:6px 1px;min-height:52px}
+  .day .p,.how,.sec-h .sub{display:none}
+  .cat-hint a{display:inline-block;padding:10px 0}
+  #date{font-size:15px;letter-spacing:-.02em}
+  .control{height:40px}
+  .fcols{display:none}
+  .sec{margin-bottom:32px}
+  .sec-h .sub{font-size:14px}
+}
