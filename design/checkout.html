@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" data-theme="light">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -220,6 +220,10 @@ details.more .grid{margin-top:10px}
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}
 }
+
+:root[data-theme="light"]{--bg:#F2F3F5;--surface:#fff;--r-sm:999px;--r:28px;--r-lg:32px}
+.card,.msum{border:0;box-shadow:0 0 0 6px rgba(255,255,255,.6),0 0 0 7px rgba(15,17,21,.07),0 12px 40px -12px rgba(15,17,21,.10)}
+.btn{border-radius:999px}
 </style>
 </head>
 <body>
