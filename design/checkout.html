@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" data-theme="light">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Данные пассажиров: Есть места</title>
 <meta name="description" content="Оформление билета по субсидированному тарифу: данные пассажиров и контакты.">
-<meta name="theme-color" content="#0d1733">
+<meta name="theme-color" content="#F4F4F0">
 <meta name="color-scheme" content="light dark">
 <meta name="robots" content="noindex,nofollow">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230d1733'/%3E%3Crect x='7' y='19.5' width='18' height='1.5' rx='.75' fill='%23ffffff' fill-opacity='.6'/%3E%3Ccircle cx='16' cy='15' r='4.5' fill='%23f5a524'/%3E%3C/svg%3E">
@@ -220,6 +220,47 @@ details.more .grid{margin-top:10px}
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}
 }
+
+/* ---------------- бруталистская редакция (brutalist-skill) ----------------
+   Швейцарская промышленная печать: небелёная бумага, угольные чернила,
+   один акцент — авиационный красный. Прямые углы везде, видимая сетка
+   из рамок 2px, огромные заголовки заглавными, служебные подписи —
+   моноширинные заглавные с разрядкой. Без градиентов и теней. */
+:root[data-theme="light"]{
+  --bg:#F4F4F0; --surface:#F4F4F0; --surface-2:#EAE8E3;
+  --ink:#111111; --ink-2:#111111; --dim:#4a4a46; --faint:#4a4a46;
+  --line:#111111; --line-2:#111111;
+  --brand:#111111; --brand-ink:#F4F4F0; --brand-soft:#EAE8E3; --brand-line:#111111;
+  --green:#111111; --green-bg:#F4F4F0;
+  --amber:#C41212; --amber-bg:#F4F4F0;
+  --red:#C41212; --red-bg:#F4F4F0;
+  --cta:#111111; --cta-hover:#C41212; --cta-ink:#F4F4F0;
+  --focus-surface:#C41212;
+  --r-sm:0; --r:0; --r-lg:0;
+}
+*,*::before,*::after{border-radius:0!important}
+/* Механический шум бумаги поверх всего, без влияния на клики. */
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:50;opacity:.06;mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E")}
+.night{background:var(--bg);border-bottom:6px solid #C41212}
+.logo,.topnav a,.tg,.menu-btn,.stamp,.lead + *,.f .lbl,.trip span,.cat,.chip,.btn,.go,
+.board-h,.board-f,.brow .d,.brow .r span,.dow,.legend,.cmp thead th,.carrier,.pt span,.count .u,.count .trend,
+.foot .fh,.foot-note{font-family:"JetBrains Mono",ui-monospace,monospace;text-transform:uppercase;letter-spacing:.06em}
+.topnav a,.tg,.menu-btn,.cat,.chip,.trip span,.btn,.go{font-size:13px}
+.logo{font-family:Onest,sans-serif;font-weight:800;letter-spacing:-.03em}
+h1,h2{font-weight:800;text-transform:uppercase;letter-spacing:-.045em;line-height:.9}
+h1{font-size:clamp(44px,6.6vw,104px)}
+h1 em{font-style:normal;color:#C41212}
+h2{font-size:clamp(30px,4.2vw,64px)}
+.back-h,#kak .route h3,.cal h3{text-transform:uppercase;letter-spacing:-.02em;font-weight:800}
+.lead{color:var(--ink);font-size:17px}
+.stamp{color:var(--ink);font-size:12px}
+.stamp::before{content:"[ ";}.stamp::after{content:" ]"}
+.stamp .live{background:#C41212}
+
+.card,.msum{border:2px solid #111;box-shadow:none;background:var(--bg)}
+.btn.p{background:#111;color:#F4F4F0}
+.steps .done .n,.steps [aria-current="step"] .n{background:#111;border-color:#111;color:#F4F4F0}
 </style>
 </head>
 <body>
