@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" data-theme="light">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -220,6 +220,13 @@ details.more .grid{margin-top:10px}
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}
 }
+
+:root[data-theme="light"]{--bg:#E9E7E1;--surface:#fff;--ink:#111;--cta:#FFC72C;--cta-hover:#F2B705;--cta-ink:#111;--brand:#111;--r-sm:6px;--r:10px;--r-lg:14px}
+.night{background:#111;color:#fff}
+.night .logo{color:#FFC72C}
+.steps,.steps [aria-current="step"]{color:#fff}
+.steps [aria-current="step"] .n{background:#FFC72C;border-color:#FFC72C;color:#111}
+.btn.p{background:#FFC72C;color:#111}
 </style>
 </head>
 <body>

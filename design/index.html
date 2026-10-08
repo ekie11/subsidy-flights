@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <!-- impeccable-disable cramped-padding: у ячеек таблицы сравнения и дней календаря собственные отступы; детектор видит только обёртку -->
-<html lang="ru">
+<html lang="ru" data-theme="light">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Есть места: субсидированные авиабилеты с Дальнего Востока</title>
 <meta name="description" content="Показываем, сколько мест по субсидированному тарифу осталось на рейсах с Дальнего Востока, и пишем, когда места возвращаются в продажу.">
-<meta name="theme-color" content="#0d1733">
+<meta name="theme-color" content="#111111">
 <meta name="color-scheme" content="light dark">
 <meta name="robots" content="noindex,nofollow">
 <meta property="og:title" content="Есть места: субсидированные авиабилеты">
@@ -476,6 +476,93 @@ main section:first-child{padding-top:clamp(28px,4vw,44px)}
   .trip{display:flex}.trip label{flex:1}.trip span{text-align:center}
 }
 
+
+/* ---------------- аэропортовая редакция (image-to-code-skill) ----------------
+   Свёрстано по макету design/comp-image.png: аэропортовая навигация —
+   чёрная полоса шапки, жёлтый щит #FFC72C с чёрной стрелкой вокруг
+   заголовка, чёрная строка поиска с белыми полями, рейсы — табло вылетов
+   (чёрные строки, время моноширинным жёлтым, места зелёным, жёлтая кнопка),
+   льготы — таблички с рамкой 2px. Скругления 6–14px, как у щитов. */
+:root[data-theme="light"]{
+  --bg:#E9E7E1; --surface:#FFFFFF; --surface-2:#F3F2EE;
+  --ink:#111111; --ink-2:#2B2B2B; --dim:#4F4F4C; --faint:#4F4F4C;
+  --line:#D6D3CB; --line-2:#111111;
+  --brand:#111111; --brand-ink:#FFC72C; --brand-soft:#F3F2EE; --brand-line:#D6D3CB;
+  --cta:#FFC72C; --cta-hover:#F2B705; --cta-ink:#111111;
+  --focus-surface:#111111;
+  --r-sm:6px; --r:10px; --r-lg:14px;
+}
+.night{background:var(--bg);border-bottom:0;padding-bottom:clamp(28px,4vw,48px)}
+.top{background:#111;margin-inline:calc(-1 * max(var(--gutter),env(safe-area-inset-left)));padding-inline:max(var(--gutter),env(safe-area-inset-left))}
+@media (min-width:1236px){.top{margin-inline:calc((1180px - 100vw) / 2);padding-inline:calc((100vw - 1180px) / 2 + var(--gutter))}}
+.night .logo{color:#FFC72C}
+.logo i{background:#FFC72C;box-shadow:none}.logo i::before{background:#111}.logo i::after{background:#111}
+.topnav a{color:#fff;border-radius:6px}
+.topnav a:hover{background:#2a2a2a;color:#fff}
+.topnav a[aria-current="true"]{background:#FFC72C;color:#111}
+.tg,.menu-btn{background:#FFC72C;color:#111;border:0;border-radius:6px;font-weight:700}
+.night :focus-visible{outline-color:#FFC72C}
+/* Щит: жёлтая плашка, чёрная стрелка, заголовок в две строки. */
+.hero{padding-top:clamp(28px,4vw,56px);align-items:start;grid-template-columns:minmax(0,1.45fr) minmax(0,.85fr)}
+.hero-text h1{position:relative;background:#FFC72C;color:#111;border-radius:14px;
+  padding:clamp(20px,2.4vw,28px) clamp(20px,2.6vw,32px) clamp(20px,2.4vw,28px) calc(clamp(20px,2.6vw,32px) + clamp(56px,6vw,84px) + 22px);
+  font-size:clamp(28px,3.2vw,46px);font-weight:800;letter-spacing:-.04em;line-height:1.02}
+.hero-text h1::before{content:"\2192";position:absolute;left:clamp(20px,2.6vw,32px);top:50%;translate:0 -50%;
+  width:clamp(56px,6vw,84px);aspect-ratio:1;border-radius:10px;background:#111;color:#FFC72C;
+  display:grid;place-items:center;font-size:clamp(34px,4vw,58px);font-weight:800}
+.lead{color:var(--ink-2);margin-top:16px}
+.stamp{color:var(--ink-2)}
+/* Строка поиска: чёрная рамка-лоток, белые поля, жёлтая кнопка. */
+.searchbar{background:#111;border:0;border-radius:14px;padding:10px;gap:8px;box-shadow:none}
+.searchbar .f{background:#fff;border-radius:8px}
+.searchbar .f + .f::before{display:none}
+.searchbar .f:hover,.searchbar .f:focus-within{background:#fff;outline:3px solid #FFC72C;outline-offset:-3px}
+.searchbar .f .lbl{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#555}
+.go{background:#FFC72C;color:#111;border-radius:8px;font-weight:800}
+.go:hover{background:#F2B705}
+.swap{background:#fff;border:2px solid #111;color:#111}
+.trip{background:transparent;border:2px solid #111;border-radius:8px;padding:2px}
+.trip span{border-radius:5px;color:#111;font-weight:600}
+.trip input:checked + span{background:#111;color:#FFC72C;box-shadow:none}
+.cat,.chip{border:2px solid #111;background:transparent;color:#111;border-radius:6px;font-weight:700}
+.cat:hover,.chip:hover{background:#fff}
+.cat[aria-pressed="true"],.chip[aria-pressed="true"]{background:#111;color:#FFC72C;border-color:#111}
+/* Табло вылетов. */
+.board{background:#111;border:0;border-radius:14px}
+.board-h{background:#FFC72C;color:#111;font-weight:800;margin:-16px -18px 0;padding:14px 18px;border-radius:14px 14px 0 0;border:0}
+.brow .d{color:#FFC72C}
+.flights{background:#111;border-radius:14px;overflow:hidden;gap:0}
+.flight{background:#111;color:#fff;border:0;border-top:1px solid #2a2a2a;border-radius:0;box-shadow:none!important}
+.flight:first-child{border-top:0}
+.flight:hover{background:#1a1a1a;transform:none}
+.flight .pt b{font-family:"JetBrains Mono",monospace;color:#FFC72C}
+.flight .pt span,.flight .carrier,.flight .path,.count .u,.count .trend{color:#aaa}
+.flight .carrier b{color:#fff}
+.path i{background:#444}.path i::after{background:#FFC72C}
+.flight[data-state="ok"] .count b{color:#7EE2A8}
+.flight[data-state="low"] .count b,.flight[data-state="short"] .count b{color:#FFC72C}
+.flight[data-state="none"] .count b{color:#FF8E85}
+.btn.p{background:#FFC72C;color:#111;border-radius:8px;font-weight:800}
+.btn.p:hover{background:#F2B705}
+.btn.s{background:transparent;border:2px solid currentColor;border-radius:8px}
+.flight .btn.s{color:#FFC72C}
+#rejsy h2{display:inline-block}
+.docnote{background:#fff;border:2px solid #111;border-radius:10px}
+.docnote i{color:#111}
+/* Календарь и остальное — белые щиты. */
+.cal,.cmp,.form{background:#fff;border:0;border-radius:14px}
+.day[aria-pressed="true"]{background:#111;border-color:#111;box-shadow:none}
+.day[aria-pressed="true"] .d,.day[aria-pressed="true"] .s,.day[aria-pressed="true"] .p{color:#FFC72C}
+#kak .route .mk{background:#FFC72C;border:0;color:#111;font-weight:800}
+.sub{background:#111;border:0;border-radius:14px;color:#fff}
+.sub h2{color:#FFC72C}.sub > div > p{color:#ddd}
+.foot{background:#111;color:#bbb;border-top:0}
+.foot .logo,.foot .fh,.foot-brand .motto{color:#FFC72C}
+.foot a{color:#ddd}
+.foot-note{border-color:#2a2a2a}
+.tabbar{background:#111;border-top:0}
+.tabbar button{color:#ccc}
+.tabbar button[aria-current="page"]{background:#FFC72C;color:#111}
 
 /* ---------------- телефон: вкладки ---------------- */
 .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:25;display:grid;grid-template-columns:repeat(4,1fr);
