@@ -47,7 +47,9 @@
     --shadow-card:0 1px 2px rgba(0,0,0,.2),0 10px 28px rgba(0,0,0,.25);
   }
 }
+:root[data-theme="light"]{color-scheme:light}
 :root[data-theme="dark"]{
+  color-scheme:dark;
   --bg:#0c1430; --surface:#131d3d; --surface-2:#1a2549;
   --ink:#eef1f8; --ink-2:#c9d0e3; --dim:#a8b1c9; --faint:#8f99b5;
   --line:#26325b; --line-2:#34416e;
